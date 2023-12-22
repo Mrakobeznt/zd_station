@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema"
+         xmlns:ext="com.anylogic"
+         version="1.4.0">
+   <asset>
+      <content>Traffic light type 2 green light.x3d Blender 2.78 (sub 0)</content>
+      <up_axis>Y_UP</up_axis>
+   </asset>
+   <library_geometries>
+      <geometry id="coords_ME_ID3_MA_material-geometry" name="coords_ME_ID3">
+         <mesh>
+            <source id="coords_ME_ID3-source-position" name="position">
+               <float_array id="coords_ME_ID3-position-array" count="162">0.000000 0.000000 16.643990 83.859230 0.000000 95.634689 29.031960 0.000000 0.000000 13.830080 0.000000 31.604620 0.000000 0.000000 31.604620 57.529469 0.000000 113.153694 117.928398 0.000000 7.218565 155.196793 0.000000 26.000399 129.417404 0.000000 0.000000 124.211899 0.000000 17.219429 107.731796 0.000000 115.803101 57.529469 0.000000 160.397797 107.731796 0.000000 159.503799 3.213691 0.000000 125.947296 19.671299 0.000000 121.979599 3.213691 0.000000 143.416199 68.224678 0.000000 210.347397 136.569397 0.000000 171.821701 91.132111 0.000000 210.347397 65.764397 0.000000 238.822800 93.029594 0.000000 240.407593 82.662926 0.000000 242.633301 127.962296 0.000000 115.905296 148.726303 0.000000 117.078194 137.806290 0.000000 108.043007 127.962296 0.000000 138.539398 148.726303 0.000000 138.539398 57.529469 0.000000 160.397797 107.731796 0.000000 159.503799 136.569397 0.000000 171.821701 148.726303 0.000000 138.539398 127.962296 0.000000 138.539398 148.726303 0.000000 117.078194 127.962296 0.000000 115.905296 137.806290 0.000000 108.043007 82.662926 0.000000 242.633301 65.764397 0.000000 238.822800 93.029594 0.000000 240.407593 91.132111 0.000000 210.347397 68.224678 0.000000 210.347397 3.213691 0.000000 143.416199 3.213691 0.000000 125.947296 19.671299 0.000000 121.979599 107.731796 0.000000 115.803101 57.529469 0.000000 113.153694 83.859230 0.000000 95.634689 155.196793 0.000000 26.000399 124.211899 0.000000 17.219429 117.928398 0.000000 7.218565 129.417404 0.000000 0.000000 13.830080 0.000000 31.604620 0.000000 0.000000 31.604620 0.000000 0.000000 16.643990 29.031960 0.000000 0.000000</float_array>
+               <technique_common>
+                  <accessor count="54" source="#coords_ME_ID3-position-array" stride="3">
+                     <param name="X" type="float"/>
+                     <param name="Y" type="float"/>
+                     <param name="Z" type="float"/>
+                  </accessor>
+               </technique_common>
+            </source>
+            <source id="coords_ME_ID3_normal-source-normal" name="normal">
+               <float_array id="coords_ME_ID3_normal-normal-array" count="12">0.00000 1.00000 0.00000  0.00000 1.00000 0.00000  0.00000 -1.00000 0.00000  0.00000 -1.00000 0.00000 </float_array>
+               <technique_common>
+                  <accessor count="4" source="#coords_ME_ID3_normal-normal-array" stride="3">
+                     <param name="X" type="float"/>
+                     <param name="Y" type="float"/>
+                     <param name="Z" type="float"/>
+                  </accessor>
+               </technique_common>
+            </source>
+            <vertices id="verts">
+               <input semantic="POSITION" source="#coords_ME_ID3-source-position"/>
+            </vertices>
+            <triangles count="50" material="MA_material">
+               <input offset="0" semantic="VERTEX" source="#verts"/>
+               <input offset="1"
+                      semantic="NORMAL"
+                      source="#coords_ME_ID3_normal-source-normal"/>
+               <p>0 0 1 0 2 0 1 0 0 0 3 0 3 0 0 0 4 0 1 0 3 0 5 0 6 0 7 0 8 0 7 0 6 0 9 0 7 0 9 0 1 0 7 0 1 0 10 0 10 1 1 1 5 1 10 0 5 0 11 0 10 0 11 0 12 0 13 0 11 0 14 0 11 0 13 0 15 0 11 0 15 0 16 0 11 0 16 0 17 0 17 1 16 1 18 1 18 0 16 0 19 0 18 1 19 1 20 1 20 0 19 0 21 0 22 0 23 0 24 0 23 1 22 1 25 1 23 0 25 0 26 0 26 0 25 0 12 0 26 0 12 0 17 0 17 0 12 0 11 0 27 2 28 2 29 2 29 2 28 2 30 2 28 2 31 2 30 2 30 2 31 2 32 2 31 3 33 3 32 3 34 2 32 2 33 2 35 2 36 2 37 2 37 3 36 3 38 3 36 2 39 2 38 2 38 3 39 3 29 3 29 2 39 2 27 2 39 2 40 2 27 2 40 2 41 2 27 2 42 2 27 2 41 2 28 2 27 2 43 2 27 2 44 2 43 2 44 3 45 3 43 3 43 2 45 2 46 2 45 2 47 2 46 2 47 2 48 2 46 2 49 2 46 2 48 2 44 2 50 2 45 2 51 2 52 2 50 2 50 2 52 2 45 2 53 2 45 2 52 2 </p>
+            </triangles>
+         </mesh>
+      </geometry>
+   </library_geometries>
+   <library_effects>
+      <effect id="MA_material-material">
+         <profile_COMMON>
+            <newparam sid="creaseAngle">
+               <float>0</float>
+            </newparam>
+            <technique sid="COMMON">
+               <phong>
+                  <emission>
+                     <color>0.000 0.000 0.000 1</color>
+                  </emission>
+                  <specular>
+                     <color>0.401 0.401 0.401 1</color>
+                  </specular>
+                  <shininess>
+                     <float>50</float>
+                  </shininess>
+                  <transparency>
+                     <float>1</float>
+                  </transparency>
+                  <diffuse>
+                     <color>0.000 0.961 0.005 1</color>
+                  </diffuse>
+               </phong>
+            </technique>
+         </profile_COMMON>
+      </effect>
+   </library_effects>
+   <library_images/>
+   <library_materials>
+      <material id="MA_material" name="MA_material">
+         <instance_effect url="#MA_material-material"/>
+      </material>
+   </library_materials>
+   <library_visual_scenes>
+      <visual_scene id="VisualSceneNode" name="VisualScene">
+         <node id="coords_ME_ID3_MA_material" name="coords_ME_ID3_MA_material">
+            <matrix> 0.00000 0.02540 0.00000 1.41500 -0.01511 0.00000 0.00000 1.18066 0.00000 0.00000 0.01511 30.80190 0.00000 0.00000 0.00000 1.00000 </matrix>
+            <instance_geometry url="#coords_ME_ID3_MA_material-geometry">
+               <bind_material>
+                  <technique_common>
+                     <instance_material symbol="MA_material" target="#MA_material"/>
+                  </technique_common>
+               </bind_material>
+            </instance_geometry>
+         </node>
+      </visual_scene>
+   </library_visual_scenes>
+   <scene>
+      <instance_visual_scene url="#VisualSceneNode"/>
+   </scene>
+</COLLADA>

@@ -180,6 +180,42 @@ enterTask.take(task);]]></StartupCode>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1703864725228</Id>
+					<Name><![CDATA[pops]]></Name>
+					<X>30</X><Y>1670</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ trackNp1, track4p2, track3p2, track2p3, track1p1 }]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1703864742208</Id>
+					<Name><![CDATA[fronts]]></Name>
+					<X>30</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ trackNp2, track9p3, track10p2, track8p2, track7 }]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -1209,6 +1245,10 @@ switch (typeTask){
 	case "Расцепка" :
 		logic1.enterDecouple.take(agent);
 		break;
+	case "Терминирование" :
+		traceln(red, "Было терминирования, отпустил");
+		logic1.enterSink.take(agent);
+		break;
 }]]></Code>
 							</Value>
 						</Parameter>
@@ -2029,8 +2069,8 @@ switch (typeTask){
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[Logic objLogic = logic.stream().filter(p-> p.hashCode() == agent.codeLogic).findFirst().orElse(null);
-remove_logic(objLogic);]]></Code>
+								<Code><![CDATA[/*Logic objLogic = logic.stream().filter(p-> p.hashCode() == agent.codeLogic).findFirst().orElse(null);
+remove_logic(objLogic);*/]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -2313,72 +2353,6 @@ enter.take(agent);]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtEnter]]></Name>
-						</Parameter>
-					</Parameters>
-					<ReplicationFlag>false</ReplicationFlag>
-					<Replication Class="CodeValue">
-						<Code><![CDATA[100]]></Code>
-					</Replication>
-					<CollectionType>ARRAY_LIST_BASED</CollectionType>
-					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
-					<XCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</XCode>
-					<YCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</YCode>
-					<ZCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</ZCode>
-					<ColumnCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</ColumnCode>
-					<RowCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</RowCode>
-					<LatitudeCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</LatitudeCode>
-					<LongitudeCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</LongitudeCode>
-					<LocationNameCode Class="CodeValue">
-						<Code><![CDATA[""]]></Code>
-					</LocationNameCode>
-					<InitializationType>SPECIFIED_NUMBER</InitializationType>
-					<InitializationDatabaseTableQuery>
-						<TableReference>
-						</TableReference>
-					</InitializationDatabaseTableQuery>
-					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
-					<QuantityColumn>
-					</QuantityColumn>
-				</EmbeddedObject>
-				<EmbeddedObject>
-					<Id>1703161963788</Id>
-					<Name><![CDATA[sink1]]></Name>
-					<X>860</X><Y>2000</Y>
-					<Label><X>-10</X><Y>-20</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<ActiveObjectClass>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Sink]]></ClassName>
-					</ActiveObjectClass>
-					<GenericParameterSubstitute>
-						<GenericParameterSubstituteReference>
-							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-							<ClassName><![CDATA[Sink]]></ClassName>
-							<ItemName><![CDATA[1412336242929]]></ItemName>
-						</GenericParameterSubstituteReference>
-					</GenericParameterSubstitute>
-					<Parameters>
-						<Parameter>
-							<Name><![CDATA[onEnter]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[destroyEntity]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -6340,8 +6314,23 @@ return list;]]></Body>
 					</Parameter>
 					<Body><![CDATA[double speed = 0;
 speed = speedsOnTracks(train.size()).get(track);
-//traceln( " на пути " + track.getName() + " скорость " + speed);
+traceln( " на пути " + track.getName() + " скорость " + speed);
 return speed;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1703754529382</Id>
+					<Name><![CDATA[brakingCondition]]></Name>
+					<X>650</X><Y>260</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[boolean moveCurr = route.getMoveDirection().get(route.getUsedTracks().get(cntRoute));
+boolean moveNext = ((cntRoute + 1) > route.getUsedTracks().size() - 1) ? moveCurr : route.getMoveDirection().get(route.getUsedTracks().get(cntRoute + 1));
+return ((route.getUsedTracks().size() - 1) == cntRoute || (moveCurr != moveNext)); 
+// если путь маршрута последний или на следующем пути движение в обратном направлении]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -6495,11 +6484,14 @@ return speed;]]></Body>
 						<Parameter>
 							<Name><![CDATA[finishOptions]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[self.ACCELERATE_YES]]></Code>
+								<Code><![CDATA[self.ACCELERATE_CONDITION]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[decelerateCondition]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[brakingCondition()]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
@@ -7704,7 +7696,7 @@ cnt++;]]></Code>
 					<Id>1701869470146</Id>
 					<Name><![CDATA[accelerationTrain]]></Name>
 					<Description><![CDATA[Ускорение составов/локомотива]]></Description>
-					<X>1010</X><Y>-430</Y>
+					<X>1520</X><Y>-440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7717,7 +7709,7 @@ cnt++;]]></Code>
 					<Id>1701869653350</Id>
 					<Name><![CDATA[delayShiftChange]]></Name>
 					<Description><![CDATA[Длительность пересменки]]></Description>
-					<X>1010</X><Y>-400</Y>
+					<X>1010</X><Y>-430</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7730,7 +7722,7 @@ cnt++;]]></Code>
 					<Id>1701869692379</Id>
 					<Name><![CDATA[delayEquipTEM9]]></Name>
 					<Description><![CDATA[Длительность экипировки локомотива ТЭМ-9]]></Description>
-					<X>1010</X><Y>-370</Y>
+					<X>1010</X><Y>-400</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7743,7 +7735,7 @@ cnt++;]]></Code>
 					<Id>1701869749255</Id>
 					<Name><![CDATA[delayEquipTEM2]]></Name>
 					<Description><![CDATA[Длительность экипировки локомотива ТЭМ-2]]></Description>
-					<X>1010</X><Y>-340</Y>
+					<X>1010</X><Y>-370</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7756,7 +7748,7 @@ cnt++;]]></Code>
 					<Id>1701869756317</Id>
 					<Name><![CDATA[delayEquipTEM18]]></Name>
 					<Description><![CDATA[Длительность экипировки локомотива ТЭМ-18]]></Description>
-					<X>1010</X><Y>-310</Y>
+					<X>1010</X><Y>-340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7769,7 +7761,7 @@ cnt++;]]></Code>
 					<Id>1701869763537</Id>
 					<Name><![CDATA[delayEquipTGM4B]]></Name>
 					<Description><![CDATA[Длительность экипировки локомотива ТГМ-4Б]]></Description>
-					<X>1010</X><Y>-280</Y>
+					<X>1010</X><Y>-310</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7782,7 +7774,7 @@ cnt++;]]></Code>
 					<Id>1701869806152</Id>
 					<Name><![CDATA[delayFillingLoco]]></Name>
 					<Description><![CDATA[Длительность заправки локомотива]]></Description>
-					<X>1010</X><Y>-250</Y>
+					<X>1010</X><Y>-280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7794,8 +7786,8 @@ cnt++;]]></Code>
 				<Variable Class="PlainVariable">
 					<Id>1701869923227</Id>
 					<Name><![CDATA[delayDinner]]></Name>
-					<Description><![CDATA[Длительность обеда, перерыва]]></Description>
-					<X>1010</X><Y>-220</Y>
+					<Description><![CDATA[Длительность обеда]]></Description>
+					<X>1010</X><Y>-250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -7845,8 +7837,337 @@ cnt++;]]></Code>
 				</Variable>
 				<Variable Class="PlainVariable">
 					<Id>1701870128291</Id>
-					<Name><![CDATA[delayTKO1]]></Name>
+					<Name><![CDATA[reportDelay]]></Name>
+					<Description><![CDATA[Длительность доклада о выполнении работы]]></Description>
 					<X>1210</X><Y>-430</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703855922391</Id>
+					<Name><![CDATA[delayRest]]></Name>
+					<Description><![CDATA[Длительность обеда]]></Description>
+					<X>1010</X><Y>-220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703856210428</Id>
+					<Name><![CDATA[delayPassOneVagon]]></Name>
+					<Description><![CDATA[Время на проход одного вагона]]></Description>
+					<X>1210</X><Y>-400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703856245356</Id>
+					<Name><![CDATA[delayReceivingOrder]]></Name>
+					<Description><![CDATA[Время на получение распоряжения от маневрового диспетчера]]></Description>
+					<X>1210</X><Y>-370</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703857350836</Id>
+					<Name><![CDATA[delayPlacingStops]]></Name>
+					<Description><![CDATA[Длительность на снятие/постановку одного башмака]]></Description>
+					<X>1210</X><Y>-340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703857384600</Id>
+					<Name><![CDATA[delayExtraCoupDecoup]]></Name>
+					<Description><![CDATA[Длительность дополнительного времени на сцепку/расцепку]]></Description>
+					<X>1210</X><Y>-310</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703857449120</Id>
+					<Name><![CDATA[delayCheckVagonBrakes]]></Name>
+					<Description><![CDATA[Длительность опробывания тормозов одного вагона]]></Description>
+					<X>1210</X><Y>-280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703857463549</Id>
+					<Name><![CDATA[delayCheckTrainBrakes]]></Name>
+					<Description><![CDATA[Длительность дополнительного времени на опробование тормозов состава]]></Description>
+					<X>1210</X><Y>-250</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858252416</Id>
+					<Name><![CDATA[speedInsideReserv]]></Name>
+					<Description><![CDATA[Скорость внутри станции резервом]]></Description>
+					<X>1520</X><Y>-410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858272028</Id>
+					<Name><![CDATA[speedSendArrive]]></Name>
+					<Description><![CDATA[Скорость движения на приемоотправочных путях  (отправка со станции и прибытие)]]></Description>
+					<X>1520</X><Y>-380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858351581</Id>
+					<Name><![CDATA[speedInside]]></Name>
+					<Description><![CDATA[Скорость внутри станции с вагонами]]></Description>
+					<X>1520</X><Y>-350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858373119</Id>
+					<Name><![CDATA[delayLoadingPipes910]]></Name>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с трубами]]></Description>
+					<X>1210</X><Y>-220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858457879</Id>
+					<Name><![CDATA[delayLoadingScrap10]]></Name>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с ломом негабаритным]]></Description>
+					<X>1210</X><Y>-190</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858557428</Id>
+					<Name><![CDATA[delayLoadingRolled7]]></Name>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона со сталью рулонной]]></Description>
+					<X>1210</X><Y>-160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858652058</Id>
+					<Name><![CDATA[delayLoadingPipes8]]></Name>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с трубами]]></Description>
+					<X>1210</X><Y>-130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858759740</Id>
+					<Name><![CDATA[weightPipe01]]></Name>
+					<X>1800</X><Y>-440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858827146</Id>
+					<Name><![CDATA[weightPipe03]]></Name>
+					<X>1800</X><Y>-410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858833261</Id>
+					<Name><![CDATA[weightPipe08]]></Name>
+					<X>1800</X><Y>-380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858834413</Id>
+					<Name><![CDATA[weightPipe63]]></Name>
+					<X>1800</X><Y>-350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858882018</Id>
+					<Name><![CDATA[weightGondola]]></Name>
+					<X>1800</X><Y>-320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858898254</Id>
+					<Name><![CDATA[weightPlatform]]></Name>
+					<X>1800</X><Y>-290</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858926410</Id>
+					<Name><![CDATA[weightPipePlatform]]></Name>
+					<X>1970</X><Y>-440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858949263</Id>
+					<Name><![CDATA[weightLocoTEM9]]></Name>
+					<X>1970</X><Y>-410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858968422</Id>
+					<Name><![CDATA[weightLocoTEM2]]></Name>
+					<X>1970</X><Y>-380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858975298</Id>
+					<Name><![CDATA[weightLocoTEM18]]></Name>
+					<X>1970</X><Y>-350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703858981830</Id>
+					<Name><![CDATA[weightLocoTGM4B]]></Name>
+					<X>1970</X><Y>-320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1703859191697</Id>
+					<Name><![CDATA[speedFront]]></Name>
+					<Description><![CDATA[Скороть передвижения на фронтовых (цеховых) путях
+]]></Description>
+					<X>1520</X><Y>-320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8117,6 +8438,19 @@ traceln(" есть для Прибытие состава на станцию " 
 					<LoadOnStartup>true</LoadOnStartup>
 					<SaveOnDispose>true</SaveOnDispose>
 				</ExcelFile>
+				<ExcelFile>
+					<Id>1703855639064</Id>
+					<Name><![CDATA[delays]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>70</X><Y>220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<SaveInSnapshot>false</SaveInSnapshot>
+					<LoadOnStartup>true</LoadOnStartup>
+					<SaveOnDispose>true</SaveOnDispose>
+				</ExcelFile>
 			</Connectivity>
 			<AgentLinks>
 				<AgentLink>
@@ -8173,7 +8507,7 @@ traceln(" есть для Прибытие состава на станцию " 
 				<Text>
 					<Id>1701952984437</Id>
 					<Name><![CDATA[text]]></Name>
-					<X>1050</X><Y>-500</Y>
+					<X>1140</X><Y>-500</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8183,7 +8517,49 @@ traceln(" есть для Прибытие состава на станцию " 
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Настраиваемые параметры]]></Text>
+					<Text><![CDATA[Задержки]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>20</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1703858232113</Id>
+					<Name><![CDATA[text1]]></Name>
+					<X>1590</X><Y>-500</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Скорости]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>20</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1703858756641</Id>
+					<Name><![CDATA[text2]]></Name>
+					<X>1920</X><Y>-500</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Веса]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>20</Size>
@@ -8478,11 +8854,14 @@ return gen.getCars();]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[TaskAction task = main.data.taskCollection.stream().filter(p->p.type.equals(this.type)).findFirst().orElse(null);// определяем задачу, список операций которой мы рассматриваем
 List<Task> newListTasks = new ArrayList();
-for (int i = 0; i < task.listTask.size() - 1; i++){// рассматриваем с помощью цикла все операции задачи
+for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с помощью цикла все операции задачи
 	Task simpleTask = task.listTask.get(i);
-	RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(task.listTask.get(i - 1), simpleTask, task.listTask.get(i+1), i);// конечный путь для задачи
-	RailwayTrack curStartTrack = newListTasks.isEmpty() ? null : getNextStartTrack(task.listTask.get(i - 1), simpleTask, task.listTask.get(i+1), i); // начальный путь для задачи
+	Task previousTask = i == 0 ? null : task.listTask.get(i - 1);
+	Task nextTask = i+1 >= task.listTask.size() ? null : task.listTask.get(i+1);
+	RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(simpleTask, nextTask, i);// конечный путь для задачи
+	RailwayTrack curStartTrack = newListTasks.isEmpty() ? null : getNextStartTrack(previousTask, nextTask, i); // начальный путь для задачи
 	Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
+	traceln("Для задачи " + simpleTask.getType() + " конечный путь " + (curEndTrack == null ? null : curEndTrack.getName()) + ", начальный путь " + (curStartTrack == null ? null : curStartTrack.getName()));
 	switch (simpleTask.getType()){
 		case "Создание" :
 		//public Task(String type, RailwayTrack startTrack, int cntVagons, boolean withLoco, List<RailCar> cars) {
@@ -8572,10 +8951,6 @@ return cnt;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[previousTask]]></Name>
-						<Type><![CDATA[Task]]></Type>
-					</Parameter>
-					<Parameter>
 						<Name><![CDATA[currTask]]></Name>
 						<Type><![CDATA[Task]]></Type>
 					</Parameter>
@@ -8588,20 +8963,30 @@ return cnt;]]></Body>
 						<Type><![CDATA[int]]></Type>
 					</Parameter>
 					<Body><![CDATA[RailwayTrack nextTrack = null;
-if (nextTask.getType().equals("Терминирование")){
-	nextTrack = main.track6;
+if (currTask.getType().equals("Терминирование")){
+	//if (startTrack.equals(main.track6)){
+		nextTrack = main.track6;
+	//}
+	
 }
 /*else{
 	nextTrack = endTrack;
 }*/
-else if ((currTask.getType().equals("Движение") || currTask.getType().equals("Движение в цех")) && cnt == 0){
-	
+else if ((currTask.getType().equals("Движение") 
+	|| currTask.getType().equals("Движение в цех")) 
+		&& cnt == 0){
 	nextTrack = startTrack;
 	traceln("Выбран путь 1 " + nextTrack.getName());
 }
-else {//if (previousTask.getType().equals("Создание")){
-	nextTrack = endTrack;
+else if (nextTask != null 
+	&& nextTask.getType().equals("Терминирование") 
+		&& (currTask.getType().equals("Движение"))) {
+	nextTrack = startTrack;
 	traceln("Выбран путь 2 " + nextTrack.getName());
+}
+else{
+	nextTrack = endTrack;
+	traceln("Выбран путь 3 " + nextTrack.getName());
 }
 traceln("Выбран конечный путь " + nextTrack.getName());
 return nextTrack;]]></Body>
@@ -8621,10 +9006,6 @@ return nextTrack;]]></Body>
 						<Type><![CDATA[Task]]></Type>
 					</Parameter>
 					<Parameter>
-						<Name><![CDATA[currTask]]></Name>
-						<Type><![CDATA[Task]]></Type>
-					</Parameter>
-					<Parameter>
 						<Name><![CDATA[nextTask]]></Name>
 						<Type><![CDATA[Task]]></Type>
 					</Parameter>
@@ -8633,7 +9014,7 @@ return nextTrack;]]></Body>
 						<Type><![CDATA[int]]></Type>
 					</Parameter>
 					<Body><![CDATA[RailwayTrack nextTrack = null;
-if (nextTask.getType().equals("Терминирование")){
+if (nextTask != null && nextTask.getType().equals("Терминирование")){
 	nextTrack = endTrack;
 }
 else if (previousTask.getType().equals("Расцепка")){
@@ -9148,669 +9529,9 @@ return nextTrack;]]></Body>
 					<Dz>0</Dz>
 				</Line>
 				<Group>
-					<Id>1701858933616</Id>
-					<Name><![CDATA[groupSettings]]></Name>
-					<X>280</X><Y>190</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701857007375</Id>
-					<Name><![CDATA[editbox]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["1"]]></DefaultValueCode>
-						<LinkTo>true</LinkTo>
-						<Link>main.data.accelerationTrain</Link>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701857019393</Id>
-					<Name><![CDATA[text1]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Ускорение составов, м/с^2]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701857026092</Id>
-					<Name><![CDATA[slider]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[1]]></MinValue>
-						<MaxValue><![CDATA[15]]></MaxValue>
-						<Step><![CDATA[1]]></Step>
-						<LinkTo>true</LinkTo>
-						<Link>main.data.accelerationTrain</Link>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701858951547</Id>
-					<Name><![CDATA[groupSettings1]]></Name>
-					<X>280</X><Y>240</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701858951549</Id>
-					<Name><![CDATA[editbox1]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["50"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701858951551</Id>
-					<Name><![CDATA[text2]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность пересменки, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701858951553</Id>
-					<Name><![CDATA[slider1]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701859003264</Id>
-					<Name><![CDATA[groupSettings2]]></Name>
-					<X>280</X><Y>290</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859003266</Id>
-					<Name><![CDATA[editbox2]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["152.5"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701859003268</Id>
-					<Name><![CDATA[text3]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность экипировки ТЭМ-9, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859003270</Id>
-					<Name><![CDATA[slider2]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701859131212</Id>
-					<Name><![CDATA[groupSettings3]]></Name>
-					<X>280</X><Y>340</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859131214</Id>
-					<Name><![CDATA[editbox3]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["163.5"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701859131216</Id>
-					<Name><![CDATA[text4]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность экипировки ТЭМ-2, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859131218</Id>
-					<Name><![CDATA[slider3]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701859154425</Id>
-					<Name><![CDATA[groupSettings4]]></Name>
-					<X>280</X><Y>390</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859154427</Id>
-					<Name><![CDATA[editbox4]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["163.5"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701859154429</Id>
-					<Name><![CDATA[text5]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность экипировки ТЭМ-18, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859154431</Id>
-					<Name><![CDATA[slider4]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701859172185</Id>
-					<Name><![CDATA[groupSettings5]]></Name>
-					<X>280</X><Y>440</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859172187</Id>
-					<Name><![CDATA[editbox5]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["164"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701859172189</Id>
-					<Name><![CDATA[text6]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность заправки локомотива, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859172191</Id>
-					<Name><![CDATA[slider5]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701859224203</Id>
-					<Name><![CDATA[groupSettings6]]></Name>
-					<X>280</X><Y>490</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859224205</Id>
-					<Name><![CDATA[editbox6]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["90"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701859224207</Id>
-					<Name><![CDATA[text7]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность обеда, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859224209</Id>
-					<Name><![CDATA[slider6]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701859686688</Id>
-					<Name><![CDATA[groupSettings7]]></Name>
-					<X>280</X><Y>540</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859686690</Id>
-					<Name><![CDATA[editbox7]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["5"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701859686692</Id>
-					<Name><![CDATA[text8]]></Name>
-					<X>-210</X><Y>-18</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Длительность ожидания получения 
-разрешения на въезд, мин.]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701859686694</Id>
-					<Name><![CDATA[slider7]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
 					<Id>1701859862969</Id>
 					<Name><![CDATA[groupSettings8]]></Name>
-					<X>280</X><Y>590</Y>
+					<X>280</X><Y>190</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9840,7 +9561,8 @@ return nextTrack;]]></Body>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["120"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delaySwitchService</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -9883,7 +9605,8 @@ return nextTrack;]]></Body>
 						<Orientation>HORIZONTAL</Orientation>
 						<MinValue><![CDATA[0]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delaySwitchService</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -9892,7 +9615,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701859888545</Id>
 					<Name><![CDATA[groupSettings9]]></Name>
-					<X>280</X><Y>640</Y>
+					<X>280</X><Y>240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9922,7 +9645,8 @@ return nextTrack;]]></Body>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["1"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayTKO</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -9965,7 +9689,8 @@ return nextTrack;]]></Body>
 						<Orientation>HORIZONTAL</Orientation>
 						<MinValue><![CDATA[0]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayTKO</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -9974,7 +9699,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701859979650</Id>
 					<Name><![CDATA[groupSettings11]]></Name>
-					<X>280</X><Y>690</Y>
+					<X>280</X><Y>490</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10000,11 +9725,14 @@ return nextTrack;]]></Body>
 						<FillColor/>
 						<TextColor/>
 						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[main.data.speedsMap.put("S", self.getDoubleValue());
+slider11.setValue(self.getDoubleValue());]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["15"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.speedInsideReserv</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10041,13 +9769,17 @@ return nextTrack;]]></Body>
 					<BasicProperties Width="100" Height="30">
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[main.data.speedsMap.put("S", self.getValue());
+editbox11.setText(self.getValue());]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
 						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
+						<MinValue><![CDATA[1]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<Step><![CDATA[1]]></Step>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.speedInsideReserv</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -10056,7 +9788,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701860020024</Id>
 					<Name><![CDATA[groupSettings12]]></Name>
-					<X>280</X><Y>740</Y>
+					<X>280</X><Y>590</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10082,11 +9814,14 @@ return nextTrack;]]></Body>
 						<FillColor/>
 						<TextColor/>
 						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[main.data.speedsMap.put("M", self.getDoubleValue());
+slider12.setValue(self.getDoubleValue());]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["7"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.speedInside</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10123,13 +9858,17 @@ return nextTrack;]]></Body>
 					<BasicProperties Width="100" Height="30">
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[main.data.speedsMap.put("M", self.getValue());
+editbox12.setText(self.getValue());]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
 						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
+						<MinValue><![CDATA[1]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<Step><![CDATA[1]]></Step>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.speedInside</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -10138,7 +9877,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701860051685</Id>
 					<Name><![CDATA[groupSettings13]]></Name>
-					<X>280</X><Y>790</Y>
+					<X>280</X><Y>540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10164,11 +9903,14 @@ return nextTrack;]]></Body>
 						<FillColor/>
 						<TextColor/>
 						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[main.data.speedsMap.put("A", self.getDoubleValue());
+slider13.setValue(self.getDoubleValue());]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["15"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.speedSendArrive</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10205,95 +9947,17 @@ return nextTrack;]]></Body>
 					<BasicProperties Width="100" Height="30">
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[main.data.speedsMap.put("A", self.getValue());
+editbox13.setText(self.getValue());]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
 						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
+						<MinValue><![CDATA[1]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-			</Presentation>
-
-				</Group>
-				<Group>
-					<Id>1701860167164</Id>
-					<Name><![CDATA[groupSettings14]]></Name>
-					<X>280</X><Y>840</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-			<Presentation>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701860167166</Id>
-					<Name><![CDATA[editbox14]]></Name>
-					<X>105</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["3"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
-				<Text>
-					<Id>1701860167168</Id>
-					<Name><![CDATA[text18]]></Name>
-					<X>-210</X><Y>-10</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Скорость на фронтах, км/ч]]></Text>
-					<Font>
-						<Name>SansSerif</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Control Type="Slider">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1701860167170</Id>
-					<Name><![CDATA[slider14]]></Name>
-					<X>220</X><Y>-15</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
-						<Orientation>HORIZONTAL</Orientation>
-						<MinValue><![CDATA[0]]></MinValue>
-						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<Step><![CDATA[1]]></Step>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.speedSendArrive</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -10302,7 +9966,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701860480330</Id>
 					<Name><![CDATA[groupSettings15]]></Name>
-					<X>280</X><Y>890</Y>
+					<X>280</X><Y>290</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10332,7 +9996,8 @@ return nextTrack;]]></Body>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["57"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingPipes910</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10376,7 +10041,8 @@ return nextTrack;]]></Body>
 						<Orientation>HORIZONTAL</Orientation>
 						<MinValue><![CDATA[0]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingPipes910</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -10409,7 +10075,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701861093377</Id>
 					<Name><![CDATA[groupSettings16]]></Name>
-					<X>940</X><Y>190</Y>
+					<X>280</X><Y>340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10439,7 +10105,8 @@ return nextTrack;]]></Body>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["54"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingRolled7</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10483,7 +10150,8 @@ return nextTrack;]]></Body>
 						<Orientation>HORIZONTAL</Orientation>
 						<MinValue><![CDATA[0]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingRolled7</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -10492,7 +10160,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701861188760</Id>
 					<Name><![CDATA[groupSettings17]]></Name>
-					<X>940</X><Y>240</Y>
+					<X>280</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10522,7 +10190,8 @@ return nextTrack;]]></Body>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["1380"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingScrap10</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10566,7 +10235,8 @@ return nextTrack;]]></Body>
 						<Orientation>HORIZONTAL</Orientation>
 						<MinValue><![CDATA[0]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingScrap10</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -10575,7 +10245,7 @@ return nextTrack;]]></Body>
 				<Group>
 					<Id>1701863383165</Id>
 					<Name><![CDATA[groupSettings18]]></Name>
-					<X>940</X><Y>290</Y>
+					<X>280</X><Y>390</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -10605,7 +10275,8 @@ return nextTrack;]]></Body>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<DefaultValueCode><![CDATA["60"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingPipes8</Link>
 					</ExtendedProperties>
 				</Control>
 				<Text>
@@ -10649,7 +10320,8 @@ return nextTrack;]]></Body>
 						<Orientation>HORIZONTAL</Orientation>
 						<MinValue><![CDATA[0]]></MinValue>
 						<MaxValue><![CDATA[100]]></MaxValue>
-						<LinkTo>false</LinkTo>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.delayLoadingPipes8</Link>
 					</ExtendedProperties>
 				</Control>
 			</Presentation>
@@ -13180,11 +12852,8 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[returnsAgents(agent);
-if (superTask.listTask.get(cntTask + 1).getType().equals("Терминирование")){
-	
-}
-agent.codeForLogic = 0;
+								<Code><![CDATA[agent.codeForLogic = 0;
+returnsAgents(agent);
 delay.stopDelayForAll();]]></Code>
 							</Value>
 						</Parameter>
@@ -14449,35 +14118,33 @@ currentTask = agent.listTask.get(cntTask);
 agent.codeLogic = this.hashCode();
 Train train = null;
 RailwayTrack tTrack = null;
-if (currentTask.getType().equals("Движение локомотива")){
-	train = (Train)delayLoco.get(0);// Здесь нужно прописать логику выбора ближайшего локомотива
-	train.codeForLogic = this.hashCode();// Это код для обдной логической задачи
-	delayLoco.stopDelay(((Agent)train));
-}
-else if (currentTask.getType().equals("Движение")){
+traceln("=========================");
+traceln(green, "ТЕКУЩАЯ ЗАДАЧА: " + currentTask.getType());
+traceln("=========================");
+if (currentTask.getType().equals("Движение")){
 	if (cntTask == 0){
 		train = (Train)delayLoco.agents().stream().findFirst().orElse(null);
-		train.codeForLogic = this.hashCode();
-		train.currentTask = currentTask;
-		delayLoco.stopDelay(train);
+		//train.codeForLogic = this.hashCode();
+		//train.currentTask = currentTask;
+		//delayLoco.stopDelay(train);
 	}
 	else{
 		if (currentTask.getStartTrack().getTrains().size() > 1){
 			for (Agent train1 : currentTask.getStartTrack().getTrains()){
 				if (((Train)train1).getCars().stream().anyMatch(p-> p.type.equals("Локомотив"))){
 					train = ((Train)train1);
-					train.codeForLogic = this.hashCode();
-					train.currentTask = currentTask;
+					//train.codeForLogic = this.hashCode();
+					//train.currentTask = currentTask;
+					//getDelay(train);
 					break;
 				}
 			}
-			getDelay(train);
 		}
 		else{
 			train = (Train)currentTask.getStartTrack().getTrains().get(0);
-			train.codeForLogic = this.hashCode();
-			train.currentTask = currentTask;
-			getDelay(train);
+			//train.codeForLogic = this.hashCode();
+			//train.currentTask = currentTask;
+			//getDelay(train);
 		}
 	}
 }
@@ -14486,9 +14153,21 @@ else if (currentTask.getType().equals("Создание")){
 }
 else if (currentTask.getType().equals("Расцепка")){
 	train = (Train)currentTask.getEndTrack().getTrains().get(0);
+	//train.codeForLogic = this.hashCode();
+	//train.currentTask = currentTask;
+	//delayTrains.stopDelay((Agent)train);
+}
+else if (currentTask.getType().equals("Терминирование")){
+	traceln(red, "Конечный путь " + currentTask.getEndTrack().getName());
+	train = (Train)currentTask.getEndTrack().getTrains().get(0);
+	//train.codeForLogic = this.hashCode();
+	//train.currentTask = currentTask;
+	//getDelay(train);
+}
+if(train != null){
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
-	delayTrains.stopDelay((Agent)train);
+	getDelay(train);
 }]]></Code>
 							</Value>
 						</Parameter>
@@ -14570,7 +14249,7 @@ else if (currentTask.getType().equals("Расцепка")){
 						<Parameter>
 							<Name><![CDATA[condition]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[agent.listTask.size() - 1 == cntTask]]></Code>
+								<Code><![CDATA[agent.listTask.size() == cntTask]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>

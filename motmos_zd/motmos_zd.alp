@@ -16,6 +16,7 @@
 		<ActiveObjectClass>
 			<Id>1700575101545</Id>
 			<Name><![CDATA[Main]]></Name>
+			<Import><![CDATA[import java.util.stream.Collectors;]]></Import>
 			<StartupCode><![CDATA[data.readRailCars();
 
 data.readRailwayPaths();
@@ -24,23 +25,25 @@ data.readSpeeds();
 
 data.readTasks();
 
-/*avoidTracks.add(track3p1);
-avoidTracks.add(track1p1);
-avoidTracks.add(trackNp1);*/
+data.readArrange();
 
-TaskAction task = add_taskAction();
+avoidTracks.add(trackNp1);
+
+setArrange();
+
+/*TaskAction task = add_taskAction();
 task.type = "Прибытие состава на станцию";
 task.startTrack = track6;
 task.endTrack = track1p1;
 task.priority = 100;
 task.cntVagon = 20;
 task.withLoco = true;
-task.listTask = task.makeTasks();
+task.listTask = task.makeTasks();*/
 //task = new TaskAction("Создание", track3p2, track4p2, 100, 20, true);//new SuperTask("Создание", track3p2, track4p2, 20, 100, true);
 /*if (task.type.equals("Прибытие состава на станцию")){
 	task.listTask.add(new Task("Создание", task.startTrack, task.getRandomCars(task.cntVagon, task.withLoco), task.withLoco));
 }*/
-enterTask.take(task);]]></StartupCode>
+//enterTask.take(task);]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1700575101543</Id>
@@ -482,39 +485,6 @@ enterTask.take(task);]]></StartupCode>
 						<Point><X>-60</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
-				<Connector>
-					<Id>1702913538632</Id>
-					<Name><![CDATA[connector2]]></Name>
-					<X>0</X><Y>0</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[enter]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Enter]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[logic]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[port2]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>1020</X><Y>1830</Y></Point>
-						<Point><X>1075</X><Y>1830</Y></Point>
-					</Points>
-				</Connector>
 			</Connectors>
 			<Events>
 				<Event>
@@ -615,6 +585,66 @@ enterTask.take(task);]]></StartupCode>
 					</Properties>
 				</Event>
 			</Events>
+			<Functions>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1704801669196</Id>
+					<Name><![CDATA[ТРЕБОВАНИЯ]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>-800</X><Y>140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[В одной заявки может быть несколько фронтов
+Отправка вагонов происходит по расписанию (раз в сколько-то часов) или по вместимости приемо-отправочных путей.
+Если за сутки порожний вагон местного парка не будет нужен в заявках на грузовые фронты, то он будет отправлять со станции в составе (добавить в параметр в excel)
+Добавить вагону, который предназначен для отправка на грузовой фронт, поля приоритет отправки и сторону, на которой он должен быть в составе по прибытию на фронт.
+Прибытие технологических вагонов заранее до заявки.]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1704806609381</Id>
+					<Name><![CDATA[setArrange]]></Name>
+					<X>120</X><Y>2020</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<RailwayTrack> tracks = new ArrayList();
+List<RailCar> cars = data.arrangeCars;
+tracks.addAll(pops);
+tracks.addAll(fronts);
+List<TrackEdge> edges = new ArrayList();
+for (RailwayTrack track : tracks){
+	TrackEdge egde = data.railwayPathsCollection.stream().filter(p-> p.getSelf().equals(track)).findFirst().orElse(null);
+	if (egde != null){
+		edges.add(egde);
+	}
+}
+cars.stream().forEach(p-> traceln("Вагон для пути [" + p.track + "]"));
+
+for (TrackEdge track : edges){
+	traceln("Ставим на путь [" + track.getSelf().getName() + "]");
+	List<RailCar> train = cars.stream().filter(p-> p.track.equals(track.getNumberTra())).collect(Collectors.toList());
+	traceln("Вагонов на путь " + train.size());
+	if (!train.isEmpty()){
+		TaskAction task = add_taskAction();
+		task.type = "Расстановка";
+		task.startTrack = track.getSelf();
+		task.priority = 100;
+		task.cntVagon = train.size();
+		task.withLoco = false;
+		task.cars = train;
+		task.listTask = task.makeTasks();
+		enterTask.take(task);
+	}
+	
+}]]></Body>
+				</Function>
+			</Functions>
 			<AgentLinks>
 				<AgentLink>
 					<Id>1700575101540</Id>
@@ -1894,7 +1924,7 @@ switch (typeTask){
 						<Parameter>
 							<Name><![CDATA[condition]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[/*(locoDelay.size() == 0 ||*/ !agent.type.equals("Прибытие состава на станцию")]]></Code>
+								<Code><![CDATA[false/*(locoDelay.size() == 0 ||*/ //!agent.type.equals("Прибытие состава на станцию") || !agent.type.equals("Расстановка")]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -2218,8 +2248,8 @@ remove_logic(objLogic);*/]]></Code>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[add_logic(railwayNetwork, trainsDelay, locoDelay, data, enterLocoDelay, enterTrainsDelay);
-enter.take(agent);]]></Code>
+								<Code><![CDATA[Logic logic = add_logic(railwayNetwork, trainsDelay, locoDelay, data, enterLocoDelay, enterTrainsDelay);
+logic.enterStart.take(agent);]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -2265,6 +2295,7 @@ enter.take(agent);]]></Code>
 				<EmbeddedObject>
 					<Id>1702913536998</Id>
 					<Name><![CDATA[enter]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>1000</X><Y>1820</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -4810,6 +4841,66 @@ public String toString(){
 			<CurrentLevel>1700596772934</CurrentLevel>
 			<ConnectionsId>1700596772930</ConnectionsId>
 			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1704804352440</Id>
+					<Name><![CDATA[number]]></Name>
+					<X>390</X><Y>200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1704804362366</Id>
+					<Name><![CDATA[track]]></Name>
+					<X>390</X><Y>230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1704804692897</Id>
+					<Name><![CDATA[queueOnTrack]]></Name>
+					<X>390</X><Y>260</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1704804795102</Id>
+					<Name><![CDATA[numConf]]></Name>
+					<X>390</X><Y>290</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1704804816081</Id>
+					<Name><![CDATA[owner]]></Name>
+					<X>390</X><Y>320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1700596772936</Id>
 					<Name><![CDATA[type]]></Name>
@@ -6944,7 +7035,7 @@ route = null;]]></Code>
 						<SdArray>false</SdArray>
 						<ParameterEditor>
 							<Id>1701705458415</Id>
-							<Label><![CDATA[Случайный состав]]></Label>
+							<Label><![CDATA[Состав]]></Label>
 							<EditorContolType>TEXT_BOX</EditorContolType>
 							<MinSliderValue><![CDATA[0]]></MinSliderValue>
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
@@ -8236,6 +8327,21 @@ cnt++;]]></Code>
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1704803982786</Id>
+					<Name><![CDATA[arrangeCars]]></Name>
+					<X>70</X><Y>370</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailCar]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -8296,6 +8402,7 @@ while(railwayPaths.cellExists("Лист1", row, 1)){
 	railwayPathsCollection.add(car);
 	row++;
 }
+//railwayPathsCollection.stream().forEach(p-> traceln("Номер по ТРА " + "[" + p.getNumberTra() + "]"));
 railwayPaths.close();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -8386,7 +8493,46 @@ while(tasks.cellExists("Задачи", row, 1)){
 	row++;
 }
 tasks.close();
-traceln(" есть для Прибытие состава на станцию " + taskCollection.stream().filter(p-> p.type.equals("Прибытие состава на станцию")).findFirst().orElse(null));]]></Body>
+taskCollection.stream().forEach(p-> traceln(p));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1704796706459</Id>
+					<Name><![CDATA[readArrange]]></Name>
+					<X>70</X><Y>340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int row = 2;
+ExcelFile file = startData;
+String list = "Расстановка";
+file.readFile();
+
+while(file.cellExists(list, row, 1)){
+	String numberVagon = ((int)file.getCellNumericValue(list, row, 1))+"";
+	String track = ((int)file.getCellNumericValue(list, row, 2))+"";
+	traceln(purple, "Путь " + track);
+	int queueOnTrack = (int)file.getCellNumericValue(list, row, 3);
+	String numConf = file.getCellStringValue(list, row, 4);
+	
+	String type = file.getCellStringValue(list, row, 5);
+	String productType = file.getCellStringValue(list, row, 6);
+	double weightProduct = file.getCellNumericValue(list, row, 7);
+	String owner = file.getCellStringValue(list, row, 8);
+	RailCar car = railCarsCollection.stream().filter(p-> p.type.equals(type)).findFirst().orElse(null);
+	// TODO сейчас берет одну модель
+	RailCar newCar = new RailCar(type, car.model, productType, car.length, car.weightSelf, weightProduct);
+	newCar.number = numberVagon;
+	newCar.track = track;
+	newCar.queueOnTrack = queueOnTrack;
+	newCar.numConf = numConf;
+	newCar.owner = owner;
+	arrangeCars.add(newCar);
+	row++;
+}
+file.close();]]></Body>
 				</Function>
 			</Functions>
 			<Connectivity>
@@ -8447,6 +8593,22 @@ traceln(" есть для Прибытие состава на станцию " 
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
+					<SaveInSnapshot>false</SaveInSnapshot>
+					<LoadOnStartup>true</LoadOnStartup>
+					<SaveOnDispose>true</SaveOnDispose>
+				</ExcelFile>
+				<ExcelFile>
+					<Id>1704796481558</Id>
+					<Name><![CDATA[startData]]></Name>
+					<X>70</X><Y>300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ResourceReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Исходные данные.xlsx]]></ClassName>
+					</ResourceReference>
 					<SaveInSnapshot>false</SaveInSnapshot>
 					<LoadOnStartup>true</LoadOnStartup>
 					<SaveOnDispose>true</SaveOnDispose>
@@ -8578,7 +8740,7 @@ traceln(" есть для Прибытие состава на станцию " 
 			<Id>1701856713684</Id>
 			<Name><![CDATA[TaskAction]]></Name>
 			<AdditionalClassCode><![CDATA[
-public TaskAction(String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon, Integer priority, boolean withLoco){
+public TaskAction(String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon, Integer priority, boolean withLoco, List<RailCar> cars){
 	
 	this.type = type;
 	this.startTrack = startTrack;
@@ -8586,7 +8748,9 @@ public TaskAction(String type, RailwayTrack startTrack, RailwayTrack endTrack, I
 	this.cntVagon = cntVagon;
 	this.priority = priority;
 	this.withLoco = withLoco;
+	this.cars = cars;
 	listTask = makeTasks();
+	
 	
 }
 public TaskAction(String type){
@@ -8748,6 +8912,18 @@ public String toString(){
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1704811111574</Id>
+					<Name><![CDATA[cars]]></Name>
+					<X>440</X><Y>50</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[List<RailCar>]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1703139102821</Id>
 					<Name><![CDATA[startTrack]]></Name>
@@ -8852,7 +9028,11 @@ return gen.getCars();]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[TaskAction task = main.data.taskCollection.stream().filter(p->p.type.equals(this.type)).findFirst().orElse(null);// определяем задачу, список операций которой мы рассматриваем
+					<Body><![CDATA[TaskAction task = main.data.taskCollection.stream()
+.filter(p->p.type.equals(this.type))
+.findFirst()
+.orElse(null);// определяем задачу, список операций которой мы рассматриваем
+traceln("Задачу определили " + task);
 List<Task> newListTasks = new ArrayList();
 for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с помощью цикла все операции задачи
 	Task simpleTask = task.listTask.get(i);
@@ -8865,7 +9045,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 	switch (simpleTask.getType()){
 		case "Создание" :
 		//public Task(String type, RailwayTrack startTrack, int cntVagons, boolean withLoco, List<RailCar> cars) {
-			newListTasks.add(new Task(simpleTask.getType(), startTrack, cntVagon, withLoco, getRandomCars(cntVagon, withLoco)));
+			newListTasks.add(new Task(simpleTask.getType(), startTrack, cntVagon, withLoco, cars));
 			break;
 		case "Движение" :
 			newListTasks.add(new Task( simpleTask.getType(),
@@ -8885,7 +9065,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			newListTasks.add(new Task( simpleTask.getType(),
 				curEndTrack,//getNextEndTrack(task.listTask.get(i - 1), simpleTask, task.listTask.get(i+1), i),
 					getNeedCnt("Расцепка"),
-						isDecFirstCar() ));
+						isDecFirstCar() ));// TODO сейчас расцепляются только первые вагоны
 			break;
 		case "Ожидание" :
 			newListTasks.add(new Task(simpleTask.getType(),
@@ -10910,18 +11090,6 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					<OutgoingMessageType><![CDATA[Object]]></OutgoingMessageType>
 					<CustomPort><![CDATA[false]]></CustomPort>
 				</Port>
-				<Port>
-					<Id>1702720183396</Id>
-					<Name><![CDATA[port2]]></Name>
-					<X>535</X><Y>65</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<IncomingMessageType><![CDATA[Object]]></IncomingMessageType>
-					<OutgoingMessageType><![CDATA[Object]]></OutgoingMessageType>
-					<CustomPort><![CDATA[false]]></CustomPort>
-				</Port>
 			</Ports>
 			<Connectors>
 				<Connector>
@@ -11229,12 +11397,21 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 				<Connector>
 					<Id>1702720229671</Id>
 					<Name><![CDATA[connector1]]></Name>
-					<X>535</X><Y>65</Y>
+					<X>429</X><Y>145</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
-					<SourceId>1702720183396</SourceId>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[enterStart]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Enter]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</SourceConnectableItemReference>
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Logic]]></ClassName>
@@ -11247,9 +11424,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-105</X><Y>0</Y></Point>
-						<Point><X>-105</X><Y>80</Y></Point>
-						<Point><X>-40</X><Y>80</Y></Point>
+						<Point><X>66</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -11972,39 +12147,6 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
 						<Point><X>-120</X><Y>0</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
-					<Id>1702736996531</Id>
-					<Name><![CDATA[connector25]]></Name>
-					<X>20</X><Y>720</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[enter10]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Enter]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[delay11]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Delay]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>370</X><Y>550</Y></Point>
-						<Point><X>430</X><Y>550</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -14013,6 +14155,9 @@ delay.stopDelayForAll();]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[traceln("Количество вагонов для расстановки " + currentTask.getCars().size());]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onRemove]]></Name>
@@ -14168,7 +14313,8 @@ if(train != null){
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
 	getDelay(train);
-}]]></Code>
+}
+cntTask++;]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -14266,9 +14412,6 @@ if(train != null){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExitFalse]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[cntTask++;]]></Code>
-							</Value>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -16172,9 +16315,9 @@ if(train != null){
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1702736766635</Id>
-					<Name><![CDATA[enter10]]></Name>
-					<X>370</X><Y>1260</Y>
-					<Label><X>-10</X><Y>-20</Y></Label>
+					<Name><![CDATA[enterStart]]></Name>
+					<X>409</X><Y>135</Y>
+					<Label><X>-23</X><Y>-21</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
@@ -21311,6 +21454,11 @@ public class TrainGenerator implements Serializable {
 		</Resource>
 		<Resource>
 			<Path><![CDATA[Справочники/Задачи.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Исходные данные.xlsx]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>

@@ -27,6 +27,8 @@ data.readTasks();
 
 data.readArrange();
 
+data.readProducts();
+
 avoidTracks.add(trackNp1);
 
 add_logic();
@@ -34,6 +36,8 @@ add_logic();
 setTraksEdges();
 
 setArrange();
+
+
 
 interfaceSettings.initSettings();
 
@@ -4611,7 +4615,7 @@ group3D.setVisible(true);]]></OnClickCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[interfaceSettings.settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[interfaceSettings.keyIndicators.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -4674,7 +4678,7 @@ group3D.setVisible(true);]]></OnClickCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[interfaceSettings.settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[interfaceSettings.applications.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -4869,7 +4873,7 @@ group3D.setVisible(true);]]></OnClickCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[interfaceSettings.settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[interfaceSettings.keyIndicators.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -4932,7 +4936,7 @@ group3D.setVisible(true);]]></OnClickCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[interfaceSettings.settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[interfaceSettings.applications.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -9800,6 +9804,21 @@ return nextTrack;]]></Body>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1705056894139</Id>
+					<Name><![CDATA[switches]]></Name>
+					<X>4830</X><Y>610</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[List<RailwaySwitch>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new ArrayList()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -9814,7 +9833,8 @@ return nextTrack;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[locomotives.addAll(main.data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).collect(Collectors.toList()));
 products.addAll(main.data.productsCollection);
-tracks.addAll(main.tracksEdges);]]></Body>
+tracks.addAll(main.tracksEdges);
+switches.addAll(main.railwayNetwork.getSwitches());]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -15540,93 +15560,6 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<RoundedRectangle>
-					<Id>1704969900942</Id>
-					<Name><![CDATA[roundRectangle7]]></Name>
-					<X>6660</X><Y>450</Y>
-					<Label><X>10</X><Y>10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<ZHeight>10</ZHeight>
-					<LineWidth>1</LineWidth>
-					<LineColor>-4144960</LineColor>
-					<LineMaterial>null</LineMaterial>
-					<LineStyle>SOLID</LineStyle>
-					<Width>70</Width>
-					<Height>40</Height>
-					<Rotation>0.0</Rotation>
-					<FillColor>-65536</FillColor>
-					<FillMaterial>null</FillMaterial>
-					<ArcRadius>20</ArcRadius>
-				</RoundedRectangle>
-				<Text>
-					<Id>1704969900944</Id>
-					<Name><![CDATA[text189]]></Name>
-					<X>6260</X><Y>450</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Выполненные/не выполненные]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>26</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Oval>
-					<Id>1704969900950</Id>
-					<Name><![CDATA[oval1]]></Name>
-					<X>6710</X><Y>470</Y>
-					<Label><X>0</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<ZHeight>10</ZHeight>
-					<LineWidth>1</LineWidth>
-					<LineColor>-4144960</LineColor>
-					<LineMaterial>null</LineMaterial>
-					<LineStyle>SOLID</LineStyle>
-					<RadiusX>20</RadiusX>
-					<RadiusY>40</RadiusY>
-					<Rotation>0.0</Rotation>
-					<FillColor>-4144960</FillColor>
-					<FillMaterial>null</FillMaterial>
-				</Oval>
-				<Text>
-					<Id>1704969900956</Id>
-					<Name><![CDATA[text194]]></Name>
-					<X>5383.333</X><Y>466.667</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-4144960</Color>
-					<Text><![CDATA[15.01.2024]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>20</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<RoundedRectangle>
 					<Id>1704969900958</Id>
 					<Name><![CDATA[roundRectangle8]]></Name>
 					<X>5080</X><Y>500</Y>
@@ -15650,28 +15583,6 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<FillMaterial>null</FillMaterial>
 					<ArcRadius>10</ArcRadius>
 				</RoundedRectangle>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1704969900964</Id>
-					<Name><![CDATA[editbox1]]></Name>
-					<X>5380</X><Y>464</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor/>
-						<Enabled>true</Enabled>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["15.01.2024"]]></DefaultValueCode>
-						<LinkTo>false</LinkTo>
-					</ExtendedProperties>
-				</Control>
 				<Group>
 					<Id>1704969900972</Id>
 					<Name><![CDATA[groupUI2]]></Name>
@@ -15914,7 +15825,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Оборачиваемость вагонов]]></Text>
+					<Text><![CDATA[Оборачиваемость вагонов, шт]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -16750,7 +16661,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[getY() + 20*index]]></YCode>
+					<YCode><![CDATA[745 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[products.size()]]></Code>
 					</ReplicationCode>
@@ -16848,6 +16759,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[745 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[products.size()]]></Code>
 					</ReplicationCode>
@@ -16896,7 +16808,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[getY() + 20*index]]></YCode>
+					<YCode><![CDATA[755 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[products.size()]]></Code>
 					</ReplicationCode>
@@ -17013,7 +16925,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[keyIndicators.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -17076,7 +16988,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[applications.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -17570,7 +17482,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[getY() + 20*index]]></YCode>
+					<YCode><![CDATA[880 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[locomotives.size()]]></Code>
 					</ReplicationCode>
@@ -17687,7 +17599,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[getY() + 20*index]]></YCode>
+					<YCode><![CDATA[870 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[locomotives.size()]]></Code>
 					</ReplicationCode>
@@ -17712,7 +17624,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[getY() + 20*index]]></YCode>
+					<YCode><![CDATA[870 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[locomotives.size()]]></Code>
 					</ReplicationCode>
@@ -17862,7 +17774,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<OnClickCode><![CDATA[settings.navigateTo();]]></OnClickCode>
+					<OnClickCode><![CDATA[applications.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -17918,7 +17830,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Line>
 					<Id>1704987338278</Id>
 					<Name><![CDATA[line44]]></Name>
-					<X>5110</X><Y>950</Y>
+					<X>5110</X><Y>990</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -17942,7 +17854,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Line>
 					<Id>1704987338280</Id>
 					<Name><![CDATA[line45]]></Name>
-					<X>5350</X><Y>950</Y>
+					<X>5350</X><Y>990</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -17966,7 +17878,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704987338282</Id>
 					<Name><![CDATA[text227]]></Name>
-					<X>5255</X><Y>950</Y>
+					<X>5255</X><Y>990</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -17987,7 +17899,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704987338284</Id>
 					<Name><![CDATA[text230]]></Name>
-					<X>5180</X><Y>950</Y>
+					<X>5180</X><Y>990</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -18008,7 +17920,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Line>
 					<Id>1704987338286</Id>
 					<Name><![CDATA[line46]]></Name>
-					<X>5250</X><Y>950</Y>
+					<X>5250</X><Y>990</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -18032,13 +17944,13 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704987338288</Id>
 					<Name><![CDATA[text231]]></Name>
-					<X>5346.5</X><Y>970</Y>
+					<X>5346.5</X><Y>1010</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[970 + 20*index]]></YCode>
+					<YCode><![CDATA[1010 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[tracks.size()]]></Code>
 					</ReplicationCode>
@@ -18057,7 +17969,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704987338290</Id>
 					<Name><![CDATA[text232]]></Name>
-					<X>5110</X><Y>920</Y>
+					<X>5110</X><Y>960</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -18078,13 +17990,13 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704987338292</Id>
 					<Name><![CDATA[text233]]></Name>
-					<X>5120</X><Y>970</Y>
+					<X>5120</X><Y>1010</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[970 + 20*index]]></YCode>
+					<YCode><![CDATA[1010 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[tracks.size()]]></Code>
 					</ReplicationCode>
@@ -18104,7 +18016,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Line>
 					<Id>1704987338294</Id>
 					<Name><![CDATA[line47]]></Name>
-					<X>5110</X><Y>970</Y>
+					<X>5110</X><Y>1010</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -18128,7 +18040,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Line>
 					<Id>1704987338296</Id>
 					<Name><![CDATA[line48]]></Name>
-					<X>5110</X><Y>950</Y>
+					<X>5110</X><Y>990</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -18152,13 +18064,13 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Group>
 					<Id>1704987338298</Id>
 					<Name><![CDATA[rowTableObVag7]]></Name>
-					<X>5200</X><Y>980</Y>
+					<X>5200</X><Y>1020</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[980 + 20*index]]></YCode>
+					<YCode><![CDATA[1020 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[tracks.size()]]></Code>
 					</ReplicationCode>
@@ -18266,6 +18178,868 @@ editbox13.setText(self.getValue());]]></ActionCode>
 			</Presentation>
 
 				</Group>
+				<Text>
+					<Id>1705056952914</Id>
+					<Name><![CDATA[text234]]></Name>
+					<X>5455</X><Y>570</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[570 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[switches.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[ТЭМ-2]]></Text>
+					<TextCode><![CDATA[switches.get(index).getName()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705056952916</Id>
+					<Name><![CDATA[text235]]></Name>
+					<X>5445</X><Y>520</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Утилизация стрелок:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Line>
+					<Id>1705056952918</Id>
+					<Name><![CDATA[line53]]></Name>
+					<X>5710</X><Y>550</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1705056952920</Id>
+					<Name><![CDATA[line54]]></Name>
+					<X>5445</X><Y>550</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1705056952922</Id>
+					<Name><![CDATA[line55]]></Name>
+					<X>5445</X><Y>570</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>265</Dx>
+					<Dy>0</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Text>
+					<Id>1705056952924</Id>
+					<Name><![CDATA[text236]]></Name>
+					<X>5610</X><Y>550</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Утилизация, %]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Line>
+					<Id>1705056952926</Id>
+					<Name><![CDATA[line56]]></Name>
+					<X>5605</X><Y>550</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Text>
+					<Id>1705056952928</Id>
+					<Name><![CDATA[text237]]></Name>
+					<X>5705</X><Y>570</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[570 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[tracks.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[560]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Line>
+					<Id>1705056952930</Id>
+					<Name><![CDATA[line57]]></Name>
+					<X>5445</X><Y>550</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>265</Dx>
+					<Dy>0</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Text>
+					<Id>1705056952932</Id>
+					<Name><![CDATA[text238]]></Name>
+					<X>5525</X><Y>550</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Наименование стрелки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Group>
+					<Id>1705056952934</Id>
+					<Name><![CDATA[rowTableObVag8]]></Name>
+					<X>5535</X><Y>580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<YCode><![CDATA[580 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[switches.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Line>
+					<Id>1705056952936</Id>
+					<Name><![CDATA[line58]]></Name>
+					<X>-90</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>265</Dx>
+					<Dy>0</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1705056952938</Id>
+					<Name><![CDATA[line59]]></Name>
+					<X>-90</X><Y>-10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1705056952940</Id>
+					<Name><![CDATA[line60]]></Name>
+					<X>175</X><Y>-10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1705056952942</Id>
+					<Name><![CDATA[line61]]></Name>
+					<X>70</X><Y>-10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
+			</Presentation>
+
+				</Group>
+				<Text>
+					<Id>1705058190341</Id>
+					<Name><![CDATA[text189]]></Name>
+					<X>5445</X><Y>850</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Загрузка составителя, %:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058211070</Id>
+					<Name><![CDATA[text194]]></Name>
+					<X>5695</X><Y>850</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[65]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058248265</Id>
+					<Name><![CDATA[text207]]></Name>
+					<X>5445</X><Y>880</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Простой вагонов на 10 пути
+из-за неготовности вагонов на 9, ч.]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058248267</Id>
+					<Name><![CDATA[text208]]></Name>
+					<X>5695</X><Y>900</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[65]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058333048</Id>
+					<Name><![CDATA[text210]]></Name>
+					<X>5445</X><Y>925</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Выполнение плана отгрузки, %:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058333050</Id>
+					<Name><![CDATA[text214]]></Name>
+					<X>5695</X><Y>925</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[24]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058363383</Id>
+					<Name><![CDATA[text239]]></Name>
+					<X>5445</X><Y>950</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Выполнение плана выгрузки, %:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058363385</Id>
+					<Name><![CDATA[text240]]></Name>
+					<X>5695</X><Y>950</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[23]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058380250</Id>
+					<Name><![CDATA[text241]]></Name>
+					<X>5445</X><Y>975</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Выполнение плана выгрузки, %:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058380252</Id>
+					<Name><![CDATA[text242]]></Name>
+					<X>5695</X><Y>975</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[23]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058412798</Id>
+					<Name><![CDATA[text243]]></Name>
+					<X>5445</X><Y>1005</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Простой местных вагонов
+(склад на колесах), ч.:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058412800</Id>
+					<Name><![CDATA[text244]]></Name>
+					<X>5695</X><Y>1025</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[23]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058463885</Id>
+					<Name><![CDATA[text245]]></Name>
+					<X>5445</X><Y>1050</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Время ожидания уборки
+с грузового фронта, ч:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058463887</Id>
+					<Name><![CDATA[text246]]></Name>
+					<X>5695</X><Y>1070</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[113]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058496445</Id>
+					<Name><![CDATA[text247]]></Name>
+					<X>5445</X><Y>1090</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Время ожидания подачи
+на грузовой фронта, ч:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058496447</Id>
+					<Name><![CDATA[text248]]></Name>
+					<X>5695</X><Y>1110</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[231]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058572040</Id>
+					<Name><![CDATA[text249]]></Name>
+					<X>5445</X><Y>1130</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Производительность
+локомотива, шт:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058572042</Id>
+					<Name><![CDATA[text250]]></Name>
+					<X>5695</X><Y>1135</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[231]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058617530</Id>
+					<Name><![CDATA[text251]]></Name>
+					<X>5445</X><Y>1165</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Ср. статическая нагрузка
+на один вагон, т/м^2:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705058617532</Id>
+					<Name><![CDATA[text252]]></Name>
+					<X>5695</X><Y>1185</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[0,94]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705059359932</Id>
+					<Name><![CDATA[text253]]></Name>
+					<X>5445</X><Y>1205</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Коэффициент сдвоенных
+операций:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705059359934</Id>
+					<Name><![CDATA[text254]]></Name>
+					<X>5695</X><Y>1225</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[0,8]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705059420836</Id>
+					<Name><![CDATA[text255]]></Name>
+					<X>5765</X><Y>520</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Стоимость часа локомотива, руб.:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705059420838</Id>
+					<Name><![CDATA[text256]]></Name>
+					<X>6015</X><Y>520</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[590]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -18285,7 +19059,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				</Area>
 				<Area>
 					<Id>1704884263871</Id>
-					<Name><![CDATA[keyIndicators]]></Name>
+					<Name><![CDATA[applications]]></Name>
 					<X>2520</X><Y>200</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -18297,7 +19071,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				</Area>
 				<Area>
 					<Id>1704969901378</Id>
-					<Name><![CDATA[settings2]]></Name>
+					<Name><![CDATA[keyIndicators]]></Name>
 					<X>5040</X><Y>360</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>false</PublicFlag>

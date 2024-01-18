@@ -712,13 +712,15 @@ return frontsCollection;]]></Body>
 					</Parameter>
 					<Body><![CDATA[Front front = getFrontByNum(numFront);
 List<Integer> hashList = new ArrayList();
-for (Request req : getActiveFrontRequest(numFront)){// 
-		List<RailCar> cars = new ArrayList();
+for (Request req : getActiveFrontRequest(numFront)){//
+	List<RailCar> cars = new ArrayList();
 	if (front.needVagons()){
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (req.getTypeVagon().equals(car.type) 
 				&& req.getNameOwner().equals(car.owner)){
 				hashList.add(car.hashCode());
+			}
+			else{
 			}
 		}
 	}
@@ -888,9 +890,10 @@ return list;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[for (Front front : getEmptyFronts()){
-	FormationOptimizer fo = new FormationOptimizer(front, getPopsTracksEdges(), getCarsByFront(front.getName()), getEngine().date(), getActiveFrontRequest(front.getName()));
+	traceln("По фронту " + front.getName());
+	FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsByFront(front.getName()), getEngine().date(), getActiveFrontRequest(front.getName()));
 	for (TaskAction task : fo.getTasks()){
-		
+		traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
 	}
 }]]></Body>
 				</Function>
@@ -915,6 +918,24 @@ for (RailwayTrack track : tracks){
 	}
 }
 return tracksEdges;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<TrackEdge>]]></ReturnType>
+					<Id>1705592123308</Id>
+					<Name><![CDATA[getPopsWithoutAvoid]]></Name>
+					<X>-320</X><Y>1850</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<TrackEdge> edges = new ArrayList();
+for (TrackEdge edge : getTracksEdges()){
+	if (!avoidTracks.contains(edge.getSelf())){
+		edges.add(edge);
+	}
+}
+return edges;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -5642,6 +5663,27 @@ logic.enterStart.take(agent);]]></Code>
 					</Font>
 					<Alignment>CENTER</Alignment>
 				</Text>
+				<Control Type="Button">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1705582896502</Id>
+					<Name><![CDATA[button]]></Name>
+					<X>930</X><Y>2120</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[makeTasks()]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<LabelText><![CDATA[button]]></LabelText>
+					</ExtendedProperties>
+				</Control>
 			</Presentation>
 
 				</Level>
@@ -6143,11 +6185,11 @@ public String toString(){
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[locomotive_1_right.setPos(0,0);
-openCar.setPos(0,0);
-pipeCarrierDefault.setPos(0,0);
-pipeCarrier1796.setPos(0,0);
-gondolaCarCoiled.setPos(0,0);]]></Body>
+					<Body><![CDATA[locomotive_1_right.setPos(-340,220);
+openCar.setPos(-340,220);
+pipeCarrierDefault.setPos(-340,220);
+pipeCarrier1796.setPos(-340,220);
+gondolaCarCoiled.setPos(-340,220);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -6160,6 +6202,31 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[return this.weightProduct + this.weightSelf;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1705576058502</Id>
+					<Name><![CDATA[getPositionOnTrain]]></Name>
+					<X>50</X><Y>230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[isHead]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[RailwayNetwork net = main.railwayNetwork;
+int position = 0;
+for(RailwayTrack track : net.getTracks()){
+	for (int i = 0; i < track.getCars().size();i++){
+		if (((RailCar)track.getCar(i)).hashCode() == hashCode()){
+			position = isHead ? (track.getCars().size() - 1 - i) : i;
+		}
+	}
+}
+return position;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -6219,16 +6286,33 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
 
 			<Presentation>
+				<Group>
+					<Id>1705576037041</Id>
+					<Name><![CDATA[carVisual]]></Name>
+					<X>340</X><Y>-220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[traceln("Моя позиция в составе c начала " + getPositionOnTrain(true));
+traceln("Моя позиция в составе c конца " + getPositionOnTrain(false));
+traceln("Собственник " + owner);]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
 				<Figure3D>
 					<Id>1700596826521</Id>
 					<Name><![CDATA[locomotive_1_right]]></Name>
-					<X>295</X><Y>-70</Y>
+					<X>-40</X><Y>160</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>295</X><Y>-70</Y><Z>0</Z>
+					<X>-40</X><Y>160</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -6272,13 +6356,13 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 				<Figure3D>
 					<Id>1701697869133</Id>
 					<Name><![CDATA[pipeCarrier1796]]></Name>
-					<X>339</X><Y>-260</Y>
+					<X>-1</X><Y>-40</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>339</X><Y>-260</Y><Z>0</Z>
+					<X>-1</X><Y>-40</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -6314,13 +6398,13 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 				<Figure3D>
 					<Id>1701698000694</Id>
 					<Name><![CDATA[pipeCarrierDefault]]></Name>
-					<X>342</X><Y>-185</Y>
+					<X>2</X><Y>35</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>342</X><Y>-185</Y><Z>0</Z>
+					<X>2</X><Y>35</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -6356,13 +6440,13 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 				<Figure3D>
 					<Id>1701699344141</Id>
 					<Name><![CDATA[gondolaCarCoiled]]></Name>
-					<X>284</X><Y>-360</Y>
+					<X>-56</X><Y>-140</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>284</X><Y>-360</Y><Z>0</Z>
+					<X>-56</X><Y>-140</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -6394,13 +6478,13 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 				<Figure3D>
 					<Id>1701938648899</Id>
 					<Name><![CDATA[openCar]]></Name>
-					<X>280</X><Y>-121</Y>
+					<X>-60</X><Y>99</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>280</X><Y>-121</Y><Z>0</Z>
+					<X>-60</X><Y>99</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -6429,6 +6513,9 @@ gondolaCarCoiled.setPos(0,0);]]></Body>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
 					<VisibleCode><![CDATA[type.equals("Полувагон")]]></VisibleCode>
 				</Figure3D>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Level>
@@ -8609,6 +8696,9 @@ car.length = copyCar.length;
 car.weightSelf = copyCar.weightSelf;
 car.weightProduct = copyCar.weightProduct;
 car.productType = copyCar.productType;
+car.queueOnTrain = copyCar.queueOnTrain;
+car.owner = copyCar.owner;
+car.dateArrive = copyCar.dateArrive;
 car.setPosition();
 cnt++;]]></Code>
 							</Value>
@@ -9954,6 +10044,13 @@ public TaskAction(String type, RailwayTrack startTrack, RailwayTrack endTrack, I
 	
 	
 }
+
+public TaskAction (String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon){
+	this.type = type;
+	this.startTrack = startTrack;
+	this.endTrack = endTrack;
+	this.cntVagon = cntVagon;
+}
 public TaskAction(String type){
 	this.type = type;	
 }
@@ -10123,6 +10220,18 @@ public String toString(){
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[List<RailCar>]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1705565874557</Id>
+					<Name><![CDATA[generalLogicCode]]></Name>
+					<X>550</X><Y>40</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
 					</Properties>
 				</Variable>
 				<Variable Class="Parameter">
@@ -30285,12 +30394,13 @@ public class FormationOptimizer {
     		double priority = getPriorityByCar(car);
     		carsPriority.put(car, priority);
     	}
+    	traceln(green, "Размер мапы " + carsPriority.size());
     	Map<RailCar, Double> carsPriority2 = carsPriority.entrySet()
     			.stream()
     			.sorted(Map.Entry.<RailCar, Double>comparingByValue().reversed())
     			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    	
-    	List<RailCar> sortedCars = (List)carsPriority2.values();// отсортированный массив вагонов по приоритету на отправку на фронт
+    	traceln(orange, "Размер мапы " + carsPriority2.size());
+    	List<RailCar> sortedCars = new ArrayList(carsPriority2.keySet());// отсортированный массив вагонов по приоритету на отправку на фронт
     	double lengthTrain = 0;
     	for (RailCar car : sortedCars) {
     		if (lengthTrain + car.length <= front.getUsableLength()) {
@@ -30329,7 +30439,7 @@ public class FormationOptimizer {
     		for (int i = 0; i < track.getSelf().getCars().size(); i++) {
     			RailCar vagon = (RailCar)track.getSelf().getCar(i);
     			if (vagon.hashCode() == car.hashCode()) {
-    				priority = ((currDate.getTime() - car.dateArrive.getTime())/3600000) + i*0.5;
+    				priority = ((currDate.getTime()	- car.dateArrive.getTime())/3600000) + i*0.5;
     				break top;
     			}
     		}
@@ -30385,33 +30495,126 @@ public class FormationOptimizer {
     	}
     	return targetCarsOnTrack;
     }
+    /**
+     * 
+     * @param train - состав, который стоит на начальном пути
+     * @param allTargetFrontCars -  список целевых вагонов в составе, который влияет на разделение на фрагменты
+     * @return - возврвщает количество фрагментов, на которые поделен состав
+     */
+    public List<Integer> getFragmentsTrain(List<RailCar> train, List<RailCar> allTargetFrontCars) {
+    	//boolean side = true;
+    	List<Integer> fragments = new ArrayList();//размеры фрагментов с конца состава
+    	int fragmentSize = 0;
+    	int sizeTrain = train.size(); 
+    	boolean indicator = allTargetFrontCars.contains(train.get(0)) ? true : false;
+    	for (int i = 0; i < train.size(); i++) {
+    		RailCar car = train.get(i);
+    		//traceln(green, "Вагон по порядку функции " + (train.size() - i - 1) + ", по порядку жд сети " + car.getPositionOnTrain(true));
+    		//traceln(green, "Вагон принадлежит к целевым " + allTargetFrontCars.contains(car));
+    		if (allTargetFrontCars.contains(car)) {
+    			//traceln(black, "Вагон принадлежит");
+    			if (indicator) {
+    				//traceln(black, "Пред. вагон тоже принадлежал");
+    				//traceln(black, "Прибавим к fragmentSize + 1 " + (fragmentSize + 1));
+    				fragmentSize++;
+    			}
+    			else {
+    				//traceln(black, "Пред. вагон не принадлежал");
+    				//traceln(black, "Посчитаем размер состава, который нужно отцепить " + (sizeTrain - fragmentSize));
+    				sizeTrain = sizeTrain - fragmentSize;
+    				fragments.add(sizeTrain);
+    				fragmentSize = 0;
+    				fragmentSize++;
+    				indicator = true;
+    			}
+    		}
+    		else {
+    			//traceln(red, "Вагон не принадлежит");
+    			if (!indicator) {
+    				//traceln(red, "Пред. вагон тоже не принадлежал");
+    				//traceln(red, "Прибавим к fragmentSize + 1 " + (fragmentSize + 1));
+    				fragmentSize++;
+    			}
+    			else {
+    				//traceln(red, "Пред. вагон принадлежал");
+    				//traceln(red, "Посчитаем размер состава, который нужно отцепить " + (sizeTrain - fragmentSize));
+    				sizeTrain = sizeTrain - fragmentSize;
+    				fragments.add(sizeTrain);
+    				fragmentSize = 0;
+    				fragmentSize++;
+    				indicator = false;
+    			}
+    		}
+    		
+    	}
+    	return fragments;
+    }
     
     /**
     возвращает список задач для формирования
     **/
     public List<TaskAction> getTasks(){ // 
     	List<RailCar> carsForFront = getCarsForSendtoFront();
-    	List<RailCar> doneCars = new ArrayList();
+    	List<TaskAction> tasks = new ArrayList();
     	TrackEdge targetTrack = pops.stream().filter(p-> p.getSelf().isEmpty() || isEnoughPlace(p, carsForFront)).findFirst().orElse(null);
     	if (targetTrack != null) {
 	    	for (TrackEdge track : pops){
-	    		int maxPos = 0;
-	    		RailCar maxPosCar = null;
-		    	for (RailCar car : getTargetCarsOnTrack(track, carsForFront)) {
-		    		if (maxPos <= getPositionOnTrack(car)) {
-		    			maxPos = getPositionOnTrack(car);
-		    			maxPosCar = car;
-		    		}
-		    	}
-	    	}
-	    	return null;
+	    		//int sizeOriginalTrain = getRailCarsOnTrack(track).size();
+	    		List<RailCar> allTargetFrontCars = getTargetCarsOnTrack(track, carsForFront);
+	    		if (allTargetFrontCars.size() > 0) {
+		    		//List<RailCar> remaningCars = new ArrayList();
+		        	//remaningCars.addAll(allTargetFrontCars);
+		        	int posCar = 0;
+		        	//traceln("Разбитие на фрагменты");
+		        	boolean indicator = true;
+		        	List<Integer> fragments = getFragmentsTrain(getRailCarsOnTrack(track), allTargetFrontCars);
+		        	for (int i = 0; i < fragments.size();i++) {
+		        		//traceln("Фрагмент " + fragments.get(i));
+		        		//RailCar car = getMaxPosCar(allTargetFrontCars);
+		        		//if (car != null) {
+		        			/*if (posCar - getPositionOnTrack(car) == 1) {
+		        				posCar = getPositionOnTrack(car);
+		        				continue;
+		        			}*/
+		        			//posCar = getPositionOnTrack(car);
+		        			//remaningCars.remove(car);
+		        			
+		        			RailwayTrack startTrack = indicator ? track.getSelf() : targetTrack.getSelf();
+		        			RailwayTrack endTrack = indicator ? targetTrack.getSelf() : track.getSelf();
+		        			String type = endTrack.isEmpty() ? "Полурейс формирования на пустой путь" : "Полурейс формирования";
+		        			//Задача отправки вагонов на целевой путь
+		        			TaskAction task = new TaskAction (type, startTrack, endTrack, fragments.get(i));
+		        			tasks.add(task);
+		        			indicator = !indicator;
+		        		}
+		        	}
+	    		//break;
+    		}
+	    	return tasks;
+    		
     	}
     	else {
     		traceln("Нет свободного/подходящего пути для формирования состава");
-    		return null;
+    		return tasks;
     	}
     	
     	
+    }
+    /**
+     * 
+     * @param remaningCars - вагоны, которые рассматриваются для поиска самого дальнего
+     * @return - вагон, который имеет самую дальнюю позицию 
+     */
+    public RailCar getMaxPosCar(List<RailCar> remaningCars) {
+    	int maxPos = 0;
+		RailCar maxPosCar = null;
+    	for (RailCar car : remaningCars) {
+    		if (maxPos <= getPositionOnTrack(car)) {
+    			maxPos = getPositionOnTrack(car);
+    			maxPosCar = car;
+    		}
+    	}
+    	return maxPosCar;
     }
     
     /**

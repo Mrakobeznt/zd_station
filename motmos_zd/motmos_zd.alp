@@ -13265,7 +13265,7 @@ editbox13.setText(self.getValue());]]></ActionCode>
 					<Z>0</Z>
 					<ZHeight>10</ZHeight>
 					<LineWidth>1</LineWidth>
-					<LineColor>-4144960</LineColor>
+					<LineColor>-1</LineColor>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>1760</Width>
@@ -13277,164 +13277,204 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704964064904</Id>
 					<Name><![CDATA[text28]]></Name>
-					<X>-865</X><Y>-10</Y>
+					<X>-849</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[1]]></Text>
+					<TextCode><![CDATA[index+1]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064906</Id>
 					<Name><![CDATA[text29]]></Name>
-					<X>-695</X><Y>-10</Y>
+					<X>-640</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[659846365987]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumVagon()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064908</Id>
 					<Name><![CDATA[text30]]></Name>
-					<X>-800</X><Y>-10</Y>
+					<X>-747</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[35]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumRequest()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064910</Id>
 					<Name><![CDATA[text31]]></Name>
-					<X>-570</X><Y>-10</Y>
+					<X>-502</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[484F4Y96GHT]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumInvoice()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064912</Id>
 					<Name><![CDATA[text32]]></Name>
-					<X>-460</X><Y>-10</Y>
+					<X>-397</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Трубовоз]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getTypeVagon()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064914</Id>
 					<Name><![CDATA[text33]]></Name>
-					<X>-350</X><Y>-10</Y>
+					<X>-302</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Труба]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getTypeProduct()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064918</Id>
 					<Name><![CDATA[text35]]></Name>
-					<X>-270</X><Y>-10</Y>
+					<X>-242</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[10]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumFront()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>CENTER</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064920</Id>
 					<Name><![CDATA[text36]]></Name>
-					<X>670</X><Y>-10</Y>
+					<X>678</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Акционерное общество "Транснефть Сибирь Тайга Богатство Роскошь Свобода Национальное Достояние]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNameOwner()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -13445,44 +13485,80 @@ editbox13.setText(self.getValue());]]></ActionCode>
 				<Text>
 					<Id>1704964064922</Id>
 					<Name><![CDATA[text37]]></Name>
-					<X>830</X><Y>-10</Y>
+					<X>877</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[7-19]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getChange() == 1 ? "7-19" : "19-7"]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1704964064924</Id>
 					<Name><![CDATA[text38]]></Name>
-					<X>700</X><Y>-10</Y>
+					<X>793</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[15.01.2024]]></Text>
+					<TextCode><![CDATA[Tools.getDateFomat(main.data.requestsCollection.get(index).getDateRequest())]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1705908004567</Id>
+					<Name><![CDATA[text39]]></Name>
+					<X>-187</X><Y>-9</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[10]]></Text>
+					<TextCode><![CDATA[main.data.requestsCollection.get(index).getWeight()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 			</Presentation>
 
@@ -22990,6 +23066,28 @@ else{
 			</Presentation>
 
 				</Group>
+				<Rectangle>
+					<Id>1705906999593</Id>
+					<Name><![CDATA[rectangle7]]></Name>
+					<X>2600</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-1</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>1760</Width>
+					<Height>20</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-40121</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
 				<Group>
 					<Id>1705663629098</Id>
 					<Name><![CDATA[titleTable]]></Name>
@@ -23028,7 +23126,7 @@ else{
 				<Text>
 					<Id>1704900047537</Id>
 					<Name><![CDATA[text3]]></Name>
-					<X>-740</X><Y>-10</Y>
+					<X>-690</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23044,12 +23142,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900060569</Id>
 					<Name><![CDATA[text4]]></Name>
-					<X>-840</X><Y>-10</Y>
+					<X>-795</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23065,12 +23163,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900227918</Id>
 					<Name><![CDATA[text5]]></Name>
-					<X>-625</X><Y>-10</Y>
+					<X>-568</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23086,12 +23184,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900243079</Id>
 					<Name><![CDATA[text6]]></Name>
-					<X>-490</X><Y>-10</Y>
+					<X>-445</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23107,12 +23205,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900266194</Id>
 					<Name><![CDATA[text7]]></Name>
-					<X>-380</X><Y>-10</Y>
+					<X>-345</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23128,12 +23226,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900283445</Id>
 					<Name><![CDATA[text10]]></Name>
-					<X>-290</X><Y>-10</Y>
+					<X>-268</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23149,12 +23247,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900293492</Id>
 					<Name><![CDATA[text23]]></Name>
-					<X>310</X><Y>-10</Y>
+					<X>230</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23170,12 +23268,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900306403</Id>
 					<Name><![CDATA[text24]]></Name>
-					<X>820</X><Y>-10</Y>
+					<X>837</X><Y>-9</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23191,12 +23289,12 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1704900326603</Id>
 					<Name><![CDATA[text25]]></Name>
-					<X>700</X><Y>-10</Y>
+					<X>740</X><Y>-10</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23212,7 +23310,7 @@ else{
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
 			</Presentation>
 
@@ -23220,7 +23318,7 @@ else{
 				<Text>
 					<Id>1705664344178</Id>
 					<Name><![CDATA[text12]]></Name>
-					<X>3280</X><Y>380</Y>
+					<X>3259</X><Y>380</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -23238,6 +23336,226 @@ else{
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
+				<Rectangle>
+					<Id>1705906808132</Id>
+					<Name><![CDATA[rectangle]]></Name>
+					<X>2633</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907669947</Id>
+					<Name><![CDATA[rectangle3]]></Name>
+					<X>2735</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907680759</Id>
+					<Name><![CDATA[rectangle4]]></Name>
+					<X>2842</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907698547</Id>
+					<Name><![CDATA[rectangle5]]></Name>
+					<X>2980</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907859657</Id>
+					<Name><![CDATA[rectangle8]]></Name>
+					<X>3085</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907890275</Id>
+					<Name><![CDATA[rectangle9]]></Name>
+					<X>3180</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907953820</Id>
+					<Name><![CDATA[rectangle10]]></Name>
+					<X>3240</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705907984162</Id>
+					<Name><![CDATA[rectangle11]]></Name>
+					<X>3295</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705908042837</Id>
+					<Name><![CDATA[rectangle12]]></Name>
+					<X>4160</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1705908121549</Id>
+					<Name><![CDATA[rectangle49]]></Name>
+					<X>4275</X><Y>380</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
 			</Presentation>
 
 				</Level>
@@ -34613,6 +34931,41 @@ public class FormationOptimizer {
     
 }
 ]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1705910768058</Id>
+			<Name><![CDATA[Tools]]></Name>
+			<Text><![CDATA[/**
+ * Tools
+ */
+import java.text.SimpleDateFormat;
+public class Tools implements Serializable {
+
+    /**
+     * Конструктор по умолчанию
+     */
+    public Tools() {
+    }
+
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+	
+	public static String getDateFomat(Date date) {
+		 SimpleDateFormat newDateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+		 String result = newDateFormat.format(date);
+		 return result;
+	}
+
+	/**
+	 * Это число используется при сохранении состояния модели<br>
+	 * Его рекомендуется изменить в случае изменения класса
+	 */ 
+	private static final long serialVersionUID = 1L;
+
+}]]></Text>
 		</JavaClass>
 	</JavaClasses>
 	<ModelResources>

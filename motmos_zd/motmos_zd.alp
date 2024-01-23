@@ -33,14 +33,15 @@ data.readProducts();
 
 data.readRequests();
 
+data.setFrontsOffset(positionsOnTracks);
+
 avoidTracks.add(trackNp1);
 
 add_logic();
 
 setArrange();
 
-interfaceSettings.initSettings();
-]]></StartupCode>
+interfaceSettings.initSettings();]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1700575101543</Id>
@@ -218,6 +219,24 @@ interfaceSettings.initSettings();
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1706036536215</Id>
+					<Name><![CDATA[positionsOnTracks]]></Name>
+					<X>-320</X><Y>1760</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[PositionOnTrack]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ pointOnTrack, pointOnTrack2, pointOnTrack1, pointOnTrack3, pointOnTrack4 }]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -382,7 +401,7 @@ interfaceSettings.initSettings();
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-40</X><Y>0</Y></Point>
+						<Point><X>-60</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -734,9 +753,7 @@ for (TrackEdge track : getTracksEdges()){
 		addTask("Расстановка", track.getSelf(), null, train, false);
 	}
 }
-List<RailCar> locoTrain = new ArrayList();
-locoTrain.add(data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null));
-addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
+createLocomotives();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -817,14 +834,12 @@ return frontsCollection;]]></Body>
 					<Body><![CDATA[Front front = getFrontByNum(numFront);
 List<Integer> hashList = new ArrayList();
 for (Request req : getActiveFrontRequest(numFront)){//
-	List<RailCar> cars = new ArrayList();
 	if (front.needVagons()){
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (req.getTypeVagon().equals(car.type) 
 				&& req.getNameOwner().equals(car.owner)){
+				car.getRectangle().setVisible(true);
 				hashList.add(car.hashCode());
-			}
-			else{
 			}
 		}
 	}
@@ -870,6 +885,9 @@ getEngine().setStopDate(dateFinish);]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<RailCar> locoTrain = new ArrayList();
+locoTrain.add(data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null));
+addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -995,9 +1013,20 @@ return list;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[for (Front front : getEmptyFronts()){
 	FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
+	
+	boolean isTarget = true;
+	RailwayTrack startTrack = null;
 	for (TaskAction task : fo.getTasks()){
+		if (isTarget){
+			startTrack = task.endTrack;
+			isTarget = false;
+		}
 		addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco);
 		traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
+	}
+	if (startTrack != null){
+		traceln(red, "startTrack " + startTrack.getName());
+		addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false);
 	}
 }]]></Body>
 				</Function>
@@ -1166,6 +1195,18 @@ return hashList;]]></Body>
 					<Id>1706016004692</Id>
 					<Name><![CDATA[fulfillRequests]]></Name>
 					<X>600</X><Y>2280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1706023532235</Id>
+					<Name><![CDATA[getRequestsToArrive]]></Name>
+					<Description><![CDATA[Функция возвращает заявки, которые должны войти в следующее прибытие состава]]></Description>
+					<X>600</X><Y>2300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1796,8 +1837,14 @@ switch (typeTask){
 	case "Движение" :
 		logic1.enterMove.take(agent);
 		break;
+	case "Движение в цех" :
+		logic1.enterMove.take(agent);
+		break;
 	case "Сцепка" :
 		logic1.enterCoupMove.take(agent);
+		break;
+	case "Ожидание" :
+		logic1.enterDelay.take(agent);
 		break;
 	case "Расцепка" :
 		logic1.enterDecouple.take(agent);
@@ -2010,6 +2057,12 @@ switch (typeTask){
 	case "Движение" :
 		logic1.enterMove.take(agent);
 		break;
+	case "Движение в цех" :
+		logic1.enterMove.take(agent);
+		break;
+	case "Ожидание" :
+		logic1.enterDelay.take(agent);
+		break;
 	case "Сцепка" :
 		logic1.enterCoupMove.take(agent);
 		break;
@@ -2164,7 +2217,7 @@ switch (typeTask){
 				<EmbeddedObject>
 					<Id>1702720610216</Id>
 					<Name><![CDATA[enterTask]]></Name>
-					<X>480</X><Y>1820</Y>
+					<X>460</X><Y>1820</Y>
 					<Label><X>-20</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2542,9 +2595,8 @@ switch (typeTask){
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[pauseSimulation();
-//Logic objLogic = logic.stream().filter(p-> p.hashCode() == agent.codeLogic).findFirst().orElse(null);
-//remove_logic(objLogic);
+								<Code><![CDATA[Logic objLogic = logic.stream().filter(p-> p.hashCode() == agent.codeLogic).findFirst().orElse(null);
+remove_logic(objLogic);
 activeTasks--;]]></Code>
 							</Value>
 						</Parameter>
@@ -3839,6 +3891,138 @@ logic.enterStart.take(agent);]]></Code>
 					</Points>
 					<Bidirectional>true</Bidirectional>
 
+			<Presentation>
+				<RailStopline>
+					<Id>1706035478299</Id>
+					<Name><![CDATA[pointOnTrack1]]></Name>
+					<X>1040</X><Y>420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+					<Offset>145.0</Offset>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+				</RailStopline>
+			</Presentation>
 
 				</RailTrack>
 				<RailroadSwitch>
@@ -3920,6 +4104,138 @@ logic.enterStart.take(agent);]]></Code>
 					</Points>
 					<Bidirectional>true</Bidirectional>
 
+			<Presentation>
+				<RailStopline>
+					<Id>1706035471691</Id>
+					<Name><![CDATA[pointOnTrack]]></Name>
+					<X>795</X><Y>435</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+					<Offset>390.0</Offset>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+				</RailStopline>
+			</Presentation>
 
 				</RailTrack>
 				<RailTrack TargetId="1701423549591">
@@ -4019,6 +4335,138 @@ logic.enterStart.take(agent);]]></Code>
 					</Points>
 					<Bidirectional>true</Bidirectional>
 
+			<Presentation>
+				<RailStopline>
+					<Id>1706035492880</Id>
+					<Name><![CDATA[pointOnTrack4]]></Name>
+					<X>1040</X><Y>205</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+					<Offset>260.0</Offset>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+				</RailStopline>
+			</Presentation>
 
 				</RailTrack>
 				<RailTrack SourceId="1701423549569">
@@ -4061,6 +4509,138 @@ logic.enterStart.take(agent);]]></Code>
 					</Points>
 					<Bidirectional>true</Bidirectional>
 
+			<Presentation>
+				<RailStopline>
+					<Id>1706035490778</Id>
+					<Name><![CDATA[pointOnTrack3]]></Name>
+					<X>1042.934</X><Y>223.842</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+					<Offset>248.0</Offset>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+				</RailStopline>
+			</Presentation>
 
 				</RailTrack>
 				<RailTrack SourceId="1701434608662" TargetId="1701435114036">
@@ -4217,6 +4797,138 @@ logic.enterStart.take(agent);]]></Code>
 					</Points>
 					<Bidirectional>true</Bidirectional>
 
+			<Presentation>
+				<RailStopline>
+					<Id>1706035485316</Id>
+					<Name><![CDATA[pointOnTrack2]]></Name>
+					<X>1035</X><Y>440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+					<Offset>150.0</Offset>
+					<EmbeddedObject>
+						<ActiveObjectClass>
+							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+						</ActiveObjectClass>
+						<GenericParameterSubstitute>
+							<GenericParameterSubstituteReference>
+								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
+								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
+								<ItemName><![CDATA[1588157718720]]></ItemName>
+							</GenericParameterSubstituteReference>
+						</GenericParameterSubstitute>
+						<Parameters>
+							<Parameter>
+								<Name><![CDATA[onTrainEnter]]></Name>
+							</Parameter>
+							<Parameter>
+								<Name><![CDATA[onTrainExit]]></Name>
+							</Parameter>
+						</Parameters>
+						<ReplicationFlag>false</ReplicationFlag>
+						<Replication Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</Replication>
+						<CollectionType>ARRAY_LIST_BASED</CollectionType>
+						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+						<XCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</XCode>
+						<YCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</YCode>
+						<ZCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ZCode>
+						<ColumnCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</ColumnCode>
+						<RowCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</RowCode>
+						<LatitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LatitudeCode>
+						<LongitudeCode Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</LongitudeCode>
+						<LocationNameCode Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</LocationNameCode>
+						<InitializationType>SPECIFIED_NUMBER</InitializationType>
+						<InitializationDatabaseTableQuery>
+							<TableReference>
+							</TableReference>
+						</InitializationDatabaseTableQuery>
+						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+						<QuantityColumn>
+						</QuantityColumn>
+					</EmbeddedObject>
+				</RailStopline>
+			</Presentation>
 
 				</RailTrack>
 			</Presentation>
@@ -4707,7 +5419,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-16777216</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -4812,7 +5524,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -4836,7 +5548,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor/>
 					<LineMaterial>null</LineMaterial>
@@ -4919,7 +5631,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -5026,7 +5738,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -5133,7 +5845,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -5240,7 +5952,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -5347,7 +6059,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -5514,7 +6226,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>105</Height>
+					<Height>140</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -5865,7 +6577,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -5941,7 +6653,7 @@ logic.enterStart.take(agent);]]></Code>
 				<Rectangle>
 					<Id>1705652884551</Id>
 					<Name><![CDATA[rectangle15]]></Name>
-					<X>-39</X><Y>-30</Y>
+					<X>-40</X><Y>-30</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5954,7 +6666,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineColor/>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>94</Width>
+					<Width>95</Width>
 					<Height>60</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor/>
@@ -5971,7 +6683,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -6078,7 +6790,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -6185,7 +6897,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -6292,7 +7004,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -6399,7 +7111,7 @@ logic.enterStart.take(agent);]]></Code>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<ZHeight>10</ZHeight>
+					<ZHeight>0</ZHeight>
 					<LineWidth>1</LineWidth>
 					<LineColor>-8355712</LineColor>
 					<LineMaterial>null</LineMaterial>
@@ -6913,6 +7625,24 @@ public String toString(){
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1706022159301</Id>
+					<Name><![CDATA[rectanglesStatus]]></Name>
+					<X>500</X><Y>-70</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[ShapeRectangle]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ rectangleLoco, rectangleOpenCar, rectanglePipe, rectanglePipeLil, rectangleGondola }]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<StatechartElements>
 				<StatechartElement Class="State" ParentState="ROOT_NODE">
@@ -7042,11 +7772,11 @@ public String toString(){
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[locomotive_1_right.setPos(-340,220);
-openCar.setPos(-340,220);
-pipeCarrierDefault.setPos(-340,220);
-pipeCarrier1796.setPos(-340,220);
-gondolaCarCoiled.setPos(-340,220);]]></Body>
+					<Body><![CDATA[groupLoco.setPos(-310,210);
+groupOpenCar.setPos(-310,210);
+groupPipe.setPos(-310,210);
+groupLittlePipe.setPos(-310,210);
+groupGondola.setPos(-310,210);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -7095,6 +7825,29 @@ return position+1;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[ShapeRectangle]]></ReturnType>
+					<Id>1706022248707</Id>
+					<Name><![CDATA[getRectangle]]></Name>
+					<X>500</X><Y>-40</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[ShapeRectangle sr = null;
+switch(type){
+	case "Локомотив":
+		sr = rectangleLoco;
+	case "Полувагон":
+		sr = rectangleOpenCar;
+	case "Трубовоз":
+		sr = model.equals("13-1796-01") ? rectanglePipeLil : rectanglePipe;
+	case "Платформа":
+		sr = rectangleGondola;
+}
+return sr;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -7155,19 +7908,267 @@ return position+1;]]></Body>
 
 			<Presentation>
 				<Group>
-					<Id>1705576037041</Id>
+					<Id>1706021922373</Id>
 					<Name><![CDATA[carVisual]]></Name>
-					<X>340</X><Y>-220</Y>
+					<X>310</X><Y>-210</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<OnClickCode><![CDATA[makeStatus();
-traceln("Моя позиция в составе c начала " + getPositionOnTrain(true));
-traceln("Моя позиция в составе c конца " + getPositionOnTrain(false));
-traceln("Собственник " + owner);
-traceln("Статус " + status);]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Group>
+					<Id>1706021281717</Id>
+					<Name><![CDATA[groupOpenCar]]></Name>
+					<X>-30</X><Y>90</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Figure3D>
+					<Id>1701938648899</Id>
+					<Name><![CDATA[openCar]]></Name>
+					<X>0</X><Y>-1</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<X>0</X><Y>-1</Y><Z>0</Z>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<ResourceReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[3d/opencar.dae]]></ClassName>
+					</ResourceReference>
+					<ColorTable>
+						<ColorMapping>
+							<Name><![CDATA[Material_Surf]]></Name>
+							<OriginalColor>-11711155</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[Material__2__Surf]]></Name>
+							<OriginalColor>-8624029</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[Material__4__Surf]]></Name>
+							<OriginalColor>-7301216</OriginalColor>
+						</ColorMapping>
+					</ColorTable>
+					<AutoScale>true</AutoScale>
+					<Scale>0.97</Scale>
+					<Rotation>0.0</Rotation>
+					<AxisOrder>YZX_AXIS_ORDER</AxisOrder>
+					<ApplyShading>true</ApplyShading>
+					<InternalLighting>OFF</InternalLighting>
+					<IgnoreSceneLights>false</IgnoreSceneLights>
+					<VisibleCode><![CDATA[type.equals("Полувагон")]]></VisibleCode>
+				</Figure3D>
+				<Rectangle>
+					<Id>1706021225589</Id>
+					<Name><![CDATA[rectangleOpenCar]]></Name>
+					<X>-63</X><Y>-17</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>0</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>10</Width>
+					<Height>32</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-16711681</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1706021362208</Id>
+					<Name><![CDATA[groupPipe]]></Name>
+					<X>32</X><Y>26</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Figure3D>
+					<Id>1701698000694</Id>
+					<Name><![CDATA[pipeCarrierDefault]]></Name>
+					<X>0</X><Y>-1</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<X>0</X><Y>-1</Y><Z>0</Z>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<ResourceReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[3d/bulkhead_flat_car_with_cp_80.4ft.dae]]></ClassName>
+					</ResourceReference>
+					<ColorTable>
+						<ColorMapping>
+							<Name><![CDATA[MA_Platform]]></Name>
+							<OriginalColor>-2111938</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[MA_Frame]]></Name>
+							<OriginalColor>-14540254</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[MA_Wheels]]></Name>
+							<OriginalColor>-8355712</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[MA_Coupler]]></Name>
+							<OriginalColor>-14540254</OriginalColor>
+						</ColorMapping>
+					</ColorTable>
+					<AutoScale>true</AutoScale>
+					<Scale>1.07</Scale>
+					<Rotation>0.0</Rotation>
+					<AxisOrder>XYZ_AXIS_ORDER</AxisOrder>
+					<ApplyShading>true</ApplyShading>
+					<InternalLighting>OFF</InternalLighting>
+					<IgnoreSceneLights>false</IgnoreSceneLights>
+					<VisibleCode><![CDATA[type.equals("Трубовоз")]]></VisibleCode>
+				</Figure3D>
+				<Rectangle>
+					<Id>1706021309653</Id>
+					<Name><![CDATA[rectanglePipe]]></Name>
+					<X>-124.4</X><Y>-16</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>0</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>10</Width>
+					<Height>30</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-16711681</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1706021434233</Id>
+					<Name><![CDATA[groupLittlePipe]]></Name>
+					<X>29</X><Y>-49</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Figure3D>
+					<Id>1701697869133</Id>
+					<Name><![CDATA[pipeCarrier1796]]></Name>
+					<X>0</X><Y>-1</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<X>0</X><Y>-1</Y><Z>0</Z>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<ResourceReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[3d/bulkhead_flat_car_with_cp_80.4ft.dae]]></ClassName>
+					</ResourceReference>
+					<ColorTable>
+						<ColorMapping>
+							<Name><![CDATA[MA_Platform]]></Name>
+							<OriginalColor>-2111938</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[MA_Frame]]></Name>
+							<OriginalColor>-14540254</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[MA_Wheels]]></Name>
+							<OriginalColor>-8355712</OriginalColor>
+						</ColorMapping>
+						<ColorMapping>
+							<Name><![CDATA[MA_Coupler]]></Name>
+							<OriginalColor>-14540254</OriginalColor>
+						</ColorMapping>
+					</ColorTable>
+					<AutoScale>true</AutoScale>
+					<Scale>1.05</Scale>
+					<Rotation>0.0</Rotation>
+					<AxisOrder>XYZ_AXIS_ORDER</AxisOrder>
+					<ApplyShading>true</ApplyShading>
+					<InternalLighting>OFF</InternalLighting>
+					<IgnoreSceneLights>false</IgnoreSceneLights>
+					<VisibleCode><![CDATA[type.equals("Трубовоз мал") && model.equals("13-1796-01")]]></VisibleCode>
+				</Figure3D>
+				<Rectangle>
+					<Id>1706021420862</Id>
+					<Name><![CDATA[rectanglePipeLil]]></Name>
+					<X>-122</X><Y>-16</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>0</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>10</Width>
+					<Height>29</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-16711681</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1706021579331</Id>
+					<Name><![CDATA[groupLoco]]></Name>
+					<X>-10</X><Y>151</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -7176,13 +8177,13 @@ traceln("Статус " + status);]]></OnClickCode>
 				<Figure3D>
 					<Id>1700596826521</Id>
 					<Name><![CDATA[locomotive_1_right]]></Name>
-					<X>-40</X><Y>160</Y>
+					<X>0</X><Y>-1</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>-40</X><Y>160</Y><Z>0</Z>
+					<X>0</X><Y>-1</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -7223,100 +8224,55 @@ traceln("Статус " + status);]]></OnClickCode>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
 					<VisibleCode><![CDATA[type.equals("Локомотив")]]></VisibleCode>
 				</Figure3D>
-				<Figure3D>
-					<Id>1701697869133</Id>
-					<Name><![CDATA[pipeCarrier1796]]></Name>
-					<X>-1</X><Y>-40</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
+				<Rectangle>
+					<Id>1706021542552</Id>
+					<Name><![CDATA[rectangleLoco]]></Name>
+					<X>-78</X><Y>-15</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>0</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>10</Width>
+					<Height>28</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-16711681</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1706021731242</Id>
+					<Name><![CDATA[groupGondola]]></Name>
+					<X>-26</X><Y>-149</Y>
+					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>-1</X><Y>-40</Y><Z>0</Z>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<ResourceReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[3d/bulkhead_flat_car_with_cp_80.4ft.dae]]></ClassName>
-					</ResourceReference>
-					<ColorTable>
-						<ColorMapping>
-							<Name><![CDATA[MA_Platform]]></Name>
-							<OriginalColor>-2111938</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[MA_Frame]]></Name>
-							<OriginalColor>-14540254</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[MA_Wheels]]></Name>
-							<OriginalColor>-8355712</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[MA_Coupler]]></Name>
-							<OriginalColor>-14540254</OriginalColor>
-						</ColorMapping>
-					</ColorTable>
-					<AutoScale>true</AutoScale>
-					<Scale>1.05</Scale>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
 					<Rotation>0.0</Rotation>
-					<AxisOrder>XYZ_AXIS_ORDER</AxisOrder>
-					<ApplyShading>true</ApplyShading>
-					<InternalLighting>OFF</InternalLighting>
-					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Трубовоз мал")]]></VisibleCode>
-				</Figure3D>
-				<Figure3D>
-					<Id>1701698000694</Id>
-					<Name><![CDATA[pipeCarrierDefault]]></Name>
-					<X>2</X><Y>35</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>2</X><Y>35</Y><Z>0</Z>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<ResourceReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[3d/bulkhead_flat_car_with_cp_80.4ft.dae]]></ClassName>
-					</ResourceReference>
-					<ColorTable>
-						<ColorMapping>
-							<Name><![CDATA[MA_Platform]]></Name>
-							<OriginalColor>-2111938</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[MA_Frame]]></Name>
-							<OriginalColor>-14540254</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[MA_Wheels]]></Name>
-							<OriginalColor>-8355712</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[MA_Coupler]]></Name>
-							<OriginalColor>-14540254</OriginalColor>
-						</ColorMapping>
-					</ColorTable>
-					<AutoScale>true</AutoScale>
-					<Scale>1.07</Scale>
-					<Rotation>0.0</Rotation>
-					<AxisOrder>XYZ_AXIS_ORDER</AxisOrder>
-					<ApplyShading>true</ApplyShading>
-					<InternalLighting>OFF</InternalLighting>
-					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Трубовоз")]]></VisibleCode>
-				</Figure3D>
+
+			<Presentation>
 				<Figure3D>
 					<Id>1701699344141</Id>
 					<Name><![CDATA[gondolaCarCoiled]]></Name>
-					<X>-56</X><Y>-140</Y>
+					<X>0</X><Y>-1</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>-56</X><Y>-140</Y><Z>0</Z>
+					<X>0</X><Y>-1</Y><Z>0</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -7345,44 +8301,31 @@ traceln("Статус " + status);]]></OnClickCode>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
 					<VisibleCode><![CDATA[type.equals("Платформа")]]></VisibleCode>
 				</Figure3D>
-				<Figure3D>
-					<Id>1701938648899</Id>
-					<Name><![CDATA[openCar]]></Name>
-					<X>-60</X><Y>99</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
+				<Rectangle>
+					<Id>1706021596728</Id>
+					<Name><![CDATA[rectangleGondola]]></Name>
+					<X>-67</X><Y>-18</Y>
+					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<X>-60</X><Y>99</Y><Z>0</Z>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<ResourceReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[3d/opencar.dae]]></ClassName>
-					</ResourceReference>
-					<ColorTable>
-						<ColorMapping>
-							<Name><![CDATA[Material_Surf]]></Name>
-							<OriginalColor>-11711155</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[Material__2__Surf]]></Name>
-							<OriginalColor>-8624029</OriginalColor>
-						</ColorMapping>
-						<ColorMapping>
-							<Name><![CDATA[Material__4__Surf]]></Name>
-							<OriginalColor>-7301216</OriginalColor>
-						</ColorMapping>
-					</ColorTable>
-					<AutoScale>true</AutoScale>
-					<Scale>0.97</Scale>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>0</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>5</Width>
+					<Height>33</Height>
 					<Rotation>0.0</Rotation>
-					<AxisOrder>YZX_AXIS_ORDER</AxisOrder>
-					<ApplyShading>true</ApplyShading>
-					<InternalLighting>OFF</InternalLighting>
-					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Полувагон")]]></VisibleCode>
-				</Figure3D>
+					<FillColor>-16711681</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Group>
@@ -8402,6 +9345,10 @@ else if (currTrack.equals(endTrack()) // если текущий целевой 
 	&& endTrack().isEmpty() // если конечный путь ПУСТОЙ
 		&& endTrack().length(METER) > (train.getLength(METER) - koef)){ // если длина конечного пути больше длины состава + коэффициент смещения
 	if (needOffset() >= 0.0){
+		traceln("++++++++++++++++++++++++++++++++");
+		traceln("ПРИМЕНИЛОССЬ");
+		traceln("Смещение " + needOffset());
+		traceln("++++++++++++++++++++++++++++++++");
 		offset = needOffset();
 		//traceln(green, "Смещение по методу 2.1 на путь " + currTrack.getName());
 	}
@@ -10479,6 +11426,21 @@ sourceStation.inject();]]></Code>
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1706035589184</Id>
+					<Name><![CDATA[frontsDelayOffset]]></Name>
+					<X>970</X><Y>370</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[LinkedHashMap]]></CollectionClass>
+						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
+						<ValueElementClass><![CDATA[Double]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -10744,6 +11706,41 @@ while(railCars.cellExists("Статусы вагонов", row, 1)){
 	row++;
 }
 railCars.close();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706036589613</Id>
+					<Name><![CDATA[setFrontsOffset]]></Name>
+					<X>970</X><Y>310</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[positions]]></Name>
+						<Type><![CDATA[List<PositionOnTrack>]]></Type>
+					</Parameter>
+					<Body><![CDATA[for (PositionOnTrack pt : positions){
+	RailwayTrack track = pt.getTrack();
+	frontsDelayOffset.put(track, (track.length(METER) - pt.getOffset(METER)));
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706036656582</Id>
+					<Name><![CDATA[getOffsetForDelay]]></Name>
+					<X>970</X><Y>340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[track]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Body><![CDATA[return frontsDelayOffset.get(track);]]></Body>
 				</Function>
 			</Functions>
 			<Connectivity>
@@ -11324,6 +12321,9 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 		case "Движение" :
 			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, offset));
 			break;
+		case "Движение в цех" :
+			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, main.data.getOffsetForDelay(curEndTrack), 5));
+			break;
 		case "Сцепка" :
 			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, offset));
 			cntCouple++;
@@ -11333,7 +12333,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			cntDecouple++;
 			break;
 		case "Ожидание" :
-			newListTasks.add(new Task(simpleTask.getType(), curStartTrack, curEndTrack, offset));
+			newListTasks.add(new Task(simpleTask.getType(), curStartTrack, curEndTrack, offset, 5));
 			break;
 		case "Терминирование" :
 			newListTasks.add(new Task(simpleTask.getType(),	curStartTrack, curEndTrack,	offset));
@@ -11458,7 +12458,9 @@ else if (currTask.getType().equals("Расцепка")
 else if (currTask.getType().equals("Сцепка") 
 	&& cntCouple == 0){
 	long j = tasks.stream().filter(p-> p.getType().equals("Сцепка")).count();
-	if (j > 1 || type.equals("Полурейс формирования на пустой путь") || type.equals("Полрейс формирования всех вагонов с пути на пустой путь")){
+	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
+		|| type.equals("Полрейс формирования всех вагонов с пути на пустой путь") 
+			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")){
 		nextTrack = startTrack;
 	}
 	else{
@@ -23013,6 +24015,154 @@ else{
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Text>
+					<Id>1706023563593</Id>
+					<Name><![CDATA[text14]]></Name>
+					<X>710</X><Y>190</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Какой локомотив будет работать на отправку и прибытие составов]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1706024146252</Id>
+					<Name><![CDATA[text18]]></Name>
+					<X>710</X><Y>310</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Путь]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1706024182459</Id>
+					<Name><![CDATA[text26]]></Name>
+					<X>710</X><Y>280</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Постановка локомотивов:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Control Type="ComboBox">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1706024202282</Id>
+					<Name><![CDATA[combobox]]></Name>
+					<X>770</X><Y>310</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="20">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<FillColor/>
+						<TextColor/>
+						<Enabled>true</Enabled>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<Editable>false</Editable>
+						<LinkTo>false</LinkTo>
+					</ExtendedProperties>
+				</Control>
+				<Text>
+					<Id>1706024213993</Id>
+					<Name><![CDATA[text27]]></Name>
+					<X>980</X><Y>280</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Поставленные локомотивы:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1706024219446</Id>
+					<Name><![CDATA[text34]]></Name>
+					<X>1160</X><Y>300</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Постановка локомотивов:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1706024220819</Id>
+					<Name><![CDATA[text40]]></Name>
+					<X>980</X><Y>300</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Постановка локомотивов:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -26914,7 +28064,7 @@ RailwayTrack tTrack = null;
 traceln("=========================");
 traceln(green, "ТЕКУЩАЯ ЗАДАЧА: " + currentTask.getType());
 traceln("=========================");
-if (currentTask.getType().equals("Движение")){
+if (currentTask.getType().equals("Движение") || currentTask.getType().equals("Движение в цех")){
 	if (cntTask == 0){
 		train = (Train)delayLoco.get(0);
 	}
@@ -26926,6 +28076,9 @@ if (currentTask.getType().equals("Движение")){
 					break;
 				}
 			}
+		}
+		else if (agent.listTask.get(cntTask - 1).getType().equals("Ожидание")){
+			train = (Train)currentTask.getEndTrack().getTrains().get(0);
 		}
 		else{
 			train = (Train)currentTask.getStartTrack().getTrains().get(0);
@@ -26939,12 +28092,8 @@ else if (currentTask.getType().equals("Расцепка")){
 	train = (Train)currentTask.getEndTrack().getTrains().get(0);
 }
 else if (currentTask.getType().equals("Сцепка")){
-	traceln(black, "СЦЕПКА НА ПУТИ " + currentTask.getEndTrack().getName());
-	traceln(black, "НА ПУТИ СОСТАВОВ " + currentTask.getEndTrack().getTrains().size());
 	train = (Train)currentTask.getEndTrack().getTrains().get(0);
-	traceln(black, "РАЗМЕР СОСТАВА 1 " + train.size());
 	trainS = (Train)currentTask.getEndTrack().getTrains().get(1);
-	traceln(black, "РАЗМЕР СОСТАВА 2 " + trainS.size());
 	trainS.codeForLogic = this.hashCode();
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
@@ -26952,19 +28101,18 @@ else if (currentTask.getType().equals("Сцепка")){
 	getDelay(train);
 	getDelay(trainS);
 }
+else if (currentTask.getType().equals("Ожидание")){
+	train = (Train)currentTask.getEndTrack().getTrains().get(0);
+}
+
 else if (currentTask.getType().equals("Терминирование")){
 	train = (Train)currentTask.getEndTrack().getTrains().get(0);
 }
 
 if(train != null && !currentTask.getType().equals("Сцепка")){
-	traceln(black, "СОСТАВ ВЫБРАН ДЛЯ ПЕРЕМЕЩЕНИЯ на пути " + train.getTrack(true).getName());
-	traceln("Размер состава " + train.size());
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
 	getDelay(train);
-}
-else{
-	traceln(black, "СОСТАВ НЕ ВЫБРАН, ТИП ЗАДАЧИ " + superTask.type);
 }
 cntTask++;]]></Code>
 							</Value>
@@ -28795,6 +29943,11 @@ cntTask++;]]></Code>
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[agent.codeForLogic = 0;
+returnsAgents(agent);
+delay.stopDelayForAll();]]></Code>
+							</Value>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -30921,6 +32074,10 @@ traceln(yellow, "=========================");]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[currentTask.getDelay()]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[capacity]]></Name>
@@ -33792,6 +34949,15 @@ public class Route implements Serializable {
         this.endTrack = endTrack;
         this.offset = offset;
     }
+    
+ // Движение в цех
+    public Task(String type, RailwayTrack startTrack, RailwayTrack endTrack, double offset, double delay) {
+    	this.type = type;
+        this.startTrack = startTrack;
+        this.endTrack = endTrack;
+        this.offset = offset;
+        this.delay = delay;
+    }
     // Расцепка
     public Task(String type, RailwayTrack endTrack, int cntVagons, boolean withLoco) {
     	this.type = type;
@@ -33894,7 +35060,8 @@ public class Route implements Serializable {
     public String toString() {
         return "Task{" +
                 ", type='" + type + '\'' +
-                ", endTrack='" + this.endTrack + '\'' +
+                ", endTrack='" + (this.endTrack != null ? this.endTrack.getName() : this.endTrack) + '\'' +
+                ", startTrack='" + (this.startTrack != null ? this.startTrack.getName() : this.startTrack) + '\'' +
                 ", cntVagons=" + this.cntVagons +
                 '}';
     }

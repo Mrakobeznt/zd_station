@@ -965,7 +965,7 @@ return listCar;]]></Body>
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705393162707</Id>
-					<Name><![CDATA[function]]></Name>
+					<Name><![CDATA[все_задачи]]></Name>
 					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>-630</X><Y>330</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -976,7 +976,8 @@ return listCar;]]></Body>
 1. Разработка фнкционала поиска вагонов для отправки на грузовой фронт
 2. Разработка функционала сбора состава для отправки на грузовой фронт
 3. Доработать отправку и забор вагонов с грузового фронта и на грузовой
-4. Доработать функционал сбора состава для отправки со станции]]></Body>
+4. Доработать функционал сбора состава для отправки со станции
+5. Исправить ошибку по составлению маршрута через пути, на которых стоят составы]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1013,10 +1014,10 @@ return list;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[for (Front front : getEmptyFronts()){
 	FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
-	
+	TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty() || fo.isEnoughPlace(p, fo.getCarsForSendtoFront())).findFirst().orElse(null);
 	boolean isTarget = true;
 	RailwayTrack startTrack = null;
-	for (TaskAction task : fo.getTasks()){
+	for (TaskAction task : fo.getTasks(targetTrack)){
 		if (isTarget){
 			startTrack = task.endTrack;
 			isTarget = false;
@@ -1025,7 +1026,7 @@ return list;]]></Body>
 		traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
 	}
 	if (startTrack != null){
-		traceln(red, "startTrack " + startTrack.getName());
+		//traceln(red, "startTrack " + startTrack.getName());
 		addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false);
 	}
 }]]></Body>
@@ -1156,6 +1157,7 @@ enterTask.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706002170532</Id>
 					<Name><![CDATA[makeTasksSendToFront]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>930</X><Y>2270</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1176,7 +1178,8 @@ enterTask.take(task);]]></Body>
 					<Name><![CDATA[getCarsToSend]]></Name>
 					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
 //Создание задач для локомотива по заявкам]]></Description>
-					<X>960</X><Y>2290</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>955</X><Y>2290</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1211,6 +1214,20 @@ return hashList;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706082730974</Id>
+					<Name><![CDATA[текущие_задачи]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>-490</X><Y>330</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[План
+1. Исправить ошибку по составлению маршрута через пути, на которых стоят составы]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -6402,7 +6419,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>105</Height>
+					<Height>150</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -8549,6 +8566,7 @@ return cars;]]></Body>
 		<ActiveObjectClass>
 			<Id>1701246686430</Id>
 			<Name><![CDATA[RouteMoveTo]]></Name>
+			<Import><![CDATA[import java.util.stream.Collectors;]]></Import>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1701246686428</Id>
@@ -9092,8 +9110,8 @@ return cars;]]></Body>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
 					<Body><![CDATA[Route route = null;
-if (train.getTrack(true).equals(endTrack)){
-	traceln("ЕДУ НА ЭТОТ ЖЕ ПУТЬ");
+
+if (conditionSimpleRoute(train)){
 	route = new Route();
 	ArrayList<RailwayTrack> usTracks = new ArrayList();
 	usTracks.add(endTrack);
@@ -9194,7 +9212,7 @@ if (getAvoidTracks(train) != null){
 		edges.add(new TrackEdge(track, track.getStartSwitch(), track.getEndSwitch(), track.length(METER)));
 	}
 }
-//getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
+getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
 List<SwitchNode> switchList = rf.findRoute(from, to, edges);
 List<RailwayTrack> allTracks = new ArrayList();
 List<RailwayTrack> routeTracks = new ArrayList();
@@ -9212,12 +9230,12 @@ for (SwitchNode node : switchList){
 }
 
 switchList.stream().forEach(p-> p.getSelf().setColor(green));
-//traceln(switchList);
-if (!routeTracks.contains(train.getTrack(true))){
-	routeTracks.add(0, train.getTrack(true));
+traceln(switchList);
+if (!routeTracks.contains(train.getTrack(false))){
+	routeTracks.add(0, train.getTrack(false));
 }
 routeTracks.add(endTrack());
-//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -9256,19 +9274,20 @@ boolean isMoveBack = isForward();
 boolean dir = direction();
 Map<RailwayTrack, Boolean> sideTracks = new HashMap();
 Map<RailwayTrack, Boolean> moveDirection = new HashMap();
+
 for(RailwayTrack track : routeTracks){
 	if (previousTrack != null){
 		RailwaySwitch previousTargetSwitch =  isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
-		//traceln(black, "Проверяю путь движение на путь " + track.getName());
+		traceln(black, "Проверяю путь движение на путь " + track.getName());
 		if (previousTargetSwitch == null){
-			//traceln(red, "Я меняю направление у пути " + previousTrack.getName() + " теперь " + (!isMoveBack));
+			traceln(red, "Я меняю направление у пути " + previousTrack.getName() + " теперь " + (!isMoveBack));
 			previousTargetSwitch = !isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
-			//traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
+			traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
 		} 
 		if (!previousTargetSwitch.getAvailableTracks(previousTrack).contains(track)){// если с предыдущего пути нельзя попасть на следующий путь 
 			RailwayTrack nextTrack = previousTargetSwitch.getAvailableTracks(previousTrack).get(0);// смотрим следующий доступный путь
-			//traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
-			//traceln(red, "Добавляю путь " + nextTrack.getName());
+			traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
+			traceln(red, "Добавляю путь " + nextTrack.getName());
 			
 			
 			copyRouteTracks.add(nextTrack);
@@ -9277,7 +9296,7 @@ for(RailwayTrack track : routeTracks){
 			traceln("Для пути " + nextTrack.getName() + " задаю движение по 1 варианту");
 			
 			
-			//traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
+			traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
 			if (nextTrack.length(METER) < train.getLength(METER) + 15){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
 				traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
 				double haveLengthWay =+ nextTrack.length(METER);
@@ -9314,7 +9333,7 @@ for(RailwayTrack track : routeTracks){
 	sideTracks.put(track,  isMoveBack);
 	traceln("Для пути " + track.getName() + " задаю движение по 2 варианту");
 	moveDirection.put(track, dir);
-	//traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
+	traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
 }
 Route route = new Route(copyRouteTracks, sideTracks, moveDirection);
 return route;]]></Body>
@@ -9345,10 +9364,6 @@ else if (currTrack.equals(endTrack()) // если текущий целевой 
 	&& endTrack().isEmpty() // если конечный путь ПУСТОЙ
 		&& endTrack().length(METER) > (train.getLength(METER) - koef)){ // если длина конечного пути больше длины состава + коэффициент смещения
 	if (needOffset() >= 0.0){
-		traceln("++++++++++++++++++++++++++++++++");
-		traceln("ПРИМЕНИЛОССЬ");
-		traceln("Смещение " + needOffset());
-		traceln("++++++++++++++++++++++++++++++++");
 		offset = needOffset();
 		//traceln(green, "Смещение по методу 2.1 на путь " + currTrack.getName());
 	}
@@ -9395,13 +9410,29 @@ return offset;]]></Body>
 						<Name><![CDATA[train]]></Name>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
-					<Body><![CDATA[List<RailwayTrack> list = avoidTracks;
+					<Body><![CDATA[List<RailwayTrack> list = new ArrayList();
+list.addAll(avoidTracks);
+Train targetTrain = null;
+if (!endTrack().isEmpty()){
+	targetTrain = (Train)endTrack().getTrains().stream().filter(p-> !p.equals(train)).collect(Collectors.toList()).get(0);
+}
 for (RailwayTrack track : railNetwork.getTracks()){
+	//traceln(red, "Рассматриваем путь " + track.getName());
 	if (track.equals(train.getTrack(true)) //если путь не является путем, на котром стоит состав с головы
 		&& track.equals(train.getTrack(false)) //если путь не является путем, на котром стоит состав с хвоста
-			&& !track.equals(endTrack())
-				&& !track.isEmpty()){ // если путь на является конечным путем следования
+			){
 		list.add(track);
+	}
+	
+	else if(!track.equals(endTrack()) && !track.isEmpty()){ // если путь не является конченым и если путь не пустой
+		Train trainOnTrack = (Train)track.getTrains().get(0);
+		if (targetTrain != null && trainOnTrack.equals(targetTrain) || trainOnTrack.equals(train)){ // если состав на пути относится к целевому составу
+			//traceln(black, "Состав на пути " + track.getName() + " относится к целевому составу");
+		}
+		else{
+			//traceln(black, "Состав на пути " + track.getName() + " не существует или не относится к целевому");
+			list.add(track);
+		}
 	}
 }
 return list;]]></Body>
@@ -9437,8 +9468,39 @@ return speed;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[boolean moveCurr = route.getMoveDirection().get(route.getUsedTracks().get(cntRoute));
 boolean moveNext = ((cntRoute + 1) > route.getUsedTracks().size() - 1) ? moveCurr : route.getMoveDirection().get(route.getUsedTracks().get(cntRoute + 1));
-return ((route.getUsedTracks().size() - 1) == cntRoute || (moveCurr != moveNext)); 
+boolean result = ((route.getUsedTracks().size() - 1) == cntRoute || (moveCurr != moveNext));
+traceln(red, (result ? "Торможу" : "Не торможу"));
+return result; 
 // если путь маршрута последний или на следующем пути движение в обратном направлении]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1706101367196</Id>
+					<Name><![CDATA[conditionSimpleRoute]]></Name>
+					<X>810</X><Y>30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[train]]></Name>
+						<Type><![CDATA[Train]]></Type>
+					</Parameter>
+					<Body><![CDATA[boolean isSimple = false;
+RailwayTrack beginStart =  train.getTrack(true);
+RailwayTrack finishStart = train.getTrack(false);
+
+Train endTrain = endTrack().isEmpty() ? null : (Train)(endTrack().getTrains()/*.stream().filter(p-> !p.equals(train)).collect(Collectors.toList())*/.get(0));
+
+Train beginTrainStart = beginStart.getTrains().size() > 1 ? (Train)(beginStart.getTrains().stream().filter(p-> !p.equals(train)).collect(Collectors.toList()).get(0)) : null;
+Train finishTrainStart = finishStart.getTrains().size() > 1 ? (Train)(finishStart.getTrains().stream().filter(p-> !p.equals(train)).collect(Collectors.toList()).get(0)) : null;
+
+Train startTrain = beginTrainStart == null ? finishTrainStart : beginTrainStart;
+if (finishStart.equals(endTrack()) || beginStart.equals(endTrack()) || (endTrain != null && startTrain != null && endTrain.equals(startTrain))){
+	isSimple = true;
+}
+return isSimple;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -9724,7 +9786,7 @@ route = null;]]></Code>
 	this.train = agent;
 	//traceln("train.getTrack(true) " + train.getTrack(true).getName());
 	//traceln("endTrack() " + endTrack().getName());
-	route = makeRoute(train.getTrack(true), endTrack(), train);
+	route = makeRoute(train.getTrack(false), endTrack(), train);
 }
 //else{
 	boolean isForward = route.getMoveDirection().get(route.getUsedTracks().get(cntRoute));
@@ -9838,9 +9900,7 @@ cntRoute++;]]></Code>
 							<Name><![CDATA[onExitTrue]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[cntRoute = 0;
-route = null;
-traceln("Обнуляю маршрут " + route);
-traceln("Обнуляю cnt " + cntRoute);]]></Code>
+route = null;]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -12340,6 +12400,9 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			break;
 	}
 }
+traceln(orange, "Для задачи " + type);
+newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
++ " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()));
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -12461,6 +12524,7 @@ else if (currTask.getType().equals("Сцепка")
 	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
 		|| type.equals("Полрейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")){
+				//|| type.equals("Полрейс формирования всех вагонов с пути")
 		nextTrack = startTrack;
 	}
 	else{
@@ -24479,6 +24543,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 		<ActiveObjectClass>
 			<Id>1702720084521</Id>
 			<Name><![CDATA[Logic]]></Name>
+			<Import><![CDATA[import java.util.stream.Collectors;]]></Import>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1702720084527</Id>
@@ -24634,6 +24699,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 				<Variable Class="PlainVariable">
 					<Id>1705676473796</Id>
 					<Name><![CDATA[cntCouple]]></Name>
+					<Description><![CDATA[Количество сцепок в задаче]]></Description>
 					<X>730</X><Y>40</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -24649,6 +24715,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 				<Variable Class="PlainVariable">
 					<Id>1705676488787</Id>
 					<Name><![CDATA[cntDecouple]]></Name>
+					<Description><![CDATA[Количество расцепок в задаче]]></Description>
 					<X>730</X><Y>70</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -24664,6 +24731,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 				<Variable Class="PlainVariable">
 					<Id>1705932091464</Id>
 					<Name><![CDATA[wasDelay]]></Name>
+					<Description><![CDATA[Была ли задержка при в операции ]]></Description>
 					<X>730</X><Y>150</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -26480,16 +26548,16 @@ return  offset;]]></Body>
 					</Parameter>
 					<Body><![CDATA[if (train.size() > 1){
 	delayTrains.stopDelay(((Agent)train));
-	traceln("Высбобоил из составов");
+	//traceln("Высбобоил из составов");
 	
 }
 else if (train.getCars().get(0).type.equals("Локомотив")){
 	delayLoco.stopDelay(((Agent)train));
-	traceln("Высбобоил из локо");
+	//traceln("Высбобоил из локо");
 }
 else{
 	delayTrains.stopDelay(((Agent)train));
-	traceln("Высбобоил из локо");
+	//traceln("Высбобоил из локо");
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -26510,6 +26578,26 @@ else{
 	direction = true;
 }
 return direction;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Train]]></ReturnType>
+					<Id>1706109378623</Id>
+					<Name><![CDATA[getTrainForCouple]]></Name>
+					<X>1170</X><Y>50</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[train]]></Name>
+						<Type><![CDATA[Train]]></Type>
+					</Parameter>
+					<Body><![CDATA[RailwayTrack startTrain = train.getTrack(true);
+RailwayTrack endTrain = train.getTrack(false);
+RailwayTrack track = startTrain.getTrains().size() > 1 ? startTrain : endTrain;
+
+return (Train)track.getTrains().stream().filter(p-> !p.equals(train)).collect(Collectors.toList()).get(0);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -26712,7 +26800,9 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[traceln("Конечный путь " + currentTask.getEndTrack().getName());]]></Code>
+								<Code><![CDATA[traceln(green, "Движение на путь " + currentTask.getEndTrack().getName());
+traceln(green, "Размер движемого состава " + agent.size());
+traceln(green, "Размер состава на конечном пути " + currentTask.getEndTrack().getCars().size());]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -27321,7 +27411,7 @@ returnsAgents(agent);]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[traceln(pink, "Отцепляю " + currentTask.getCntVagons());]]></Code>
+								<Code><![CDATA[traceln(green, "Расцепляю вагонов " + currentTask.getCntVagons());]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -27405,9 +27495,15 @@ returnsAgents(agent);]]></Code>
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[onEnter1]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[traceln(green, "Сцепляю состав 1 размером " + train.size());]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter2]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[traceln(green, "Сцепляю состав 2 размером " + train.size());]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
@@ -27546,7 +27642,8 @@ returnsAgents(agent);]]></Code>
 							<Value Class="CodeValue">
 								<Code><![CDATA[if (firstTrain == null){
 	firstTrain = agent;
-}]]></Code>
+}
+]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -28070,6 +28167,8 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 	}
 	else{
 		if (currentTask.getStartTrack().getTrains().size() > 1){
+			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
+			traceln("Количество составов " + currentTask.getStartTrack().getTrains().size());
 			for (Agent train1 : currentTask.getStartTrack().getTrains()){
 				if (((Train)train1).getCars().stream().anyMatch(p-> p.type.equals("Локомотив"))){
 					train = ((Train)train1);
@@ -28081,6 +28180,7 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 			train = (Train)currentTask.getEndTrack().getTrains().get(0);
 		}
 		else{
+			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
 			train = (Train)currentTask.getStartTrack().getTrains().get(0);
 		}
 	}
@@ -28093,7 +28193,14 @@ else if (currentTask.getType().equals("Расцепка")){
 }
 else if (currentTask.getType().equals("Сцепка")){
 	train = (Train)currentTask.getEndTrack().getTrains().get(0);
-	trainS = (Train)currentTask.getEndTrack().getTrains().get(1);
+	if (currentTask.getEndTrack().getTrains().size() > 1){
+		trainS = (Train)currentTask.getEndTrack().getTrains().get(1);
+	}
+	else{
+		trainS = getTrainForCouple(train);
+	}
+	traceln("Нашел 1ый состав на пути " + currentTask.getEndTrack().getName());
+	traceln("Нашел 2ой состав на пути " + currentTask.getEndTrack().getName());
 	trainS.codeForLogic = this.hashCode();
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
@@ -28113,6 +28220,9 @@ if(train != null && !currentTask.getType().equals("Сцепка")){
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
 	getDelay(train);
+}
+else{
+	traceln("Состав равен null");
 }
 cntTask++;]]></Code>
 							</Value>
@@ -33289,6 +33399,9 @@ traceln(yellow, "=========================");]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[traceln(orange, "Получился состав размером " + agent.getCars().size());]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
@@ -35560,60 +35673,60 @@ public class FormationOptimizer {
     /**
     возвращает список задач для формирования
     **/
-    public List<TaskAction> getTasks(){ // 
+    public List<TaskAction> getTasks(TrackEdge targetTrack){ // 
     	List<RailCar> carsForFront = getCarsForSendtoFront();
     	List<TaskAction> tasks = new ArrayList();
-    	TrackEdge targetTrack = pops.stream().filter(p-> p.getSelf().isEmpty() || isEnoughPlace(p, carsForFront)).findFirst().orElse(null);
+    	//TrackEdge targetTrack = pops.stream().filter(p-> p.getSelf().isEmpty() || isEnoughPlace(p, carsForFront)).findFirst().orElse(null);
     	if (targetTrack != null) {
+    		int endTrackSize = targetTrack.getSelf().getCars().size();
 	    	for (TrackEdge track : pops){
 	    		List<RailCar> allTargetFrontCars = getTargetCarsOnTrack(track, carsForFront);
 	    		if (allTargetFrontCars.size() > 0) {
 		        	int posCar = 0;
-		        	boolean indicator = true;
+		        	boolean toTargetTrack = true;
 		        	List<Integer> fragments = getFragmentsTrain(getRailCarsOnTrack(track), allTargetFrontCars);
-		        	int startTraskCnt = track.getSelf().getCars().size();
-		        	int endTrackCnt = targetTrack.getSelf().getCars().size();
+		        	int startTrackSize = track.getSelf().getCars().size();
+		        	
 		        	//traceln("Начальный размер состава на пути " + track.getSelf().getName()  + " " + startTraskCnt);
         			//traceln("Начальный размер состава на пути " +  targetTrack.getSelf().getName() + " " + endTrackCnt);
-        			int targetComprassion = endTrackCnt; // переменная целевого сравнения
+        			int targetComprassion = endTrackSize; // переменная целевого сравнения
 		        	for (int i = 0; i < fragments.size();i++) {
 			        		//traceln("Размер состава на пути " + targetTrack.getSelf().getName() + " " + endTrackCnt);
 		        			//traceln("Размер состава на пути " + track.getSelf().getName()  + " " + startTraskCnt);
-		        			RailwayTrack startTrack = indicator ? track.getSelf() : targetTrack.getSelf();
-		        			RailwayTrack endTrack = indicator ? targetTrack.getSelf() : track.getSelf();
-		        			targetComprassion = indicator ? endTrackCnt : startTraskCnt; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
-		        			String type = targetComprassion == 0 ? "Полурейс формирования на пустой путь" : "Полурейс формирования";
-		        			if (indicator) {
-		        				if (startTraskCnt ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
+		        			RailwayTrack startTrack = toTargetTrack ? track.getSelf() : targetTrack.getSelf();
+		        			RailwayTrack endTrack = toTargetTrack ? targetTrack.getSelf() : track.getSelf();
+		        			targetComprassion = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
+		        			String type = getTypeTask(targetTrack.getSelf(), endTrack, fragments.get(i), startTrackSize, endTrackSize);
+		        			/*String type = targetComprassion == 0 ? "Полурейс формирования на пустой путь" : "Полурейс формирования";
+		        			if (toTargetTrack) {
+		        				if (startTrackSize ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
 		        					type = "Полрейс формирования всех вагонов с пути на пустой путь";
 		        				}
 		        				else {
-		        					type = startTraskCnt ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
+		        					type = startTrackSize ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
 		        				}
 		        			}
 		        			else {
-		        				if (endTrackCnt ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
+		        				if (endTrackSize ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
 		        					type = "Полрейс формирования всех вагонов с пути на пустой путь";
 		        				}
 		        				else {
-		        					type = endTrackCnt ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
+		        					type = endTrackSize ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
 		        				}
-		        			}
+		        			}*/
 		        					//Полрейс формирования всех вагонов с пути
 		        			TaskAction task = new TaskAction (type, startTrack, endTrack, fragments.get(i));
 		        			tasks.add(task);
 		        			if (endTrack.equals(targetTrack.getSelf())) {
-		        				endTrackCnt += fragments.get(i);
-		        				startTraskCnt -= fragments.get(i);
+		        				endTrackSize += fragments.get(i);
+		        				startTrackSize -= fragments.get(i);
 		        				
 		        			}
 		        			else {
-		        				endTrackCnt -= fragments.get(i);
-		        				startTraskCnt += fragments.get(i);
+		        				endTrackSize -= fragments.get(i);
+		        				startTrackSize += fragments.get(i);
 		        			}
-		        			//traceln(red, "Отвез " + fragments.get(i) + " вагонов");
-		        			//traceln(red, "Задача: " + task.type);
-		        			indicator = !indicator;
+		        			toTargetTrack = !toTargetTrack;
 		        		}
 		        	}
     		}
@@ -35626,6 +35739,34 @@ public class FormationOptimizer {
     	}
     	
     	
+    }
+    /**
+     * 
+     * @param targetTrack - путь, на котором необходимо сформировать состав
+     * @param endTrack - текущий конечный путь
+     * @param fragment - количество вагонов, которое нужно отправить на текущий конечный путь с начального пути
+     * @param startTrackSize -  размер состава начального пути, с которого начинается движение
+     * @param endTrackSize - размер состава текущего кончечного пути
+     * @return возвращает тип задачи
+     */
+    public String getTypeTask(RailwayTrack targetTrack, RailwayTrack endTrack, int fragment, int startTrackSize, int endTrackSize) {
+    	boolean toTargetTrack = endTrack.equals(targetTrack);
+    	int target = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
+    	int start = toTargetTrack ? startTrackSize : endTrackSize;
+    	String type = "";
+			if (start == fragment && target == 0) {
+				type = "Полрейс формирования всех вагонов с пути на пустой путь";
+			}
+			else if (start == fragment && target > 0){
+				type = "Полрейс формирования всех вагонов с пути";
+			}
+			else if(start > fragment && target == 0) {
+				type = "Полурейс формирования на пустой путь";
+			}
+			else if(start > fragment && target > 0) {
+				type = "Полурейс формирования";
+			}
+    	return type;
     }
     
     public List<TaskAction> getTasksForSending(){ // 

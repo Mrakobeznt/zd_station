@@ -33,7 +33,7 @@ data.readProducts();
 
 data.readRequests();
 
-data.setFrontsOffset(positionsOnTracks);
+data.setFrontsOffset(positionsOnTracks, tracksException);
 
 data.setFinishFrontsOffset(finishFronts);
 
@@ -253,6 +253,25 @@ interfaceSettings.initSettings();]]></StartupCode>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 						<CollectionInitializer Class="CodeValue">
 							<Code><![CDATA[{ finishFrontN2, finishFront10, finishFront9, finishFront8, finishFront7 }]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1706183712058</Id>
+					<Name><![CDATA[tracksException]]></Name>
+					<Description><![CDATA[Приемо-отправочные пути]]></Description>
+					<X>-170</X><Y>1700</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ trackNp2, track10p1 }]]></Code>
 						</CollectionInitializer>
 					</Properties>
 
@@ -4473,7 +4492,7 @@ logic.enterStart.take(agent);]]></Code>
 						<QuantityColumn>
 						</QuantityColumn>
 					</EmbeddedObject>
-					<Offset>390.0</Offset>
+					<Offset>389.9999999999993</Offset>
 					<EmbeddedObject>
 						<ActiveObjectClass>
 							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
@@ -7927,6 +7946,27 @@ logic.enterStart.take(agent);]]></Code>
 						<LabelText><![CDATA[button]]></LabelText>
 					</ExtendedProperties>
 				</Control>
+				<Text>
+					<Id>1706175229132</Id>
+					<Name><![CDATA[text10]]></Name>
+					<X>670</X><Y>390</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-1</Color>
+					<Text><![CDATA[switchCSP18]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -12460,9 +12500,15 @@ railCars.close();]]></Body>
 						<Name><![CDATA[positions]]></Name>
 						<Type><![CDATA[List<PositionOnTrack>]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[tracksException]]></Name>
+						<Type><![CDATA[List<RailwayTrack>]]></Type>
+					</Parameter>
 					<Body><![CDATA[for (PositionOnTrack pt : positions){
 	RailwayTrack track = pt.getTrack();
-	frontsDelayOffset.put(track, (track.length(METER) - pt.getOffset(METER)));
+	double delayOffset = tracksException.contains(track) ? pt.getOffset(METER) : (track.length(METER) - pt.getOffset(METER));
+	traceln("Записываю для пути " + track.getName() + ", смещение - " + delayOffset);
+	frontsDelayOffset.put(track, delayOffset);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -13087,6 +13133,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 	
 	RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(simpleTask, nextTask, i, cntCouple, cntDecouple, task.listTask);// конечный путь для задачи
 	RailwayTrack curStartTrack = newListTasks.isEmpty() ? null : getNextStartTrack(previousTask, nextTask); // начальный путь для задачи
+	RailwayTrack trackForOffst = curEndTrack == null ? null : (curEndTrack.equals(main.track10p2) ? main.track10p1 : curEndTrack);
 	
 	Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
 	switch (simpleTask.getType()){
@@ -13097,7 +13144,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, getOffsetForTask(curEndTrack, simpleTask.getType())));
 			break;
 		case "Движение в цех" :
-			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, getOffsetForTask(curEndTrack, simpleTask.getType()), 5));
+			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	trackForOffst, getOffsetForTask(trackForOffst, simpleTask.getType()), 5));
 			break;
 		case "Сцепка" :
 			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, offset));
@@ -27314,18 +27361,27 @@ else{
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1705670301967</Id>
 					<Name><![CDATA[getDirection]]></Name>
-					<X>940</X><Y>160</Y>
+					<X>940</X><Y>170</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[boolean direction = false;
-if (superTask.type.equals("Прибытие состава на станцию")){
+Task previousTask = null;
+if (cntTask > 2){
+	previousTask = superTask.listTask.get(cntTask - 2);
+	traceln("Предыдущая задача " + previousTask.getType());
+}
+
+if (superTask.type.equals("Прибытие состава на станцию") || (previousTask != null && previousTask.getType().equals("Ожидание") /*&& previousTask.getEndTrack().equals(main.track10p1)*/)){
+	traceln("Сработало направление");
 	direction = false;
 }
 else{
+	traceln("Не сработал направление ");
 	direction = true;
 }
+traceln("Вернул направление " + (!direction));
 return direction;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -27347,6 +27403,27 @@ RailwayTrack endTrain = train.getTrack(false);
 RailwayTrack track = startTrain.getTrains().size() > 1 ? startTrain : endTrain;
 
 return (Train)track.getTrains().stream().filter(p-> !p.equals(train)).collect(Collectors.toList()).get(0);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<RailwayTrack>]]></ReturnType>
+					<Id>1706174001579</Id>
+					<Name><![CDATA[getAvoidTracks]]></Name>
+					<X>230</X><Y>190</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[endTrack]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Body><![CDATA[List<RailwayTrack> avoidTracksCopy = new ArrayList();
+avoidTracksCopy.addAll(avoidTracks());
+if (endTrack != null && endTrack.equals(main.track10p2)){
+	avoidTracksCopy.add(main.track9p3);
+}
+return avoidTracksCopy;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -27713,7 +27790,7 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[avoidTracks]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[avoidTracks()]]></Code>
+								<Code><![CDATA[getAvoidTracks(currentTask.getEndTrack())]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -28927,7 +29004,8 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 			}
 		}
 		else if (agent.listTask.get(cntTask - 1).getType().equals("Ожидание")){
-			train = (Train)currentTask.getEndTrack().getTrains().get(0);
+			RailwayTrack trackEnd = currentTask.getEndTrack().equals(main.track10p2) ? main.track10p1 : currentTask.getEndTrack();
+			train = (Train)trackEnd.getTrains().get(0);
 		}
 		else{
 			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
@@ -28959,7 +29037,8 @@ else if (currentTask.getType().equals("Сцепка")){
 	getDelay(trainS);
 }
 else if (currentTask.getType().equals("Ожидание")){
-	train = (Train)currentTask.getEndTrack().getTrains().get(0);
+	RailwayTrack trackEnd = currentTask.getEndTrack().equals(main.track10p2) ? main.track10p1 : currentTask.getEndTrack();
+	train = (Train)trackEnd.getTrains().get(0);
 }
 
 else if (currentTask.getType().equals("Терминирование")){

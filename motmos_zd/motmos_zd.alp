@@ -10098,6 +10098,7 @@ else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
 	}
 }
+traceln(red, "А я использую офсет " + offset);
 return offset;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -10499,7 +10500,7 @@ route = null;]]></Code>
 	//trainMoveTo.setSpeed(speedsOnTracks(agent.size()).get(agent.getTrack(true)), KPH);
 //}
 boolean isEnd = route.getRouteSwitches().get(route.getUsedTracks().get(cntRoute));
-//traceln("Смещение от " + (isEnd ? "начала пути" : "конца пути"));
+traceln("Смещение от " + (isEnd ? "начала пути" : "конца пути"));
 traceln(red, "Смещение: " + getOffset(train) + " на путь " + route.getUsedTracks().get(cntRoute).getName());
 //traceln("У TrainMoveTo направление движения: " + trainMoveTo.forward);
 //traceln(red, "Смещение: " + getOffset(train));
@@ -12506,7 +12507,7 @@ railCars.close();]]></Body>
 					</Parameter>
 					<Body><![CDATA[for (PositionOnTrack pt : positions){
 	RailwayTrack track = pt.getTrack();
-	double delayOffset = tracksException.contains(track) ? pt.getOffset(METER) : (track.length(METER) - pt.getOffset(METER));
+	double delayOffset = (track.length(METER) - pt.getOffset(METER));//tracksException.contains(track) ? pt.getOffset(METER) : (track.length(METER) - pt.getOffset(METER));
 	traceln("Записываю для пути " + track.getName() + ", смещение - " + delayOffset);
 	frontsDelayOffset.put(track, delayOffset);
 }]]></Body>
@@ -13350,7 +13351,7 @@ return nextTrack;]]></Body>
 					</Parameter>
 					<Body><![CDATA[double offset = 0;
 traceln("Захожу");
-if(main.data.frontsFinishOffsets.containsKey(targetTrack)){
+if(main.data.frontsFinishOffsets.containsKey(targetTrack) || main.data.frontsDelayOffset.containsKey(targetTrack)){
 	if (typeTask.equals("Движение в цех")){
 		offset = main.data.getOffsetForDelay(targetTrack);
 	}

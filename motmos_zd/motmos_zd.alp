@@ -1101,7 +1101,7 @@ return tracksEdges;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<TrackEdge> edges = new ArrayList();
 for (TrackEdge edge : getTracksEdges()){
-	if (!avoidTracks.contains(edge.getSelf())){
+	if (!avoidTracks.contains(edge.getSelf()) && !fronts.contains(edge.getSelf())){
 		edges.add(edge);
 	}
 }
@@ -1311,7 +1311,8 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[avoidTracks.add(trackNp1);]]></Body>
+					<Body><![CDATA[avoidTracks.add(trackNp1);
+avoidTracks.add(trackNp2);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -8101,6 +8102,27 @@ logic.enterStart.take(agent);]]></Code>
 						<LabelText><![CDATA[Забрать вагоны со станции]]></LabelText>
 					</ExtendedProperties>
 				</Control>
+				<Control Type="Button">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1706545295800</Id>
+					<Name><![CDATA[button3]]></Name>
+					<X>1100</X><Y>610</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[traceln("Свободное место справа от пути track2p3 " + track2p3.getFreeSpace(true));]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<LabelText><![CDATA[button]]></LabelText>
+					</ExtendedProperties>
+				</Control>
 			</Presentation>
 
 				</Level>
@@ -13441,32 +13463,23 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 	RailwayTrack trackForOffst = curEndTrack == null ? null : (curEndTrack.equals(main.track10p2) ? main.track10p1 : curEndTrack);
 	
 	Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
-	if (simpleTask.getType().equals("Движение") && !type.equals("Прибытие состава на станцию")){
-		if (!useStartTrack /*&& task.listTask.stream().filter(p-> p.getType().equals("Движение")).count() > 1*/){
-			traceln("ВЫБРАН начальный путь " + startTrack.getName());
-			curEndTrack = startTrack;
-			useStartTrack = true;
-		}
-		else{
-			curEndTrack = endTrack;
-		}
-	}
 	switch (simpleTask.getType()){
 		case "Создание" :
-			newListTasks.add(new Task(simpleTask.getType(), startTrack, cntVagon, withLoco, cars));
+			newListTasks.add(getTaskCreate());
 			break;
 		case "Движение" :
-			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, getOffsetForTask(curEndTrack, simpleTask.getType())));
+			newListTasks.add(getTaskMoving(i, nextTask, simpleTask, useStartTrack));
+			useStartTrack = true;
 			break;
 		case "Движение в цех" :
-			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	trackForOffst, getOffsetForTask(trackForOffst, simpleTask.getType()), 5));
+			newListTasks.add(getTaskMovingToShop(i, nextTask, simpleTask, useStartTrack));
 			break;
 		case "Сцепка" :
-			newListTasks.add(new Task(simpleTask.getType(), curStartTrack,	curEndTrack, offset));
+			newListTasks.add(getTaskCouple(simpleTask, cntCouple, task.listTask));
 			cntCouple++;
 			break;
 		case "Расцепка" :
-			newListTasks.add(new Task( simpleTask.getType(), curEndTrack, getNeedCnt("Расцепка", cntDecouple, task.listTask), isDecFirstCar() ));// TODO сейчас расцепляются только первые вагоны
+			newListTasks.add(getTaskDecouple(simpleTask, cntDecouple, task.listTask));// TODO сейчас расцепляются только первые вагоны
 			cntDecouple++;
 			break;
 		case "Ожидание" :
@@ -13691,7 +13704,6 @@ return offset;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[Task task = null;
-RailwayTrack curStartTrack = null;
 RailwayTrack curEndTrack = null;
 double delayTime = 5;
 if (type.contains("Уборка")){
@@ -13705,6 +13717,224 @@ if (curEndTrack.equals(main.track10p2) // если конечный путь tra
 	curEndTrack = main.track10p1;
 }
 task = new Task("Ожидание", null, curEndTrack, 0, delayTime);
+return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Task]]></ReturnType>
+					<Id>1706534426626</Id>
+					<Name><![CDATA[getTaskCreate]]></Name>
+					<X>820</X><Y>350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[Task task = null;
+task = new Task("Создание", startTrack, cntVagon, true, cars);
+return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Task]]></ReturnType>
+					<Id>1706535365574</Id>
+					<Name><![CDATA[getTaskMoving]]></Name>
+					<X>820</X><Y>390</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[cnt]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[nextTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[currTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[useStartTrack]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[Task task = null;
+RailwayTrack curEndTrack = null;
+RailwayTrack curStartTrack = null;
+if (!type.equals("Прибытие состава на станцию")){
+	if (!useStartTrack){
+	curEndTrack = startTrack;
+	}
+	else{
+		curEndTrack = endTrack;
+	}
+}
+else{
+	if (/*cnt == 0 ||*/ 
+	(nextTask != null && nextTask.getType().equals("Терминирование"))) {
+		traceln("Конечный путь выбран 1" + startTrack.getName());
+		curEndTrack = startTrack;
+	}
+	else{
+		traceln("Конечный путь выбран 2" + endTrack.getName());
+		curEndTrack = endTrack;
+	}
+}
+traceln("nextTask.getType() " + nextTask.getType());
+if (nextTask != null && nextTask.getType().equals("Терминирование")){
+	traceln("Начальный путь выбран 1" + endTrack.getName());
+	curStartTrack = endTrack;
+}
+else {
+	traceln("Начальный путь выбран 2" + startTrack.getName());
+	curStartTrack = startTrack;
+}
+task = new Task("Движение", curStartTrack, curEndTrack, getOffsetForTask(curEndTrack, currTask.getType()));
+return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Task]]></ReturnType>
+					<Id>1706538599718</Id>
+					<Name><![CDATA[getTaskMovingToShop]]></Name>
+					<X>820</X><Y>430</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[cnt]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[nextTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[currTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[useStartTrack]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[Task task = null;
+RailwayTrack curEndTrack = null;
+RailwayTrack curStartTrack = null;
+if (!type.equals("Прибытие состава на станцию")){
+	if (!useStartTrack){
+	curEndTrack = startTrack;
+	}
+	else{
+		curEndTrack = endTrack;
+	}
+}
+else{
+	if (/*cnt == 0 ||*/ 
+	(nextTask != null && nextTask.getType().equals("Терминирование"))) {
+		//traceln("Конечный путь выбран 1" + startTrack.getName());
+		curEndTrack = startTrack;
+	}
+	else{
+		//traceln("Конечный путь выбран 2" + endTrack.getName());
+		curEndTrack = endTrack;
+	}
+}
+//traceln("nextTask.getType() " + nextTask.getType());
+if (nextTask != null && nextTask.getType().equals("Терминирование")){
+	//traceln("Начальный путь выбран 1" + endTrack.getName());
+	curStartTrack = endTrack;
+}
+else {
+	//traceln("Начальный путь выбран 2" + startTrack.getName());
+	curStartTrack = startTrack;
+}
+RailwayTrack trackForOffst = curEndTrack == null ? null : (curEndTrack.equals(main.track10p2) ? main.track10p1 : curEndTrack);
+
+task = new Task("Движение в цех", curStartTrack, trackForOffst, getOffsetForTask(trackForOffst, currTask.getType()), 5);
+return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Task]]></ReturnType>
+					<Id>1706539014067</Id>
+					<Name><![CDATA[getTaskCouple]]></Name>
+					<X>820</X><Y>470</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[currTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cntCouple]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[tasks]]></Name>
+						<Type><![CDATA[List<Task>]]></Type>
+					</Parameter>
+					<Body><![CDATA[Task task = null;
+RailwayTrack curEndTrack = endTrack;
+RailwayTrack curStartTrack = startTrack;
+Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
+if (cntCouple == 0){
+	long j = tasks.stream().filter(p-> p.getType().equals("Сцепка")).count();
+	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
+		|| type.equals("Полрейс формирования всех вагонов с пути на пустой путь") 
+			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
+				|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
+		curEndTrack = startTrack;
+	}
+	else{
+		curEndTrack = endTrack;
+	}
+}
+task = new Task("Сцепка", curStartTrack, curEndTrack, offset);
+return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Task]]></ReturnType>
+					<Id>1706543309900</Id>
+					<Name><![CDATA[getTaskDecouple]]></Name>
+					<X>820</X><Y>500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[currTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[cntDecouple]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[tasks]]></Name>
+						<Type><![CDATA[List<Task>]]></Type>
+					</Parameter>
+					<Body><![CDATA[Task task = null;
+RailwayTrack curEndTrack = endTrack;
+RailwayTrack curStartTrack = startTrack;
+Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
+if (cntDecouple == 0){
+	long j = tasks.stream().filter(p-> p.getType().equals("Расцепка")).count();
+	if (tasks.stream().filter(p-> p.getType().equals("Расцепка")).count() > 1){
+		curEndTrack = startTrack;
+	}
+	else{
+		curEndTrack = endTrack;
+	}
+}
+else{
+	curEndTrack = endTrack;
+}
+task = new Task("Расцепка", curEndTrack, getNeedCnt("Расцепка", cntDecouple, tasks), isDecFirstCar());
 return task;]]></Body>
 				</Function>
 			</Functions>
@@ -25883,6 +26113,21 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1706544256415</Id>
+					<Name><![CDATA[needPush]]></Name>
+					<X>720</X><Y>510</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1702720574785</Id>
 					<Name><![CDATA[network]]></Name>
@@ -27789,6 +28034,29 @@ else{
 }
 return trackEnd;]]></Body>
 				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1706544747199</Id>
+					<Name><![CDATA[conditionForPush]]></Name>
+					<X>610</X><Y>460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[endTrack]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[train]]></Name>
+						<Type><![CDATA[Train]]></Type>
+					</Parameter>
+					<Body><![CDATA[if ((endTrack.getFreeSpace(true) - 40) < Tools.getLengthTrain(train.getCars())){// TODO Проверка сейчас только с одной стороны
+	return true;
+}
+return false;]]></Body>
+				</Function>
 			</Functions>
 			<AgentLinks>
 				<AgentLink>
@@ -28069,7 +28337,13 @@ traceln(green, "Смещение для движения " + currentTask.getOffs
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[agent.codeForLogic = 0;
-returnsAgents(agent);
+if (needPush){
+	
+}
+else{
+	returnsAgents(agent);
+}
+
 delay.stopDelayForAll();]]></Code>
 							</Value>
 						</Parameter>

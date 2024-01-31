@@ -190,7 +190,7 @@
 						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 						<CollectionInitializer Class="CodeValue">
-							<Code><![CDATA[{ trackNp2, track9p3, track10p2, track8p2, track7 }]]></Code>
+							<Code><![CDATA[{ track10, track9p3, track8p2, track7 }]]></Code>
 						</CollectionInitializer>
 					</Properties>
 
@@ -208,7 +208,7 @@
 						<ElementClass><![CDATA[PositionOnTrack]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 						<CollectionInitializer Class="CodeValue">
-							<Code><![CDATA[{ pointOnTrack, pointOnTrack2, pointOnTrack1, pointOnTrack3, pointOnTrack4 }]]></Code>
+							<Code><![CDATA[{pointOnTrack2, pointOnTrack1, pointOnTrack3, pointOnTrack4}]]></Code>
 						</CollectionInitializer>
 					</Properties>
 
@@ -226,7 +226,7 @@
 						<ElementClass><![CDATA[PositionOnTrack]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 						<CollectionInitializer Class="CodeValue">
-							<Code><![CDATA[{ finishFrontN2, finishFront10, finishFront9, finishFront8, finishFront7 }]]></Code>
+							<Code><![CDATA[{ finishFront10, finishFront9, finishFront8, finishFront7, finishFront9t }]]></Code>
 						</CollectionInitializer>
 					</Properties>
 
@@ -245,7 +245,25 @@
 						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 						<CollectionInitializer Class="CodeValue">
-							<Code><![CDATA[{ trackNp2, track10p1 }]]></Code>
+							<Code><![CDATA[{ track10}]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1706686869158</Id>
+					<Name><![CDATA[zoneFronts]]></Name>
+					<X>-170</X><Y>1790</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[ShapeRectangle]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ front10, front9t, front9, front8, front7 }]]></Code>
 						</CollectionInitializer>
 					</Properties>
 
@@ -773,7 +791,8 @@
 На станцию могут прибывать составы, которые не будут относится к работе станции Мотмос, а будут какое-то время занимать место до тех пор, пока статус не поменяется на "Ожидание отправки со станции"
 Критерий прибытия (Добавить таблицу с критериями прибытия на станцию)
 Добавить в критрии выбора вагонов для формирования на отправку на грузовой фронт время простоя на станции (первый пришел первый ушел) + добавить в настраиваемый параметр
-Максимальный приоритет контактному графику (добавить в найстроечный параметр)]]></Body>
+Максимальный приоритет контактному графику (добавить в найстроечный параметр)
+Учесть в ключевых показателях простой участка второго участка 9 пути]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -818,7 +837,7 @@ createLocomotives();]]></Body>
 					<Id>1704987979942</Id>
 					<Name><![CDATA[getTracksEdges]]></Name>
 					<Description><![CDATA[Функция собирает в список TrackEdge все пути станции]]></Description>
-					<X>-320</X><Y>1890</Y>
+					<X>-320</X><Y>1860</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -847,12 +866,16 @@ return tracksEdges;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Front> frontsCollection = new ArrayList();
-for (RailwayTrack track : fronts){
+for (TrackEdge track : getFrontsTracksEdges()){
 	if (!avoidTracks.contains(track)){
-		TrackEdge edge = getTracksEdges().stream().filter(p-> p.getName().equals(track.getName())).findFirst().orElse(null);
-		if (edge != null){
-			Front front = new Front(edge.getNumberTra(), edge.getUsableLength(), edge);
+		String nameShape = "front"+track.getNumberTra();
+		ShapeRectangle rec = zoneFronts.stream().filter(p-> p.getName().equals(nameShape)).findFirst().orElse(null);
+		if (rec != null){
+			Front front = new Front(track.getNumberTra(), track.getUsableLength(), track, rec);
 			frontsCollection.add(front);
+		}
+		else{
+			traceln("Не смог найти фронт");
 		}
 	}
 }
@@ -865,7 +888,7 @@ return frontsCollection;]]></Body>
 					<Name><![CDATA[getCarsToSendForFront]]></Name>
 					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
 //Создание задач для локомотива по заявкам]]></Description>
-					<X>960</X><Y>2250</Y>
+					<X>960</X><Y>2340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -877,7 +900,7 @@ return frontsCollection;]]></Body>
 					<Body><![CDATA[Front front = getFrontByNum(numFront);
 List<Integer> hashList = new ArrayList();
 List<Request> requsts = getActiveFrontRequest(numFront);
-if (front.needVagons()){
+if (front.frontIsEmpty()){
 	for (Request req : requsts){//
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (req.getTypeVagon().equals(car.type) 
@@ -943,7 +966,7 @@ return list;]]></Body>
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[List<Front>]]></ReturnType>
 					<Id>1705335458188</Id>
-					<Name><![CDATA[getEmptyFronts]]></Name>
+					<Name><![CDATA[getNotBlockedFronts]]></Name>
 					<Description><![CDATA[Возвращает пустый фронты]]></Description>
 					<X>270</X><Y>2440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -952,7 +975,7 @@ return list;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Front> fronts = new ArrayList();
 for (Front front : getFronts()){
-	if (front.needVagons()){
+	if (!front.isBlockedForSend()){
 		fronts.add(front);
 	}
 }
@@ -1039,31 +1062,25 @@ return list;]]></Body>
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705411782369</Id>
-					<Name><![CDATA[makeTasksFormation]]></Name>
+					<Name><![CDATA[setTasksForFronts]]></Name>
 					<X>930</X><Y>2230</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Front front : getEmptyFronts()){
-	FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
-	TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty() || p.isEnoughPlace(fo.getCarsForSendtoFront())).findFirst().orElse(null);
-	boolean isTarget = true;
-	RailwayTrack startTrack = null;
-	for (TaskAction task : fo.getTasks(targetTrack)){
-		if (isTarget){
-			startTrack = task.endTrack;
-			isTarget = false;
+					<Body><![CDATA[List<Front> listFronts = getNotBlockedFronts().stream().filter(p-> p.getName().equals("9") || p.getName().equals("9t")).collect(Collectors.toList());
+if (listFronts.size() > 1){
+	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);
+	if (frontB != null){
+		makeTaskFormation(frontB);
+	}
+}
+else{
+	for (Front front : getNotBlockedFronts()){
+		if (getActiveFrontRequest(front.getName()).size() > 0){
+			makeTaskFormation(front);
+			break;
 		}
-		addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco);
-		//traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
-	}
-	if (startTrack != null){
-		//traceln(red, "startTrack " + startTrack.getName());
-		addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false);
-	}
-	if (fo.getTasks(targetTrack).size() > 0){
-		break;
 	}
 }]]></Body>
 				</Function>
@@ -1073,7 +1090,7 @@ return list;]]></Body>
 					<Id>1705412280698</Id>
 					<Name><![CDATA[getPopsTracksEdges]]></Name>
 					<Description><![CDATA[Функция собирает в список TrackEdge все пути станции]]></Description>
-					<X>-320</X><Y>1910</Y>
+					<X>-320</X><Y>1880</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1094,7 +1111,7 @@ return tracksEdges;]]></Body>
 					<ReturnType><![CDATA[List<TrackEdge>]]></ReturnType>
 					<Id>1705592123308</Id>
 					<Name><![CDATA[getPopsWithoutAvoid]]></Name>
-					<X>-320</X><Y>1870</Y>
+					<X>-320</X><Y>1840</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1178,6 +1195,10 @@ enterTask.take(task);]]></Body>
 						<Name><![CDATA[withLoco]]></Name>
 						<Type><![CDATA[boolean]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[front]]></Name>
+						<Type><![CDATA[Front]]></Type>
+					</Parameter>
 					<Body><![CDATA[TaskAction task = add_taskAction();
 task.type = type;
 task.startTrack = startTrack;
@@ -1185,6 +1206,7 @@ task.endTrack = endTrack;
 //task.priority = 100;
 task.cntVagon = cntVagons;
 task.withLoco = withLoco;
+task.front = front;
 task.listTask = task.makeTasks();
 enterTask.take(task);]]></Body>
 				</Function>
@@ -1194,7 +1216,7 @@ enterTask.take(task);]]></Body>
 					<Id>1706002170532</Id>
 					<Name><![CDATA[makeTasksSendToFront]]></Name>
 					<ExcludeFromBuild>true</ExcludeFromBuild>
-					<X>930</X><Y>2270</Y>
+					<X>930</X><Y>2360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1215,7 +1237,7 @@ enterTask.take(task);]]></Body>
 					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
 //Создание задач для локомотива по заявкам]]></Description>
 					<ExcludeFromBuild>true</ExcludeFromBuild>
-					<X>955</X><Y>2290</Y>
+					<X>955</X><Y>2380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1311,40 +1333,37 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[avoidTracks.add(trackNp1);
-avoidTracks.add(trackNp2);]]></Body>
+					<Body><![CDATA[avoidTracks.add(trackNp1);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706284017341</Id>
 					<Name><![CDATA[makeTasksPickUp]]></Name>
-					<X>930</X><Y>2320</Y>
+					<X>930</X><Y>2410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Front front : getFrontsWithCars()){
-	if (front.needToPickUp()){
-		TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
-		targetTrack = targetTrack == null ? (targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.isEnoughPlace(front.getTrainOnFront())).findFirst().orElse(null)) : targetTrack;
-		if (targetTrack != null){
-			String type = targetTrack.getSelf().isEmpty() ? "Уборка всех вагонов с грузового фронта на пустой путь" : "Уборка всех вагонов с грузового фронта";
-			addTask(type, front.getHomeTrack().getSelf(), targetTrack.getSelf(), front.getTrainOnFront().size(), false);
-		}
-		else{
-			traceln("Нет места для вагонов с грузового фронта " + front.getName());
-		}
-		break;
+					<Body><![CDATA[for (Front front : getFrontsNeedToPickUp()){
+	TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+	targetTrack = targetTrack == null ? (targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.isEnoughPlace(front.getTrainOnFront())).findFirst().orElse(null)) : targetTrack;
+	if (targetTrack != null){
+		String type = targetTrack.getSelf().isEmpty() ? "Уборка всех вагонов с грузового фронта на пустой путь" : "Уборка всех вагонов с грузового фронта";
+		addTask(type, front.getHomeTrack().getSelf(), targetTrack.getSelf(), front.getTrainOnFront().size(), false, front);
+		traceln("Убираем вагоны с фронта " + front.getName());
 	}
-	
+	else{
+		traceln("Нет места для вагонов с грузового фронта " + front.getName());
+	}
+	break;
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[List<Front>]]></ReturnType>
 					<Id>1706284033218</Id>
-					<Name><![CDATA[getFrontsWithCars]]></Name>
+					<Name><![CDATA[getFrontsNeedToPickUp]]></Name>
 					<Description><![CDATA[Возвращает фронты, на которы располагаются вагоны]]></Description>
 					<X>270</X><Y>2480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -1353,11 +1372,63 @@ avoidTracks.add(trackNp2);]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Front> fronts = new ArrayList();
 for (Front front : getFronts()){
-	if (!front.getHomeTrack().getSelf().isEmpty()){
+	if (front.needToPickUp()){
 		fronts.add(front);
 	}
 }
 return fronts;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<TrackEdge>]]></ReturnType>
+					<Id>1706619667539</Id>
+					<Name><![CDATA[getFrontsTracksEdges]]></Name>
+					<Description><![CDATA[Функция собирает в список TrackEdge все пути станции]]></Description>
+					<X>-320</X><Y>1900</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<RailwayTrack> tracks = new ArrayList();
+tracks.addAll(fronts);
+List<TrackEdge> tracksEdges = new ArrayList();
+for (RailwayTrack track : tracks){
+	for (TrackEdge edge : data.railwayPathsCollection.stream().filter(p-> p.getSelf().equals(track)).collect(Collectors.toList())){
+		tracksEdges.add(edge);
+	}
+}
+return tracksEdges;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706691375841</Id>
+					<Name><![CDATA[makeTaskFormation]]></Name>
+					<X>940</X><Y>2250</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[front]]></Name>
+						<Type><![CDATA[Front]]></Type>
+					</Parameter>
+					<Body><![CDATA[FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
+TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty() || p.isEnoughPlace(fo.getCarsForSendtoFront())).findFirst().orElse(null);
+boolean isTarget = true;
+RailwayTrack startTrack = null;
+for (TaskAction task : fo.getTasks(targetTrack)){
+	if (isTarget){
+		startTrack = task.endTrack;
+		isTarget = false;
+	}
+	addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco, front);
+	//traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
+}
+if (startTrack != null){
+	//traceln(red, "startTrack " + startTrack.getName());
+	addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -2744,6 +2815,7 @@ switch (typeTask){
 							<Value Class="CodeValue">
 								<Code><![CDATA[Logic objLogic = logic.stream().filter(p-> p.hashCode() == agent.codeLogic).findFirst().orElse(null);
 remove_logic(objLogic);
+group3D.setVisible(false);
 activeTasks--;]]></Code>
 							</Value>
 						</Parameter>
@@ -2893,6 +2965,9 @@ activeTasks--;]]></Code>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[activeTasks++;
+if (agent.type.equals("Прибытие состава на станцию")){
+	group3D.setVisible(true);
+}
 Logic logic = add_logic(railwayNetwork, trainsDelay, locoDelay, data, enterLocoDelay, enterTrainsDelay);
 logic.enterStart.take(agent);]]></Code>
 							</Value>
@@ -4010,7 +4085,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 <RailroadSwitchType>ALL_TO_ALL</RailroadSwitchType>
 				</RailroadSwitch>
-				<RailTrack SourceId="1701423549579" TargetId="1701423549583">
+				<RailTrack SourceId="1701423549579">
 					<Id>1701423549581</Id>
 					<Name><![CDATA[track9p3]]></Name>
 					<X>1184.6660000440925</X><Y>415.83296563733865</Y>
@@ -4030,11 +4105,11 @@ logic.enterStart.take(agent);]]></Code>
 					</Width>
 					<Points>
 						<Point><X>0</X><Y>0</Y><Z>0</Z></Point>
-						<Point><X>-24.999966672992155</X><Y>0.04082094170616113</Y><Z>0</Z></Point>
-						<Point><X>-24.999966672992155</X><Y>0.04082094170616113</Y><Z>0</Z></Point>
-						<Point><X>-514.6663333774256</X><Y>0.8403676959945732</Y><Z>0</Z></Point>
-						<Point><X>-489.66636670443347</X><Y>0.799546754288412</Y><Z>0</Z></Point>
-						<Point><X>-489.66636670443347</X><Y>0.799546754288412</Y><Z>0</Z></Point>
+						<Point><X>-24.999903351980755</X><Y>0.06951540564032317</Y><Z>0</Z></Point>
+						<Point><X>-24.999903351980755</X><Y>0.06951540564032317</Y><Z>0</Z></Point>
+						<Point><X>-779.3330000440924</X><Y>2.1670343626613544</Y><Z>0</Z></Point>
+						<Point><X>-754.3330966921117</X><Y>2.0975189570210313</Y><Z>0</Z></Point>
+						<Point><X>-754.3330966921117</X><Y>2.0975189570210313</Y><Z>0</Z></Point>
 					</Points>
 					<Bidirectional>true</Bidirectional>
 
@@ -4299,54 +4374,10 @@ logic.enterStart.take(agent);]]></Code>
 						</QuantityColumn>
 					</EmbeddedObject>
 				</RailStopline>
-			</Presentation>
-
-				</RailTrack>
-				<RailroadSwitch>
-					<Id>1701423549583</Id>
-					<Name><![CDATA[switchCSP18]]></Name>
-					<X>669.9996666666667</X><Y>416.67333333333323</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<Z>0</Z>
-<RailroadSwitchType>ALL_TO_ALL</RailroadSwitchType>
-				</RailroadSwitch>
-				<RailTrack SourceId="1701423549583">
-					<Id>1701423549585</Id>
-					<Name><![CDATA[track10p2]]></Name>
-					<X>669.9996666225742</X><Y>416.6733676959946</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<Z>0</Z>
-					<LineColor>-16777216</LineColor>
-					<LineMaterial>null</LineMaterial>
-					<LineWidth>1</LineWidth>
-					<PathType>railroad</PathType>
-					<Width Class="UnitValue">
-						<Value Class="Double">1.5</Value>
-						<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
-					</Width>
-					<Points>
-						<Point><X>0</X><Y>0</Y><Z>0</Z></Point>
-						<Point><X>-24.999560039250582</X><Y>0.14831670137063058</Y><Z>0</Z></Point>
-						<Point><X>-24.999560039250582</X><Y>0.14831670137063058</Y><Z>0</Z></Point>
-						<Point><X>-265.7496666225742</X><Y>1.5766323040054</Y><Z>0</Z></Point>
-						<Point><X>-240.7501065833236</X><Y>1.4283156026347694</Y><Z>0</Z></Point>
-						<Point><X>-240.7501065833236</X><Y>1.4283156026347694</Y><Z>0</Z></Point>
-					</Points>
-					<Bidirectional>true</Bidirectional>
-
-			<Presentation>
 				<RailStopline>
-					<Id>1706167413652</Id>
-					<Name><![CDATA[finishFront10]]></Name>
-					<X>413.004</X><Y>418.192</Y>
+					<Id>1706615647293</Id>
+					<Name><![CDATA[finishFront9t]]></Name>
+					<X>413.669</X><Y>417.974</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -4412,178 +4443,7 @@ logic.enterStart.take(agent);]]></Code>
 						<QuantityColumn>
 						</QuantityColumn>
 					</EmbeddedObject>
-					<Offset>257.0</Offset>
-					<EmbeddedObject>
-						<ActiveObjectClass>
-							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
-							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
-						</ActiveObjectClass>
-						<GenericParameterSubstitute>
-							<GenericParameterSubstituteReference>
-								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
-								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
-								<ItemName><![CDATA[1588157718720]]></ItemName>
-							</GenericParameterSubstituteReference>
-						</GenericParameterSubstitute>
-						<Parameters>
-							<Parameter>
-								<Name><![CDATA[onTrainEnter]]></Name>
-							</Parameter>
-							<Parameter>
-								<Name><![CDATA[onTrainExit]]></Name>
-							</Parameter>
-						</Parameters>
-						<ReplicationFlag>false</ReplicationFlag>
-						<Replication Class="CodeValue">
-							<Code><![CDATA[100]]></Code>
-						</Replication>
-						<CollectionType>ARRAY_LIST_BASED</CollectionType>
-						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
-						<XCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</XCode>
-						<YCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</YCode>
-						<ZCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</ZCode>
-						<ColumnCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</ColumnCode>
-						<RowCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</RowCode>
-						<LatitudeCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</LatitudeCode>
-						<LongitudeCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</LongitudeCode>
-						<LocationNameCode Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</LocationNameCode>
-						<InitializationType>SPECIFIED_NUMBER</InitializationType>
-						<InitializationDatabaseTableQuery>
-							<TableReference>
-							</TableReference>
-						</InitializationDatabaseTableQuery>
-						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
-						<QuantityColumn>
-						</QuantityColumn>
-					</EmbeddedObject>
-				</RailStopline>
-			</Presentation>
-
-				</RailTrack>
-				<RailTrack SourceId="1701423549579" TargetId="1701423549583">
-					<Id>1701423549587</Id>
-					<Name><![CDATA[track10p1]]></Name>
-					<X>1184.6660000000002</X><Y>415.8329999999999</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<Z>0</Z>
-					<LineColor>-16777216</LineColor>
-					<LineMaterial>null</LineMaterial>
-					<LineWidth>1</LineWidth>
-					<PathType>railroad</PathType>
-					<Width Class="UnitValue">
-						<Value Class="Double">1.5</Value>
-						<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
-					</Width>
-					<Points>
-						<Point><X>0</X><Y>0</Y><Z>0</Z></Point>
-						<Point><X>22.867000000000075</X><Y>-10.104000000000001</Y><Z>0</Z></Point>
-						<Point><X>-33.333999999999946</X><Y>2</Y><Z>0</Z></Point>
-						<Point><X>-67.166</X><Y>7.917</Y><Z>0</Z></Point>
-						<Point><X>-33.99199999999996</X><Y>4.096</Y><Z>0</Z></Point>
-						<Point><X>-100.34099999999995</X><Y>11.737</Y><Z>0</Z></Point>
-						<Point><X>-190.33333333333331</X><Y>19.167333333333318</Y><Z>0</Z></Point>
-						<Point><X>-165.33333333333331</X><Y>19.044333333333316</Y><Z>0</Z></Point>
-						<Point><X>-215.33333333333331</X><Y>19.249333333333315</Y><Z>0</Z></Point>
-						<Point><X>-393.33233333333334</X><Y>19.833333333333314</Y><Z>0</Z></Point>
-						<Point><X>-368.33233333333334</X><Y>19.751333333333317</Y><Z>0</Z></Point>
-						<Point><X>-411.99833333333333</X><Y>19.833333333333314</Y><Z>0</Z></Point>
-						<Point><X>-514.6663333333333</X><Y>0.8403333333333143</Y><Z>0</Z></Point>
-						<Point><X>-489.98333333333335</X><Y>4.807333333333315</Y><Z>0</Z></Point>
-						<Point><X>-539.3493333333333</X><Y>-3.1266666666666856</Y><Z>0</Z></Point>
-					</Points>
-					<Bidirectional>true</Bidirectional>
-
-			<Presentation>
-				<RailStopline>
-					<Id>1706035471691</Id>
-					<Name><![CDATA[pointOnTrack]]></Name>
-					<X>795</X><Y>435</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<Z>0</Z>
-					<EmbeddedObject>
-						<ActiveObjectClass>
-							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
-							<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
-						</ActiveObjectClass>
-						<GenericParameterSubstitute>
-							<GenericParameterSubstituteReference>
-								<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
-								<ClassName><![CDATA[RailStopLineDescriptor]]></ClassName>
-								<ItemName><![CDATA[1588157718720]]></ItemName>
-							</GenericParameterSubstituteReference>
-						</GenericParameterSubstitute>
-						<Parameters>
-							<Parameter>
-								<Name><![CDATA[onTrainEnter]]></Name>
-							</Parameter>
-							<Parameter>
-								<Name><![CDATA[onTrainExit]]></Name>
-							</Parameter>
-						</Parameters>
-						<ReplicationFlag>false</ReplicationFlag>
-						<Replication Class="CodeValue">
-							<Code><![CDATA[100]]></Code>
-						</Replication>
-						<CollectionType>ARRAY_LIST_BASED</CollectionType>
-						<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
-						<XCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</XCode>
-						<YCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</YCode>
-						<ZCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</ZCode>
-						<ColumnCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</ColumnCode>
-						<RowCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</RowCode>
-						<LatitudeCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</LatitudeCode>
-						<LongitudeCode Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
-						</LongitudeCode>
-						<LocationNameCode Class="CodeValue">
-							<Code><![CDATA[""]]></Code>
-						</LocationNameCode>
-						<InitializationType>SPECIFIED_NUMBER</InitializationType>
-						<InitializationDatabaseTableQuery>
-							<TableReference>
-							</TableReference>
-						</InitializationDatabaseTableQuery>
-						<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
-						<QuantityColumn>
-						</QuantityColumn>
-					</EmbeddedObject>
-					<Offset>389.9999999999993</Offset>
+					<Offset>771.0</Offset>
 					<EmbeddedObject>
 						<ActiveObjectClass>
 							<PackageName><![CDATA[com.anylogic.libraries.modules.markup_descriptors]]></PackageName>
@@ -5344,7 +5204,7 @@ logic.enterStart.take(agent);]]></Code>
 				</RailTrack>
 				<RailroadSwitch>
 					<Id>1701434608662</Id>
-					<Name><![CDATA[switchCSPN1]]></Name>
+					<Name><![CDATA[switchCSP18]]></Name>
 					<X>1100.007</X><Y>577.36</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
@@ -5425,7 +5285,7 @@ logic.enterStart.take(agent);]]></Code>
 				</RailTrack>
 				<RailroadSwitch>
 					<Id>1701435114036</Id>
-					<Name><![CDATA[switchCSPN2]]></Name>
+					<Name><![CDATA[switchCSP7]]></Name>
 					<X>377.33391966608906</X><Y>579.3885587086584</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
@@ -5437,7 +5297,7 @@ logic.enterStart.take(agent);]]></Code>
 				</RailroadSwitch>
 				<RailTrack SourceId="1701423549579">
 					<Id>1702480873221</Id>
-					<Name><![CDATA[trackNp2]]></Name>
+					<Name><![CDATA[track10]]></Name>
 					<X>1184.666</X><Y>415.833</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
@@ -5599,7 +5459,7 @@ logic.enterStart.take(agent);]]></Code>
 				</RailStopline>
 				<RailStopline>
 					<Id>1706167656592</Id>
-					<Name><![CDATA[finishFrontN2]]></Name>
+					<Name><![CDATA[finishFront10]]></Name>
 					<X>413.011</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
@@ -5921,7 +5781,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSPN1]]></Text>
+					<Text><![CDATA[switchCSP18]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -5942,7 +5802,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSPN2]]></Text>
+					<Text><![CDATA[switchCSP7]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -6234,11 +6094,11 @@ logic.enterStart.take(agent);]]></Code>
 				<Camera3D>
 					<Id>1704978583322</Id>
 					<Name><![CDATA[camera1]]></Name>
-					<X>440</X><Y>800</Y><Z>100</Z>
+					<X>749.34</X><Y>750.96</Y><Z>127.22</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ShowLabel>false</ShowLabel>
-					<RotationX>20.0</RotationX>
-					<RotationZ>-45.0</RotationZ>
+					<RotationX>25.79</RotationX>
+					<RotationZ>-38.13</RotationZ>
 				</Camera3D>
 				<Group>
 					<Id>1701694328856</Id>
@@ -7092,7 +6952,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>310</Width>
-					<Height>105</Height>
+					<Height>170</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -7201,7 +7061,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>150</Height>
+					<Height>300</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -7242,7 +7102,7 @@ logic.enterStart.take(agent);]]></Code>
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<TextColor/>
 						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[makeTasksFormation()]]></ActionCode>
+						<ActionCode><![CDATA[setTasksForFronts()]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
@@ -8104,9 +7964,9 @@ logic.enterStart.take(agent);]]></Code>
 				</Control>
 				<Control Type="Button">
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1706545295800</Id>
+					<Id>1706618607740</Id>
 					<Name><![CDATA[button3]]></Name>
-					<X>1100</X><Y>610</Y>
+					<X>-190</X><Y>1030</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8116,13 +7976,123 @@ logic.enterStart.take(agent);]]></Code>
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<TextColor/>
 						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[traceln("Свободное место справа от пути track2p3 " + track2p3.getFreeSpace(true));]]></ActionCode>
+						<ActionCode><![CDATA[railwayNetwork.getTracks().stream().forEach(p-> traceln("Размер пути " + p.getName() + ": " + p.length(METER)));]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
 						<LabelText><![CDATA[button]]></LabelText>
 					</ExtendedProperties>
 				</Control>
+				<Rectangle>
+					<Id>1706684974460</Id>
+					<Name><![CDATA[front9t]]></Name>
+					<X>411.333</X><Y>410</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>240.334</Width>
+					<Height>15</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1706685052352</Id>
+					<Name><![CDATA[front9]]></Name>
+					<X>726</X><Y>409</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>257.75</Width>
+					<Height>15</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1706685080926</Id>
+					<Name><![CDATA[front8]]></Name>
+					<X>741.667</X><Y>217</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>260.083</Width>
+					<Height>15</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1706685093662</Id>
+					<Name><![CDATA[front7]]></Name>
+					<X>931</X><Y>192.667</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>84</Width>
+					<Height>15</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1706685222553</Id>
+					<Name><![CDATA[front10]]></Name>
+					<X>411</X><Y>432</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>572.5</Width>
+					<Height>15</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
 			</Presentation>
 
 				</Level>
@@ -10221,18 +10191,23 @@ RailwayTrack currTrack = route.getUsedTracks().get(cntRoute);
 if (currTrack.equals(endTrack()) // если текущий целевой путь является конечным путем маршрута или
 	&& !endTrack().isEmpty() // если конечный путь НЕ ПУСТОЙ
 		&& !logic.currentTask.getType().equals("Движение в цех")){ // есди задача не движение в цех
-	if (endTrack().getTrains().size() > 1){// если на конечном пути больше 1 состава
+	if (endTrack().getTrains().size() > 1 && logic.superTask.front == null){// если на конечном пути больше 1 состава
 		offset = 0;
-		//traceln(black, "Смещение выбрано по 1 " + offset);
+		traceln(black, "Смещение выбрано по 1 " + offset);
+	}
+	else if (endTrack().getTrains().size() > 1 && logic.superTask.front != null){
+		if (logic.superTask.front.getCarsOnFront().size() < 1){
+			offset = needOffset() >= 0.0 ? needOffset() : 0;
+		}
 	}
 	else{
 		if (((Train)endTrack().getTrains().get(0)).equals(train)){// если состав на конечном пути соответствует 
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			//traceln(black, "Смещение выбрано по 2 " + offset);
+			traceln(black, "Смещение выбрано по 2 " + offset);
 		}
 		else{
 			offset = 0;
-			//traceln(black, "Смещение выбрано по 3 " + offset);
+			traceln(black, "Смещение выбрано по 3 " + offset);
 		}
 	}
 }
@@ -10241,21 +10216,21 @@ else if (currTrack.equals(endTrack()) // если текущий целевой 
 				&& endTrack().length(METER) > (train.getLength(METER) - koef)){ // если длина конечного пути больше длины состава - коэффициент смещения
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Смещение выбрано по 4 " + offset);
+		traceln(black, "Смещение выбрано по 4 " + offset);
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else if(currTrack.equals(endTrack()) && logic.currentTask.getType().equals("Движение в цех")){
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Я вырал тот что нужно " + needOffset());
+		traceln(black, "Я вырал тот что нужно " + needOffset());
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else{
@@ -10265,7 +10240,7 @@ else{
 	if (route.getRouteSwitches().get(currTrack) != route.getRouteSwitches().get(nextTrack) // если стрелка текущего пути не равна стрелке следующего пути 
 		&& currTrack.length(METER) >= (train.getLength(METER) + koef)){ // если длина текущего пути больше длины состава 
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 6 " + offset);
+		traceln(black, "Смещение выбрано по 6 " + offset);
 	}
 }
 //traceln(red, "А я использую офсет " + offset);
@@ -12386,7 +12361,7 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
 						<CollectionClass><![CDATA[LinkedHashMap]]></CollectionClass>
-						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
+						<ElementClass><![CDATA[String]]></ElementClass>
 						<ValueElementClass><![CDATA[Double]]></ValueElementClass>
 					</Properties>
 
@@ -12492,18 +12467,18 @@ railwayPaths.close();]]></Body>
 Map<RailwayTrack, Double> mapSpeed = new HashMap();
 if (cntVagon > 1){
 	map = railwayPathsCollection.stream()
-      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeed));
+      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeed, (a1, a2) -> a1));
     if (typeTask.equals("Прибытие состава на станцию") 
     	|| typeTask.equals("Прибытие состава на станцию solo") 
     		|| typeTask.equals("Отправка состава со станции solo") 
     			|| typeTask.equals("Отправка состава со станции")){
     	map = railwayPathsCollection.stream()
-      		.collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeedAlt));
+      		.collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeedAlt, (a1, a2) -> a1));
     }
 }
 else{
 	map = railwayPathsCollection.stream()
-      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSoloSpeed));
+      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSoloSpeed, (a1, a2) -> a1));
 }
 for (Map.Entry<RailwayTrack, String> copyMap : map.entrySet()){
 	mapSpeed.put(copyMap.getKey(), speedsMap.get(copyMap.getValue()));
@@ -12642,7 +12617,7 @@ while(file.cellExists(list, row, 1)){
 	String numInvoice = file.getCellStringValue(list, row, 3);
 	String typeVagon = file.getCellStringValue(list, row, 4);
 	String productType = file.getCellStringValue(list, row, 5);
-	String numFront = ((int)file.getCellNumericValue(list, row, 6))+"";
+	String numFront = file.getCellStringValue(list, row, 6);
 	double weight = file.getCellNumericValue(list, row, 7);
 	String nameOwner = file.getCellStringValue(list, row, 8);
 	Date dateRequest = file.getCellDateValue(list, row, 9);
@@ -12724,11 +12699,12 @@ railCars.close();]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[track]]></Name>
-						<Type><![CDATA[RailwayTrack]]></Type>
+						<Name><![CDATA[front]]></Name>
+						<Type><![CDATA[Front]]></Type>
 					</Parameter>
-					<Body><![CDATA[//traceln("По пути" + track.getName() + " возвращаю смещение " + frontsFinishOffsets.get(track));
-return frontsFinishOffsets.get(track);]]></Body>
+					<Body><![CDATA[traceln("По фронту " + front.getName() + " возвращаю смещение " + frontsFinishOffsets.get(front));
+traceln("А есть ли там фронт " + front.getName() + " " + frontsFinishOffsets.containsKey(front.getName()));
+return frontsFinishOffsets.get(front.getName());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -12744,9 +12720,24 @@ return frontsFinishOffsets.get(track);]]></Body>
 						<Name><![CDATA[finishFronts]]></Name>
 						<Type><![CDATA[List<PositionOnTrack>]]></Type>
 					</Parameter>
-					<Body><![CDATA[for (PositionOnTrack pt : finishFronts){
+					<Body><![CDATA[frontsFinishOffsets.keySet().stream().forEach(p-> traceln(p));
+for (PositionOnTrack pt : finishFronts){
 	RailwayTrack track = pt.getTrack();
-	frontsFinishOffsets.put(track, (track.length(METER) - pt.getOffset(METER)));
+	List<Front> fronts = main.getFronts().stream().filter(p-> p.getHomeTrack().getSelf().equals(track)).collect(Collectors.toList());
+	for (Front front : fronts){
+		if (track.getName().equals("track9p3")){
+			if (pt.getName().equals("finishFront9t") && front.getName().equals("9t")){
+				frontsFinishOffsets.put(front.getName(), (track.length(METER) - pt.getOffset(METER)));
+			}
+			if (pt.getName().equals("finishFront9") && front.getName().equals("9")){
+				frontsFinishOffsets.put(front.getName(), (track.length(METER) - pt.getOffset(METER)));
+			}
+		}
+		else{
+			frontsFinishOffsets.put(front.getName(), (track.length(METER) - pt.getOffset(METER)));
+		}
+		
+	}
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -13131,7 +13122,7 @@ setFinishFrontsOffset(main.finishFronts);]]></Body>
 		<ActiveObjectClass>
 			<Id>1701856713684</Id>
 			<Name><![CDATA[TaskAction]]></Name>
-			<AdditionalClassCode><![CDATA[
+			<AdditionalClassCode><![CDATA[/*
 public TaskAction(String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon, Integer priority, boolean withLoco, List<RailCar> cars){
 	
 	this.type = type;
@@ -13141,10 +13132,10 @@ public TaskAction(String type, RailwayTrack startTrack, RailwayTrack endTrack, I
 	this.priority = priority;
 	this.withLoco = withLoco;
 	this.cars = cars;
-	listTask = makeTasks();
+	listTask = makeTasks(null);
 	
 	
-}
+}*/
 
 public TaskAction (String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon){
 	this.type = type;
@@ -13339,6 +13330,21 @@ public String toString(){
 						<Type><![CDATA[int]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1706626019515</Id>
+					<Name><![CDATA[front]]></Name>
+					<X>550</X><Y>80</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[Front]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[null]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1703139102821</Id>
 					<Name><![CDATA[startTrack]]></Name>
@@ -13460,7 +13466,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 	
 	RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(simpleTask, nextTask, i, cntCouple, cntDecouple, task.listTask);// конечный путь для задачи
 	RailwayTrack curStartTrack = newListTasks.isEmpty() ? null : getNextStartTrack(previousTask, nextTask); // начальный путь для задачи
-	RailwayTrack trackForOffst = curEndTrack == null ? null : (curEndTrack.equals(main.track10p2) ? main.track10p1 : curEndTrack);
+	RailwayTrack trackForOffst = curEndTrack == null ? null : curEndTrack;
 	
 	Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
 	switch (simpleTask.getType()){
@@ -13684,7 +13690,9 @@ if(main.data.frontsFinishOffsets.containsKey(targetTrack) || main.data.frontsDel
 		offset = main.data.getOffsetForDelay(targetTrack);
 	}
 	else{
-		offset = main.data.getFinitshFrontOffset(targetTrack);
+		traceln("Фронт в таске");
+		traceln(front);
+		offset = main.data.getFinitshFrontOffset(front);
 	}
 }
 else{
@@ -13711,10 +13719,6 @@ if (type.contains("Уборка")){
 }
 else{
 	curEndTrack = endTrack;
-}
-if (curEndTrack.equals(main.track10p2) // если конечный путь track10p2 или
-	|| curEndTrack.equals(main.track10p2)){ // если начальный путь track10p2
-	curEndTrack = main.track10p1;
 }
 task = new Task("Ожидание", null, curEndTrack, 0, delayTime);
 return task;]]></Body>
@@ -13773,21 +13777,21 @@ if (!type.equals("Прибытие состава на станцию")){
 else{
 	if (/*cnt == 0 ||*/ 
 	(nextTask != null && nextTask.getType().equals("Терминирование"))) {
-		traceln("Конечный путь выбран 1" + startTrack.getName());
+		//traceln("Конечный путь выбран 1" + startTrack.getName());
 		curEndTrack = startTrack;
 	}
 	else{
-		traceln("Конечный путь выбран 2" + endTrack.getName());
+		//traceln("Конечный путь выбран 2" + endTrack.getName());
 		curEndTrack = endTrack;
 	}
 }
-traceln("nextTask.getType() " + nextTask.getType());
+//traceln("nextTask.getType() " + nextTask.getType());
 if (nextTask != null && nextTask.getType().equals("Терминирование")){
-	traceln("Начальный путь выбран 1" + endTrack.getName());
+	//traceln("Начальный путь выбран 1" + endTrack.getName());
 	curStartTrack = endTrack;
 }
 else {
-	traceln("Начальный путь выбран 2" + startTrack.getName());
+	//traceln("Начальный путь выбран 2" + startTrack.getName());
 	curStartTrack = startTrack;
 }
 task = new Task("Движение", curStartTrack, curEndTrack, getOffsetForTask(curEndTrack, currTask.getType()));
@@ -13850,7 +13854,7 @@ else {
 	//traceln("Начальный путь выбран 2" + startTrack.getName());
 	curStartTrack = startTrack;
 }
-RailwayTrack trackForOffst = curEndTrack == null ? null : (curEndTrack.equals(main.track10p2) ? main.track10p1 : curEndTrack);
+RailwayTrack trackForOffst = curEndTrack == null ? null : curEndTrack;
 
 task = new Task("Движение в цех", curStartTrack, trackForOffst, getOffsetForTask(trackForOffst, currTask.getType()), 5);
 return task;]]></Body>
@@ -28008,31 +28012,7 @@ return (Train)track.getTrains().stream().filter(p-> !p.equals(train)).collect(Co
 					</Parameter>
 					<Body><![CDATA[List<RailwayTrack> avoidTracksCopy = new ArrayList();
 avoidTracksCopy.addAll(avoidTracks());
-if (endTrack != null && endTrack.equals(main.track10p2)){
-	avoidTracksCopy.add(main.track9p3);
-}
 return avoidTracksCopy;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[RailwayTrack]]></ReturnType>
-					<Id>1706518553793</Id>
-					<Name><![CDATA[getTrackForDAndM]]></Name>
-					<Description><![CDATA[Функция возвращает путь для ожидания или после операции ожидание (обсловлено спецификой движения на грузовом фронте)]]></Description>
-					<X>770</X><Y>-30</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[RailwayTrack trackEnd = null;
-if (currentTask.getEndTrack().equals(main.track10p2) // если конечный путь track10p2 или
-	|| currentTask.getStartTrack().equals(main.track10p2)){ // если начальный путь track10p2
-	trackEnd = main.track10p1;
-}
-else{
-	trackEnd = currentTask.getEndTrack();
-}
-return trackEnd;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -29645,8 +29625,7 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 			}
 		}
 		else if (agent.listTask.get(cntTask - 1).getType().equals("Ожидание")){
-			RailwayTrack trackEnd = getTrackForDAndM();
-			train = (Train)trackEnd.getTrains().get(0);
+			train = (Train)currentTask.getEndTrack().getTrains().get(0);
 		}
 		else{
 			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
@@ -36738,11 +36717,13 @@ public class Front {
     private String name;
     private double usableLength;
     private TrackEdge homeTrack;
+    private ShapeRectangle placeFront;
 
-    public Front(String name, double usableLength, TrackEdge homeTrack) {
+    public Front(String name, double usableLength, TrackEdge homeTrack, ShapeRectangle placeFront) {
         this.name = name;
         this.usableLength = usableLength;
         this.homeTrack = homeTrack;
+        this.placeFront = placeFront;
     }
 
     public String getName() {
@@ -36751,6 +36732,14 @@ public class Front {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public ShapeRectangle getPlaceFront() {
+        return placeFront;
+    }
+
+    public void setName(ShapeRectangle placeFront) {
+        this.placeFront = placeFront;
     }
     
 
@@ -36769,11 +36758,66 @@ public class Front {
     public void setHomeTrack(TrackEdge homeTrack) {
         this.homeTrack = homeTrack;
     }
-    
-    public boolean needVagons() {
-		return homeTrack.getSelf().isEmpty();
+    /**
+     * 
+     * @return возвращает результат, пустой ли фронт
+     */
+    public boolean frontIsEmpty() {
+    	boolean isEmpty = true;
+    	if (getCarsOnFront().size() >= 1) {// если путь фронта не пустой
+    		isEmpty = false;
+    	}
+		return isEmpty;
     }
-    
+    /**
+     * 
+     * @return возвращает список вагонов на фронте
+     */
+    public List<RailCar> getCarsOnFront(){
+    	List<RailCar> cars = new ArrayList();
+    	for (Agent car : homeTrack.getSelf().getCars()) {
+			if (placeFront.contains(car.getX(), car.getY())) { // если зона фронта содержит в себе хотя бы один вагон
+				cars.add((RailCar)car);
+			}
+		}
+    	return cars;
+    }
+    /**
+     * 
+     * @return возвращает результат, можно ли поставить вагоны на фронт
+     */
+    public boolean isBlockedForSend() {
+    	boolean isBlocked = true;
+    	if (frontIsEmpty() && homeTrack.getSelf().isEmpty()) { // если фронт пустой и путь фронта пустой, то фронт не заблокирован
+    		isBlocked = false;
+    	}
+    	else { // если фронт не пустой или путь фронта не пуст
+    		if (frontIsEmpty() && name.equals("9")) { // если фронт пустой и имеет название 9, то фронт не заблокирован
+    			isBlocked = false;
+    		}
+    	}
+    	return isBlocked;
+    }
+    /**
+     * 
+     * @return - возвращает результат, не заблокирован ли фронт для забора вагонов
+     */
+    public boolean isBlockedForPickUp() {
+    	boolean isBlocked = true;
+    	if (!frontIsEmpty() && !homeTrack.getSelf().isEmpty()) { // если фронт пустой и путь фронта пустой, то фронт не заблокирован
+    		isBlocked = false;
+    	}
+    	else { // если фронт не пустой или путь фронта не пуст
+    		if (!frontIsEmpty() && name.equals("9")) { // если фронт пустой и имеет название 9, то фронт не заблокирован
+    			isBlocked = false;
+    		}
+    	}
+    	return isBlocked;
+    }
+    /**
+     * 
+     * @return - возвращает список вагонов, которые стоят на грузовом фронте
+     */
     public List<RailCar> getTrainOnFront(){
     	List<RailCar> train = new ArrayList();
     	for (Agent car : homeTrack.getSelf().getCars()) {
@@ -36783,9 +36827,19 @@ public class Front {
     }
     
     public boolean needToPickUp() {
-    	return !homeTrack.getSelf().isEmpty() && (homeTrack.getSelf().getCars().stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта") 
+    	return !isBlockedForPickUp() && (homeTrack.getSelf().getCars().stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта") 
     			|| ((RailCar)p).status.equals("Ожидание отправки на грузовой фронт")));
     }
+    
+    @Override
+    public String toString() {
+        return "Front{" +
+                "name='" + name + '\'' +
+                ", usableLength=" + usableLength +
+                ", homeTrack=" + homeTrack +
+                '}';
+    }
+    
 }
 ]]></Text>
 		</JavaClass>

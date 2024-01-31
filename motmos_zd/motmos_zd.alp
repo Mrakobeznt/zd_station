@@ -1072,7 +1072,7 @@ return list;]]></Body>
 if (listFronts.size() > 1){
 	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);
 	if (frontB != null){
-		makeTaskFormation(frontB);
+		makeTaskFormationToFront(frontB);
 	}
 }
 else{
@@ -1403,7 +1403,7 @@ return tracksEdges;]]></Body>
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706691375841</Id>
-					<Name><![CDATA[makeTaskFormation]]></Name>
+					<Name><![CDATA[makeTaskFormationToFront]]></Name>
 					<X>940</X><Y>2250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1428,6 +1428,33 @@ for (TaskAction task : fo.getTasks(targetTrack)){
 if (startTrack != null){
 	//traceln(red, "startTrack " + startTrack.getName());
 	addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706725674933</Id>
+					<Name><![CDATA[setTasksForFronts1]]></Name>
+					<X>1250</X><Y>2230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Front> listFronts = getNotBlockedFronts().stream().filter(p-> p.getName().equals("9") || p.getName().equals("9t")).collect(Collectors.toList());
+if (listFronts.size() > 1){
+	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);
+	if (frontB != null){
+		TaskAction task = add_taskAction();
+		task.type = 
+	}
+}
+else{
+	for (Front front : getNotBlockedFronts()){
+		if (getActiveFrontRequest(front.getName()).size() > 0){
+			makeTaskFormation(front);
+			break;
+		}
+	}
 }]]></Body>
 				</Function>
 			</Functions>
@@ -8659,9 +8686,12 @@ groupGondola.setPos(-310,210);]]></Body>
 					<Body><![CDATA[RailwayNetwork net = main.railwayNetwork;
 int position = 0;
 for(RailwayTrack track : net.getTracks()){
-	for (int i = 0; i < track.getCars().size();i++){
-		if (((RailCar)track.getCar(i)).hashCode() == hashCode()){
-			position = isHead ? (track.getCars().size() - i-1) : i;
+	for (Agent train : track.getTrains()){
+		Train copyTrain = (Train)train;
+		for (int i = 0; i < copyTrain.getCars().size();i++){
+			if (((RailCar)copyTrain.getCar(i)).hashCode() == hashCode()){
+				position = isHead ? (copyTrain.getCars().size() - i-1) : i;
+			}
 		}
 	}
 }
@@ -8772,6 +8802,8 @@ return sr;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[traceln("Я имею позицию с начала состава" + getPositionOnTrain(true));
+traceln("Я имею позицию с конца состава" + getPositionOnTrain(false));]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -12381,6 +12413,21 @@ sourceStation.inject();]]></Code>
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1706725791867</Id>
+					<Name><![CDATA[taskCollection1]]></Name>
+					<X>1100</X><Y>240</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[TaskAction]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -12792,6 +12839,38 @@ readArrivals();
 setFrontsOffset(main.positionsOnTracks, main.tracksException);
 
 setFinishFrontsOffset(main.finishFronts);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706725791869</Id>
+					<Name><![CDATA[readGlobalTasks]]></Name>
+					<X>1100</X><Y>210</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int row = 1;
+tasks.readFile();
+Stirng list = "Глобальные задачи";
+while(tasks.cellExists(list, row, 1)){
+	String name = tasks.getCellStringValue(list, row, 1);
+	String value = tasks.getCellStringValue(list, row, 2);
+	String[] mass = value.split(";");
+	List<String> typesList = Arrays.asList(mass);
+	List<Task> tasksList = new ArrayList();
+	TaskAction action = new TaskAction(name);
+	for (String type : typesList){
+		tasksList.add(new Task(type));
+	}
+	action.listTask = tasksList;
+	taskCollection.add(action);
+	row++;
+}
+PointNode node = null;
+node.getName()
+tasks.close();
+//taskCollection.stream().forEach(p-> traceln(p));]]></Body>
 				</Function>
 			</Functions>
 			<Connectivity>
@@ -26132,6 +26211,30 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1706707414048</Id>
+					<Name><![CDATA[distancePush]]></Name>
+					<X>820</X><Y>510</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1706707842227</Id>
+					<Name><![CDATA[freeSpace]]></Name>
+					<X>620</X><Y>400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1702720574785</Id>
 					<Name><![CDATA[network]]></Name>
@@ -26667,7 +26770,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 				<Connector>
 					<Id>1702736849003</Id>
 					<Name><![CDATA[connector]]></Name>
-					<X>810</X><Y>610</Y>
+					<X>830</X><Y>610</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -26675,7 +26778,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					<SourceEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[exit]]></ItemName>
+						<ItemName><![CDATA[exitPush]]></ItemName>
 					</SourceEmbeddedObjectReference>
 					<SourceConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -26694,7 +26797,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-60</X><Y>0</Y></Point>
+						<Point><X>-80</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -26718,7 +26821,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[enter]]></ItemName>
+						<ItemName><![CDATA[enterPush]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -26727,7 +26830,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-50</X><Y>0</Y></Point>
+						<Point><X>-70</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -28015,10 +28118,10 @@ avoidTracksCopy.addAll(avoidTracks());
 return avoidTracksCopy;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706544747199</Id>
-					<Name><![CDATA[conditionForPush]]></Name>
+					<Name><![CDATA[distanceForPush]]></Name>
 					<X>610</X><Y>460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -28032,10 +28135,42 @@ return avoidTracksCopy;]]></Body>
 						<Name><![CDATA[train]]></Name>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
-					<Body><![CDATA[if ((endTrack.getFreeSpace(true) - 40) < Tools.getLengthTrain(train.getCars())){// TODO Проверка сейчас только с одной стороны
-	return true;
+					<Body><![CDATA[Task nextTask = null;
+if ((superTask.listTask.size() - 1) >= cntTask+1){
+	nextTask = superTask.listTask.get(cntTask+1);
 }
-return false;]]></Body>
+if (nextTask != null && nextTask.getType().equals("Расцепка") && !endTrack.isEmpty() && train.size() > 1){
+	int sizeLiftTrain = train.size() - nextTask.getCntVagons();
+	List<RailCar> cars = new ArrayList();
+	for (int i = nextTask.getCntVagons(); i > -1; i--){
+		cars.add((RailCar)train.getCar(i));
+	}
+	if ((endTrack.getFreeSpace(true) - 40) < Tools.getLengthTrain(cars)){// Если расстояние с начальной стороны пути меньше состава, и состав меньше 1 TODO Проверка сейчас только с одной стороны
+		distancePush = Tools.getLengthTrain(cars) - (endTrack.getFreeSpace(true) - 40);
+	}
+	if (distancePush > 0){
+		needPush = true;
+	}
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706712165324</Id>
+					<Name><![CDATA[getOffsetForPush]]></Name>
+					<X>930</X><Y>590</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[train]]></Name>
+						<Type><![CDATA[Train]]></Type>
+					</Parameter>
+					<Body><![CDATA[double offset = train.getOffset(true) + distancePush;
+traceln("Смещение состава с конца " + train.getOffset(true));
+traceln("Нужно сместиться на " + distancePush);
+return offset;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -28241,7 +28376,8 @@ delay.stopDelayForAll();]]></Code>
 								<Code><![CDATA[traceln(green, "Движение на путь " + currentTask.getEndTrack().getName());
 traceln(green, "Размер движемого состава " + agent.size());
 traceln(green, "Размер состава на конечном пути " + currentTask.getEndTrack().getCars().size());
-traceln(green, "Смещение для движения " + currentTask.getOffset());]]></Code>
+traceln(green, "Смещение для движения " + currentTask.getOffset());
+distanceForPush(currentTask.getEndTrack(), agent);]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -28317,13 +28453,7 @@ traceln(green, "Смещение для движения " + currentTask.getOffs
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[agent.codeForLogic = 0;
-if (needPush){
-	
-}
-else{
-	returnsAgents(agent);
-}
-
+returnsAgents(agent);
 delay.stopDelayForAll();]]></Code>
 							</Value>
 						</Parameter>
@@ -28856,7 +28986,7 @@ returnsAgents(agent);]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[//traceln(green, "Расцепляю вагонов " + currentTask.getCntVagons());]]></Code>
+								<Code><![CDATA[traceln(green, "Расцепляю вагонов " + currentTask.getCntVagons());]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -29288,8 +29418,13 @@ returnsAgents(agent);]]></Code>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[firstTrain = null;
-returnsAgents(agent);
-delay.stopDelayForAll();]]></Code>
+if (needPush){
+	enterPush.take(agent);
+}
+else{
+	returnsAgents(agent);
+	delay.stopDelayForAll();
+}]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -29814,8 +29949,8 @@ cntTask++;]]></Code>
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1702736575116</Id>
-					<Name><![CDATA[enter]]></Name>
-					<X>640</X><Y>600</Y>
+					<Name><![CDATA[enterPush]]></Name>
+					<X>620</X><Y>600</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -29830,6 +29965,9 @@ cntTask++;]]></Code>
 							<ClassName><![CDATA[Enter]]></ClassName>
 							<ItemName><![CDATA[1412336242933]]></ItemName>
 						</GenericParameterSubstituteReference>
+						<GenericParameterSubstituteValue Class="CodeValue">
+							<Code><![CDATA[Train]]></Code>
+						</GenericParameterSubstituteValue>
 					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
@@ -29894,6 +30032,10 @@ cntTask++;]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[traceln("Отправляюсь на путь " + agent.getTrack(true).getName());
+traceln("Состав состоит из " + agent.size() + " вагонов");]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onRemove]]></Name>
@@ -29943,8 +30085,8 @@ cntTask++;]]></Code>
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1702736578115</Id>
-					<Name><![CDATA[exit]]></Name>
-					<X>810</X><Y>600</Y>
+					<Name><![CDATA[exitPush]]></Name>
+					<X>830</X><Y>600</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -29959,10 +30101,18 @@ cntTask++;]]></Code>
 							<ClassName><![CDATA[Exit]]></ClassName>
 							<ItemName><![CDATA[1412336242934]]></ItemName>
 						</GenericParameterSubstituteReference>
+						<GenericParameterSubstituteValue Class="CodeValue">
+							<Code><![CDATA[Train]]></Code>
+						</GenericParameterSubstituteValue>
 					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[agent.codeForLogic = 0;
+returnsAgents(agent);
+delay.stopDelayForAll();]]></Code>
+							</Value>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -35217,6 +35367,9 @@ traceln(yellow, "=========================");]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[routeType]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[self.ROUTE_AUTO]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[BlockedTrackHandling]]></Name>
@@ -35229,36 +35382,60 @@ traceln(yellow, "=========================");]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[targetType]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[self.TARGET_AT_TRACK_OFFSET]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[positionOnTrack]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[targetTrack]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[train.getTrack(true)]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[offsetFromBeginningOfTrack]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[targetOffset]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[getOffsetForPush(train)]]></Code>
+								<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[checkFreeSpaceOnTargetTrack]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[limitDistance]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[distanceIs]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maxDistance]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[distancePush]]></Code>
+								<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[switchDistance]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[cruiseSpeed]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[data.getSpeed(((Train)train).size(), superTask.type).get(currentTask.getEndTrack())]]></Code>
+								<Unit Class="SpeedUnits"><![CDATA[KPH]]></Unit>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[startOptions]]></Name>

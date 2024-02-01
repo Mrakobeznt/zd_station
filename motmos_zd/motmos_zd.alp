@@ -144,8 +144,25 @@
 				</Variable>
 				<Variable Class="PlainVariable">
 					<Id>1705667152552</Id>
+					<Name><![CDATA[activeSuperTasks]]></Name>
+					<Description><![CDATA[Количество выполняющихся задач]]></Description>
+					<X>985</X><Y>1755</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1706789655336</Id>
 					<Name><![CDATA[activeTasks]]></Name>
-					<X>745</X><Y>1755</Y>
+					<Description><![CDATA[Количество выполняющихся задач]]></Description>
+					<X>1630</X><Y>1750</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -405,7 +422,7 @@
 				<Connector>
 					<Id>1702720610303</Id>
 					<Name><![CDATA[connector15]]></Name>
-					<X>550</X><Y>1830</Y>
+					<X>750</X><Y>1830</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -413,7 +430,7 @@
 					<SourceEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[queueTasksAction]]></ItemName>
+						<ItemName><![CDATA[queueTasksSuper]]></ItemName>
 					</SourceEmbeddedObjectReference>
 					<SourceConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -423,7 +440,7 @@
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[enterTask]]></ItemName>
+						<ItemName><![CDATA[enterTasksSuper]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -432,13 +449,13 @@
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-60</X><Y>0</Y></Point>
+						<Point><X>-90</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
 					<Id>1702894549623</Id>
 					<Name><![CDATA[connector]]></Name>
-					<X>1175</X><Y>1830</Y>
+					<X>2065</X><Y>1835</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -471,7 +488,7 @@
 				<Connector>
 					<Id>1705667456266</Id>
 					<Name><![CDATA[connector1]]></Name>
-					<X>910</X><Y>1830</Y>
+					<X>1210</X><Y>1830</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -479,7 +496,207 @@
 					<SourceEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[exit]]></ItemName>
+						<ItemName><![CDATA[exitTasksSuper]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Exit]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[selectSuper]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ItemName><![CDATA[outT]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-160</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1705667671960</Id>
+					<Name><![CDATA[connector3]]></Name>
+					<X>1040</X><Y>1840</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[selectSuper]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ItemName><![CDATA[outF]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[holdTaskSuper]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Hold]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>80</Y></Point>
+						<Point><X>70</X><Y>80</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1705667671962</Id>
+					<Name><![CDATA[connector9]]></Name>
+					<X>1130</X><Y>1920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[holdTaskSuper]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Hold]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[exitTasksSuper]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Exit]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>80</X><Y>0</Y></Point>
+						<Point><X>80</X><Y>-90</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1705922038616</Id>
+					<Name><![CDATA[connector2]]></Name>
+					<X>1030</X><Y>1830</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[selectSuper]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[delaySuper]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-140</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1705922038618</Id>
+					<Name><![CDATA[connector4]]></Name>
+					<X>850</X><Y>1830</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[delaySuper]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[queueTasksSuper]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Queue]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-60</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1706789626629</Id>
+					<Name><![CDATA[connector16]]></Name>
+					<X>1490</X><Y>1830</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[queueTasksAction]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Queue]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[enterTasks]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Enter]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-80</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1706789626631</Id>
+					<Name><![CDATA[connector10]]></Name>
+					<X>1850</X><Y>1830</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+						<ItemName><![CDATA[exitTasks]]></ItemName>
 					</SourceEmbeddedObjectReference>
 					<SourceConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -502,9 +719,9 @@
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1705667671960</Id>
-					<Name><![CDATA[connector3]]></Name>
-					<X>740</X><Y>1840</Y>
+					<Id>1706789626633</Id>
+					<Name><![CDATA[connector11]]></Name>
+					<X>1680</X><Y>1840</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -522,7 +739,7 @@
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[holdTask2]]></ItemName>
+						<ItemName><![CDATA[holdTask]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -536,9 +753,9 @@
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1705667671962</Id>
-					<Name><![CDATA[connector9]]></Name>
-					<X>830</X><Y>1920</Y>
+					<Id>1706789626635</Id>
+					<Name><![CDATA[connector12]]></Name>
+					<X>1770</X><Y>1920</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -546,7 +763,7 @@
 					<SourceEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[holdTask2]]></ItemName>
+						<ItemName><![CDATA[holdTask]]></ItemName>
 					</SourceEmbeddedObjectReference>
 					<SourceConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -556,7 +773,7 @@
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[exit]]></ItemName>
+						<ItemName><![CDATA[exitTasks]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
@@ -570,9 +787,9 @@
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1705922038616</Id>
-					<Name><![CDATA[connector2]]></Name>
-					<X>730</X><Y>1830</Y>
+					<Id>1706789626637</Id>
+					<Name><![CDATA[connector13]]></Name>
+					<X>1670</X><Y>1830</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -603,9 +820,9 @@
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1705922038618</Id>
-					<Name><![CDATA[connector4]]></Name>
-					<X>10</X><Y>0</Y>
+					<Id>1706789626639</Id>
+					<Name><![CDATA[connector14]]></Name>
+					<X>950</X><Y>0</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -735,6 +952,9 @@
 					</Properties>
 					<Action><![CDATA[if (activeTasks == 0){
 	delay.stopDelayForAll();
+}
+if (activeSuperTasks == 0){
+	delaySuper.stopDelayForAll();
 }]]></Action>
 				</Event>
 				<Event>
@@ -757,7 +977,7 @@
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1706342400000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[0]]></Code>
+							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -766,6 +986,7 @@
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
+					<Action><![CDATA[checkAndMakeGlobalTask();]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -899,12 +1120,11 @@ return frontsCollection;]]></Body>
 					</Parameter>
 					<Body><![CDATA[Front front = getFrontByNum(numFront);
 List<Integer> hashList = new ArrayList();
-List<Request> requsts = getActiveFrontRequest(numFront);
-if (front.frontIsEmpty()){
-	for (Request req : requsts){//
+List<Request> requsts = getRequestOnStationByFront(numFront);
+if (!front.isBlockedForSend()){
+	for (Request req : requsts){
 		for (RailCar car : getCarsOnPopsTracks()){
-			if (req.getTypeVagon().equals(car.type) 
-				&& req.getNameOwner().equals(car.owner) 
+			if (conditionForSendVagon(car, req) 
 					&& hashList.size() < requsts.size()){
 				car.getRectangle().setVisible(true);
 				hashList.add(car.hashCode());
@@ -948,7 +1168,7 @@ getEngine().setStopDate(dateFinish);]]></Body>
 					<ReturnType><![CDATA[List<Request>]]></ReturnType>
 					<Id>1705333481671</Id>
 					<Name><![CDATA[getActiveRequests]]></Name>
-					<Description><![CDATA[Функция возвращает активные заявки]]></Description>
+					<Description><![CDATA[Функция возвращает все активные заявки, которые не поставлены на грузовой фронт]]></Description>
 					<X>600</X><Y>2240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1039,7 +1259,7 @@ return listCar;]]></Body>
 					<ReturnType><![CDATA[List<Request>]]></ReturnType>
 					<Id>1705410000815</Id>
 					<Name><![CDATA[getActiveFrontRequest]]></Name>
-					<Description><![CDATA[Возвращает список активных заявок по номеру фронта]]></Description>
+					<Description><![CDATA[Возвращает список активных заявок до текущего числа месяца по номеру фронта]]></Description>
 					<X>600</X><Y>2260</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1051,7 +1271,7 @@ return listCar;]]></Body>
 					</Parameter>
 					<Body><![CDATA[List<Request> list = new ArrayList();
 for (Request req : data.requestsCollection.stream().filter(p-> p.getNumFront().equals(numFront)).collect(Collectors.toList())){
-	if (getDayOfMonth(getModelTime()) == getDayOfMonth(req.getDateRequest()) && !req.getIsDone()){
+	if (getModelTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
 		list.add(req);
 	}
 }
@@ -1078,7 +1298,7 @@ if (listFronts.size() > 1){
 else{
 	for (Front front : getNotBlockedFronts()){
 		if (getActiveFrontRequest(front.getName()).size() > 0){
-			makeTaskFormation(front);
+			makeTaskFormationToFront(front);
 			break;
 		}
 	}
@@ -1129,7 +1349,7 @@ return edges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705655857748</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>120</X><Y>2110</Y>
+					<X>930</X><Y>2440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1163,14 +1383,14 @@ task.cntVagon = train.size();
 task.withLoco = withLoco;
 task.cars = train;
 task.listTask = task.makeTasks();
-enterTask.take(task);]]></Body>
+enterTasks.take(task);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705666815983</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>120</X><Y>2140</Y>
+					<X>930</X><Y>2470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1208,7 +1428,7 @@ task.cntVagon = cntVagons;
 task.withLoco = withLoco;
 task.front = front;
 task.listTask = task.makeTasks();
-enterTask.take(task);]]></Body>
+enterTasks.take(task);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1319,7 +1539,7 @@ setAvoidTracks();// Установка путей исключения
 
 add_logic();// Добавление пустого агента logic (иначе не будет работать с пустым)
 
-setArrange();// Расстановка вагонов на станции из
+setArrange();
 
 interfaceSettings.initSettings(); // Настройка интерфейса для работы модели]]></Body>
 				</Function>
@@ -1426,36 +1646,159 @@ for (TaskAction task : fo.getTasks(targetTrack)){
 	//traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
 }
 if (startTrack != null){
-	//traceln(red, "startTrack " + startTrack.getName());
 	addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<TaskAction>]]></ReturnType>
+					<Id>1706725674933</Id>
+					<Name><![CDATA[getTasksForSendToFront]]></Name>
+					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
+					<X>1260</X><Y>2230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Front> useFronts = new ArrayList();
+List<TaskAction> tasks = new ArrayList();
+List<Front> listFronts = getNotBlockedFronts().stream().filter(p-> p.getName().equals("9") || p.getName().equals("9t")).collect(Collectors.toList());
+///// ОБРАБОТКА СНАЧАЛА ТУПИКОВОГО ФРОНТА
+if (listFronts.size() > 1){ // если есть 2 фронта на одном пути
+	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);// определяем тупиковый фронт
+	if (frontB != null && getRequestOnStationByFront(frontB.getName()).size() > 0){ // если тупиковый фронт свободен и на него есть что отправить
+		useFronts.add(frontB);
+		TaskAction task = new TaskAction();
+		task.type = "Отправка на фронт";
+		task.front = frontB;
+		tasks.add(task);
+	}
+}
+////// ОБРАБОТКА ВСЕХ ФРОНТОВ
+for (Front front : getNotBlockedFronts()){
+	if (getRequestOnStationByFront(front.getName()).size() > 0 && !useFronts.contains(front)){ // если на станции есть вагоны по заявкам на отправку на фронт
+		TaskAction task = new TaskAction();
+		task.type = "Отправка на фронт";
+		task.front = front;
+		tasks.add(task);
+	}
+}
+traceln("===========================");
+traceln("Создал задачи:");
+tasks.stream().forEach(p-> traceln("Задача " + p.type + " на фронт " + p.front.getName()));
+traceln("===========================");
+return tasks;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706776702115</Id>
+					<Name><![CDATA[checkAndMakeGlobalTask]]></Name>
+					<X>1010</X><Y>2080</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[setTasksForSendToFront();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1706777546907</Id>
+					<Name><![CDATA[getRequestOnStationByFront]]></Name>
+					<Description><![CDATA[Возвращает список заявок, которые можно выполнить с помощью вагонов на станции]]></Description>
+					<X>600</X><Y>2320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[numFront]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[List<Request> list = new ArrayList();
+Set<RailCar> cars = new HashSet();
+for (Request req : getActiveFrontRequest(numFront)){
+	for (RailCar car : getCarsOnPopsTracks()){
+		if (conditionForSendVagon(car, req) && !cars.contains(car)){
+			list.add(req);
+			cars.add(car);
+			break;
+		}
+	}
+}
+return list;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1706786299609</Id>
+					<Name><![CDATA[conditionForSendVagon]]></Name>
+					<Description><![CDATA[Возвращает результат, подходит ли вагон к заявке]]></Description>
+					<X>600</X><Y>2360</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[car]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[request]]></Name>
+						<Type><![CDATA[Request]]></Type>
+					</Parameter>
+					<Body><![CDATA[boolean isMatch = false;
+/*traceln("=====================================================================================================================");
+traceln(red, "Масса продукта " + car.weightProduct + " -> " + request.getWeight() + " результат " + (car.weightProduct < request.getWeight() + 1));
+traceln(red, "Масса продукта " + car.weightProduct + " -> " + request.getWeight() + " результат " + (car.weightProduct + 1 > request.getWeight()));
+traceln(red, "Тип вагона " + car.type + " -> " + request.getTypeVagon() + " результат " + (car.type.equals(request.getTypeVagon())));
+traceln(red, "Собственник вагона " + car.owner + " -> " + request.getNameOwner() + " результат " + (car.owner.equals(request.getNameOwner())));
+traceln(red, "Тип продукта вагона " + car.productType + " -> " + request.getTypeProduct() + " результат " + (car.owner.equals(request.getNameOwner())));
+traceln(red, "Статус вагона " + car.status + " результат " + car.status.equals("Ожидание отправки на грузовой фронт"));*/
+if (car.weightProduct < request.getWeight() + 1 
+	&& car.weightProduct + 1 > request.getWeight() // если вес груза соответствует заявке
+		&& car.type.equals(request.getTypeVagon()) // если класс вагона соответствует заявке
+			&& car.owner.equals(request.getNameOwner()) // если собстенник вагона соответствует заявке
+				&& car.productType.equals(request.getTypeProduct()) // если тип продукта вагона соответствует заявке
+					&& car.status.equals("Ожидание отправки на грузовой фронт")){ // если стутус вагона соответствует статусу "Ожидание отправки на грузовой фронт"
+	isMatch = true;
+}
+return isMatch;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[List<TaskAction>]]></ReturnType>
+					<Id>1706788558894</Id>
+					<Name><![CDATA[setTasksForSendToFront]]></Name>
+					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
+					<X>1250</X><Y>2200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (TaskAction task : getTasksForSendToFront()){
+	addTaskSuper(task);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1706725674933</Id>
-					<Name><![CDATA[setTasksForFronts1]]></Name>
-					<X>1250</X><Y>2230</Y>
+					<Id>1706788764300</Id>
+					<Name><![CDATA[addTaskSuper]]></Name>
+					<X>930</X><Y>2500</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[List<Front> listFronts = getNotBlockedFronts().stream().filter(p-> p.getName().equals("9") || p.getName().equals("9t")).collect(Collectors.toList());
-if (listFronts.size() > 1){
-	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);
-	if (frontB != null){
-		TaskAction task = add_taskAction();
-		task.type = 
-	}
-}
-else{
-	for (Front front : getNotBlockedFronts()){
-		if (getActiveFrontRequest(front.getName()).size() > 0){
-			makeTaskFormation(front);
-			break;
-		}
-	}
-}]]></Body>
+					<Parameter>
+						<Name><![CDATA[taskAction]]></Name>
+						<Type><![CDATA[TaskAction]]></Type>
+					</Parameter>
+					<Body><![CDATA[TaskAction task = add_taskAction();
+task.type = taskAction.type;
+task.front = taskAction.front;
+enterTasksSuper.take(task);]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -2461,9 +2804,9 @@ switch (typeTask){
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1702720610216</Id>
-					<Name><![CDATA[enterTask]]></Name>
-					<X>470</X><Y>1820</Y>
-					<Label><X>-20</X><Y>-20</Y></Label>
+					<Name><![CDATA[enterTasksSuper]]></Name>
+					<X>640</X><Y>1820</Y>
+					<Label><X>-45</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
@@ -2599,8 +2942,8 @@ switch (typeTask){
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1702720610243</Id>
-					<Name><![CDATA[queueTasksAction]]></Name>
-					<X>550</X><Y>1810</Y>
+					<Name><![CDATA[queueTasksSuper]]></Name>
+					<X>750</X><Y>1810</Y>
 					<Label><X>-45</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2720,7 +3063,7 @@ switch (typeTask){
 				<EmbeddedObject>
 					<Id>1702720642816</Id>
 					<Name><![CDATA[logic]]></Name>
-					<X>1070</X><Y>1815</Y>
+					<X>1960</X><Y>1820</Y>
 					<Label><X>0</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2817,7 +3160,7 @@ switch (typeTask){
 				<EmbeddedObject>
 					<Id>1702894548890</Id>
 					<Name><![CDATA[sink]]></Name>
-					<X>1175</X><Y>1820</Y>
+					<X>2065</X><Y>1825</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2843,7 +3186,10 @@ switch (typeTask){
 								<Code><![CDATA[Logic objLogic = logic.stream().filter(p-> p.hashCode() == agent.codeLogic).findFirst().orElse(null);
 remove_logic(objLogic);
 group3D.setVisible(false);
-activeTasks--;]]></Code>
+activeTasks--;
+if (queueTasksAction.size() == 0 && activeTasks == 0 && activeSuperTasks > 0 && delay.size() == 0){
+	activeSuperTasks--;
+}]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -2970,9 +3316,9 @@ activeTasks--;]]></Code>
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1702913517679</Id>
-					<Name><![CDATA[exit]]></Name>
-					<X>910</X><Y>1820</Y>
-					<Label><X>-10</X><Y>-20</Y></Label>
+					<Name><![CDATA[exitTasksSuper]]></Name>
+					<X>1210</X><Y>1820</Y>
+					<Label><X>-45</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
@@ -2991,12 +3337,22 @@ activeTasks--;]]></Code>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[activeTasks++;
-if (agent.type.equals("Прибытие состава на станцию")){
+								<Code><![CDATA[activeSuperTasks++;
+if (agent.type.equals("Прибытие")){
 	group3D.setVisible(true);
 }
-Logic logic = add_logic(railwayNetwork, trainsDelay, locoDelay, data, enterLocoDelay, enterTrainsDelay);
-logic.enterStart.take(agent);]]></Code>
+traceln(purple, "Проверяю задачу с типом " + agent.type);
+switch(agent.type){
+	case "Прибытие" :
+		break;
+	case "Отправка на фронт" :
+		traceln("Составляем задачи отправки на фронт " + ((TaskAction)agent).front.getName());
+		makeTaskFormationToFront(((TaskAction)agent).front);
+		
+		break;
+	case "Расстановка":
+		setArrange();
+}]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -3041,8 +3397,8 @@ logic.enterStart.take(agent);]]></Code>
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1705667447302</Id>
-					<Name><![CDATA[selectOutput]]></Name>
-					<X>720</X><Y>1820</Y>
+					<Name><![CDATA[selectSuper]]></Name>
+					<X>1020</X><Y>1820</Y>
 					<Label><X>-35</X><Y>-25</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3128,8 +3484,608 @@ logic.enterStart.take(agent);]]></Code>
 				</EmbeddedObject>
 				<EmbeddedObject>
 					<Id>1705667664923</Id>
-					<Name><![CDATA[holdTask2]]></Name>
-					<X>810</X><Y>1910</Y>
+					<Name><![CDATA[holdTaskSuper]]></Name>
+					<X>1110</X><Y>1910</Y>
+					<Label><X>-35</X><Y>-20</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Hold]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Hold]]></ClassName>
+							<ItemName><![CDATA[1412336242940]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[mode]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[self.CONDITIONAL]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[nEntitiesForSelfBlock]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[condition]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[activeSuperTasks == 1]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[initiallyBlocked]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1705922037562</Id>
+					<Name><![CDATA[delaySuper]]></Name>
+					<X>850</X><Y>1810</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[self.MANUAL]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[0]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706789626542</Id>
+					<Name><![CDATA[enterTasks]]></Name>
+					<X>1390</X><Y>1820</Y>
+					<Label><X>-20</X><Y>-20</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Enter]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Enter]]></ClassName>
+							<ItemName><![CDATA[1412336242933]]></ItemName>
+						</GenericParameterSubstituteReference>
+						<GenericParameterSubstituteValue Class="CodeValue">
+							<Code><![CDATA[SuperTask]]></Code>
+						</GenericParameterSubstituteValue>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[locationType]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationX]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationY]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationZ]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationLatitude]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationLongitude]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationGeoPlaceName]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationXYZInNetwork]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationNetwork]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationLevel]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationNode]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[locationAttractor]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[speed]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[changeDimensions]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[length]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[width]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[height]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[addToCustomPopulation]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[population]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[superTask]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtEnter]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706789626569</Id>
+					<Name><![CDATA[queueTasksAction]]></Name>
+					<X>1490</X><Y>1810</Y>
+					<Label><X>-45</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Queue]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Queue]]></ClassName>
+							<ItemName><![CDATA[1412336242932]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[queuing]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[priority]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[agent.priority]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[comparison]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[enableTimeout]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[timeout]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[enablePreemption]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitTimeout]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitPreempted]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706789626590</Id>
+					<Name><![CDATA[exitTasks]]></Name>
+					<X>1850</X><Y>1820</Y>
+					<Label><X>-10</X><Y>-20</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Exit]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Exit]]></ClassName>
+							<ItemName><![CDATA[1412336242934]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[activeTasks++;
+Logic logic = add_logic(railwayNetwork, trainsDelay, locoDelay, data, enterLocoDelay, enterTrainsDelay);
+logic.enterStart.take(agent);]]></Code>
+							</Value>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706789626595</Id>
+					<Name><![CDATA[selectOutput]]></Name>
+					<X>1660</X><Y>1820</Y>
+					<Label><X>-35</X><Y>-25</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[SelectOutput]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[SelectOutput]]></ClassName>
+							<ItemName><![CDATA[1412336242931]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[conditionIsProbabilistic]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[false]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[condition]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[agent.type.equals("Расстановка") ]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[probability]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitTrue]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExitFalse]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706789626606</Id>
+					<Name><![CDATA[holdTask]]></Name>
+					<X>1750</X><Y>1910</Y>
 					<Label><X>-20</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3211,9 +4167,9 @@ logic.enterStart.take(agent);]]></Code>
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1705922037562</Id>
+					<Id>1706789626615</Id>
 					<Name><![CDATA[delay]]></Name>
-					<X>640</X><Y>1810</Y>
+					<X>1580</X><Y>1810</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3301,6 +4257,153 @@ logic.enterStart.take(agent);]]></Code>
 						<Code><![CDATA[""]]></Code>
 					</LocationNameCode>
 					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706804082673</Id>
+					<Name><![CDATA[railCars]]></Name>
+					<X>-140</X><Y>2030</Y>
+					<Label><X>-30</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<PresentationId>1706804084226</PresentationId>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[RailCar]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[RailCar]]></ClassName>
+							<ItemName><![CDATA[1700596772933]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[""]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[model]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[productType]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[length]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[weightSelf]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[weightProduct]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>true</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>EMPTY</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1706804112275</Id>
+					<Name><![CDATA[trains]]></Name>
+					<X>-250</X><Y>2030</Y>
+					<Label><X>-20</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Train]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Train]]></ClassName>
+							<ItemName><![CDATA[1700731257151]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[locoIsForward]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>true</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>EMPTY</InitializationType>
 					<InitializationDatabaseTableQuery>
 						<TableReference>
 						</TableReference>
@@ -6912,7 +8015,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>140</Height>
+					<Height>190</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -6956,7 +8059,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>160</Height>
+					<Height>210</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -7088,7 +8191,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>300</Height>
+					<Height>390</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -8120,6 +9223,47 @@ logic.enterStart.take(agent);]]></Code>
 					<FillColor/>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<EmbeddedObjectPresentation>
+					<Id>1706804084226</Id>
+					<Name><![CDATA[railCars_presentation]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<DrawingMode>AGENT_CURRENT_POSITION</DrawingMode>
+					<ScaleType>AUTOMATICALLY_CALCULATED</ScaleType>
+					<GISScaleForRealEmbeddedObjectPresentationSize>1000</GISScaleForRealEmbeddedObjectPresentationSize>
+					<GISScaleForFixedEmbeddedObjectPresentationSize>1000000000</GISScaleForFixedEmbeddedObjectPresentationSize>
+					<Latitude>0.0</Latitude>
+					<Longitude>0.0</Longitude>
+				</EmbeddedObjectPresentation>
+				<Control Type="Button">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1706813988952</Id>
+					<Name><![CDATA[button4]]></Name>
+					<X>600</X><Y>1700</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[railCars.get(0).sendToAll("Загрузка");
+railCars.stream().forEach(p-> traceln(p.status));]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<LabelText><![CDATA[button]]></LabelText>
+					</ExtendedProperties>
+				</Control>
 			</Presentation>
 
 				</Level>
@@ -8161,7 +9305,9 @@ public String toString(){
 	return "Вагон типа " + type + 
 		", модели " + model + 
 			", перевозящий " + productType + 
-				", имеет массу " + getWeight();
+				", статус " + status + 
+					", собственник " + owner + 
+						", имеет массу " + getWeight();
 }]]></AdditionalClassCode>
 			<Generic>false</Generic>
 			<GenericParameter>
@@ -8534,7 +9680,7 @@ public String toString(){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
-						<EntryAction><![CDATA[status = "Ожидание уборки с грузового фронта";]]></EntryAction>
+						<EntryAction><![CDATA[status = "Ожидание отправки на грузовой фронт";]]></EntryAction>
 						<FillColor/>
 					</Properties>
 				</StatechartElement>
@@ -8561,6 +9707,19 @@ public String toString(){
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
 						<EntryAction><![CDATA[status = "Выгрузка"]]></EntryAction>
+						<FillColor/>
+					</Properties>
+				</StatechartElement>
+				<StatechartElement Class="State" ParentState="ROOT_NODE">
+					<Id>1706813467631</Id>
+					<Name><![CDATA[loaded]]></Name>
+					<X>800</X><Y>350</Y>
+					<Label><X>107.333</X><Y>14</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties Width="270" Height="30">
+						<EntryAction><![CDATA[status = "Загрузка"]]></EntryAction>
 						<FillColor/>
 					</Properties>
 				</StatechartElement>
@@ -8593,6 +9752,8 @@ public String toString(){
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705066762314" Target="1705067799006" Trigger="message">
+						<Action><![CDATA[//status = "Загрузка";
+//traceln("Я получил сообщение");]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
@@ -8623,6 +9784,8 @@ public String toString(){
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705066762314" Target="1705067932484" Trigger="message">
+						<Action><![CDATA[//status = "Выгрузка";
+//traceln("Я получил сообщение");]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
@@ -8636,6 +9799,66 @@ public String toString(){
 						<DefaultTransition>true</DefaultTransition>
 						<FilterType><![CDATA[equalsTo]]></FilterType>
 						<EqualsExpression><![CDATA["Выгрузка"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1706804521535</Id>
+					<Name><![CDATA[transition2]]></Name>
+					<X>785</X><Y>300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>150</X><Y>50</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1705067799006" Target="1706813467631" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1706813520542</Id>
+					<Name><![CDATA[transition3]]></Name>
+					<X>1100</X><Y>300</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-150</X><Y>50</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1705067932484" Target="1706813467631" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
 						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
 					</Properties>	
 				</StatechartElement>
@@ -8883,6 +10106,29 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<FillColor>-16711681</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Image>
+					<Id>1706802596292</Id>
+					<Name><![CDATA[image]]></Name>
+					<X>-53</X><Y>-14</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && type.equals("Полувагон")]]></VisibleCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>111</Width>
+					<Height>25</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Фонтан.gif]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
 			</Presentation>
 
 				</Group>
@@ -8964,6 +10210,29 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<FillColor>-16711681</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Image>
+					<Id>1706814615239</Id>
+					<Name><![CDATA[image1]]></Name>
+					<X>-114</X><Y>-13</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && type.equals("Трубовоз")]]></VisibleCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>232</Width>
+					<Height>24</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Фонтан.gif]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
 			</Presentation>
 
 				</Group>
@@ -9045,6 +10314,29 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<FillColor>-16711681</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Image>
+					<Id>1706814641983</Id>
+					<Name><![CDATA[image2]]></Name>
+					<X>-112</X><Y>-13</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && (type.equals("Трубовоз мал") && model.equals("13-1796-01"))]]></VisibleCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>233</Width>
+					<Height>23</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Фонтан.gif]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
 			</Presentation>
 
 				</Group>
@@ -9205,12 +10497,35 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<LineColor/>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>5</Width>
+					<Width>10</Width>
 					<Height>33</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-16711681</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Image>
+					<Id>1706814659206</Id>
+					<Name><![CDATA[image3]]></Name>
+					<X>-57</X><Y>-15</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && type.equals("Платформа")]]></VisibleCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>121</Width>
+					<Height>27</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Фонтан.gif]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
 			</Presentation>
 
 				</Group>
@@ -9414,6 +10729,21 @@ return cars;]]></Body>
 				</AgentLink>
 			</AgentLinks>
 
+			<ContainerLinks>
+				<ContainerLink>
+					<Id>1706804114669</Id>
+					<Name><![CDATA[main]]></Name>
+					<X>50</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+					</ActiveObjectClass>
+				</ContainerLink>
+			</ContainerLinks>
 
 			<Presentation>
 				<Level>
@@ -10225,7 +11555,7 @@ if (currTrack.equals(endTrack()) // если текущий целевой пу�
 		&& !logic.currentTask.getType().equals("Движение в цех")){ // есди задача не движение в цех
 	if (endTrack().getTrains().size() > 1 && logic.superTask.front == null){// если на конечном пути больше 1 состава
 		offset = 0;
-		traceln(black, "Смещение выбрано по 1 " + offset);
+		//traceln(black, "Смещение выбрано по 1 " + offset);
 	}
 	else if (endTrack().getTrains().size() > 1 && logic.superTask.front != null){
 		if (logic.superTask.front.getCarsOnFront().size() < 1){
@@ -10235,11 +11565,11 @@ if (currTrack.equals(endTrack()) // если текущий целевой пу�
 	else{
 		if (((Train)endTrack().getTrains().get(0)).equals(train)){// если состав на конечном пути соответствует 
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			traceln(black, "Смещение выбрано по 2 " + offset);
+			//traceln(black, "Смещение выбрано по 2 " + offset);
 		}
 		else{
 			offset = 0;
-			traceln(black, "Смещение выбрано по 3 " + offset);
+			//traceln(black, "Смещение выбрано по 3 " + offset);
 		}
 	}
 }
@@ -10248,21 +11578,21 @@ else if (currTrack.equals(endTrack()) // если текущий целевой 
 				&& endTrack().length(METER) > (train.getLength(METER) - koef)){ // если длина конечного пути больше длины состава - коэффициент смещения
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		traceln(black, "Смещение выбрано по 4 " + offset);
+		//traceln(black, "Смещение выбрано по 4 " + offset);
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		traceln(black, "Смещение выбрано по 5 " + offset);
+		//traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else if(currTrack.equals(endTrack()) && logic.currentTask.getType().equals("Движение в цех")){
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		traceln(black, "Я вырал тот что нужно " + needOffset());
+		//traceln(black, "Я вырал тот что нужно " + needOffset());
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		traceln(black, "Смещение выбрано по 5 " + offset);
+		//traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else{
@@ -10272,7 +11602,7 @@ else{
 	if (route.getRouteSwitches().get(currTrack) != route.getRouteSwitches().get(nextTrack) // если стрелка текущего пути не равна стрелке следующего пути 
 		&& currTrack.length(METER) >= (train.getLength(METER) + koef)){ // если длина текущего пути больше длины состава 
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		traceln(black, "Смещение выбрано по 6 " + offset);
+		//traceln(black, "Смещение выбрано по 6 " + offset);
 	}
 }
 //traceln(red, "А я использую офсет " + offset);
@@ -11387,9 +12717,15 @@ route = null;]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[addTrainToCustomPopulation]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[trainPopulation]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.trains]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[newRailCar]]></Name>
@@ -11494,9 +12830,15 @@ cnt++;]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[addCarToCustomPopulation]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[carPopulation]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.railCars]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
@@ -12852,7 +14194,7 @@ setFinishFrontsOffset(main.finishFronts);]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[int row = 1;
 tasks.readFile();
-Stirng list = "Глобальные задачи";
+String list = "Глобальные задачи";
 while(tasks.cellExists(list, row, 1)){
 	String name = tasks.getCellStringValue(list, row, 1);
 	String value = tasks.getCellStringValue(list, row, 2);
@@ -12867,8 +14209,6 @@ while(tasks.cellExists(list, row, 1)){
 	taskCollection.add(action);
 	row++;
 }
-PointNode node = null;
-node.getName()
 tasks.close();
 //taskCollection.stream().forEach(p-> traceln(p));]]></Body>
 				</Function>
@@ -13575,9 +14915,9 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			break;
 	}
 }
-traceln(orange, "Для задачи " + type);
-newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
-+ " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()));
+//traceln(orange, "Для задачи " + type);
+//newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
+//+ " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()));
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -13763,13 +15103,13 @@ return nextTrack;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[double offset = 0;
-traceln("Захожу");
+//traceln("Захожу");
 if(main.data.frontsFinishOffsets.containsKey(targetTrack) || main.data.frontsDelayOffset.containsKey(targetTrack)){
 	if (typeTask.equals("Движение в цех")){
 		offset = main.data.getOffsetForDelay(targetTrack);
 	}
 	else{
-		traceln("Фронт в таске");
+		//traceln("Фронт в таске");
 		traceln(front);
 		offset = main.data.getFinitshFrontOffset(front);
 	}
@@ -13777,7 +15117,7 @@ if(main.data.frontsFinishOffsets.containsKey(targetTrack) || main.data.frontsDel
 else{
 	offset = targetTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
 }
-traceln("Возвращаю " + offset);
+//traceln("Возвращаю " + offset);
 return offset;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -28172,6 +29512,36 @@ traceln("Смещение состава с конца " + train.getOffset(true)
 traceln("Нужно сместиться на " + distancePush);
 return offset;]]></Body>
 				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706802926055</Id>
+					<Name><![CDATA[setStatusVagon]]></Name>
+					<X>1170</X><Y>130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[train]]></Name>
+						<Type><![CDATA[Train]]></Type>
+					</Parameter>
+					<Body><![CDATA[traceln(orange, "Состав был расцеплен на пути " +train.getTrack(false).getName());
+traceln(orange, "Состав находится на грузовом фронте " + (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))));
+if (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))){
+	for (RailCar car : train.getCars()){
+		if (car.weightProduct > 1){
+			car.send("Выгрузка", car);
+			traceln("Присвоил статус " + car.status);
+		}
+		else{
+			car.send("Загрузка", car);
+			//send("Загрузка", car);
+			traceln("Присвоил статус " + car.status);
+		}
+	}
+}]]></Body>
+				</Function>
 			</Functions>
 			<AgentLinks>
 				<AgentLink>
@@ -28373,10 +29743,10 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[traceln(green, "Движение на путь " + currentTask.getEndTrack().getName());
+								<Code><![CDATA[/*traceln(green, "Движение на путь " + currentTask.getEndTrack().getName());
 traceln(green, "Размер движемого состава " + agent.size());
 traceln(green, "Размер состава на конечном пути " + currentTask.getEndTrack().getCars().size());
-traceln(green, "Смещение для движения " + currentTask.getOffset());
+traceln(green, "Смещение для движения " + currentTask.getOffset());*/
 distanceForPush(currentTask.getEndTrack(), agent);]]></Code>
 							</Value>
 						</Parameter>
@@ -28758,7 +30128,8 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[agent.codeForLogic = 0;
+								<Code><![CDATA[setStatusVagon(agent);
+agent.codeForLogic = 0;
 returnsAgents(agent);
 delay.stopDelayForAll();]]></Code>
 							</Value>
@@ -35983,6 +37354,550 @@ traceln(yellow, "=========================");]]></Code>
 			</Presentation>
 
 		</ActiveObjectClass>
+		<!--   =========   Active Object Class   ========  -->
+		<ActiveObjectClass>
+			<Id>1706776656808</Id>
+			<Name><![CDATA[MyAgent]]></Name>
+			<Generic>false</Generic>
+			<GenericParameter>
+				<Id>1706776656814</Id>
+				<Name><![CDATA[1706776656814]]></Name>
+				<GenericParameterValue Class="CodeValue">
+					<Code><![CDATA[T extends Agent]]></Code>
+				</GenericParameterValue>
+				<GenericParameterLabel><![CDATA[Параметр настройки:]]></GenericParameterLabel>
+			</GenericParameter>
+			<FlowChartsUsage>ENTITY</FlowChartsUsage>
+			<SamplesToKeep>100</SamplesToKeep>
+			<LimitNumberOfArrayElements>false</LimitNumberOfArrayElements>
+			<ElementsLimitValue>100</ElementsLimitValue>
+			<MakeDefaultViewArea>true</MakeDefaultViewArea>
+			<SceneGridColor/>
+			<SceneBackgroundColor/>
+			<SceneSkybox>null</SceneSkybox>
+			<AgentProperties>
+				<EnvironmentDefinesInitialLocation>true</EnvironmentDefinesInitialLocation>
+				<RotateAnimationTowardsMovement>true</RotateAnimationTowardsMovement>
+				<RotateAnimationVertically>false</RotateAnimationVertically>
+				<VelocityCode Class="CodeUnitValue">
+					<Code><![CDATA[10]]></Code>
+					<Unit Class="SpeedUnits"><![CDATA[MPS]]></Unit>
+				</VelocityCode>
+				<PhysicalLength Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalLength>
+				<PhysicalWidth Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalWidth>
+				<PhysicalHeight Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalHeight>
+			</AgentProperties>
+			<EnvironmentProperties>
+					<EnableSteps>false</EnableSteps>
+					<StepDurationCode Class="CodeUnitValue">
+						<Code><![CDATA[1.0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</StepDurationCode>
+					<SpaceType>CONTINUOUS</SpaceType>
+					<WidthCode><![CDATA[500]]></WidthCode>
+					<HeightCode><![CDATA[500]]></HeightCode>
+					<ZHeightCode><![CDATA[0]]></ZHeightCode>
+					<ColumnsCountCode><![CDATA[100]]></ColumnsCountCode>
+					<RowsCountCode><![CDATA[100]]></RowsCountCode>
+					<NeigborhoodType>MOORE</NeigborhoodType>
+					<LayoutType>USER_DEF</LayoutType>
+					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
+					<NetworkType>USER_DEF</NetworkType>
+					<NetworkTypeApplyOnStartup>true</NetworkTypeApplyOnStartup>
+					<ConnectionsPerAgentCode><![CDATA[2]]></ConnectionsPerAgentCode>
+					<ConnectionsRangeCode><![CDATA[50]]></ConnectionsRangeCode>
+					<NeighborLinkFractionCode><![CDATA[0.95]]></NeighborLinkFractionCode>
+					<MCode><![CDATA[10]]></MCode>
+			</EnvironmentProperties>
+			<DatasetsCreationProperties>
+				<AutoCreate>true</AutoCreate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1706860800000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+			</DatasetsCreationProperties>
+			<ScaleRuler>
+				<Id>1706776656811</Id>
+				<Name><![CDATA[scale]]></Name>
+				<X>0</X><Y>-150</Y>
+				<PublicFlag>false</PublicFlag>
+				<PresentationFlag>false</PresentationFlag>
+				<ShowLabel>false</ShowLabel>
+				<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+				<Length>100</Length>
+				<Rotation>0</Rotation>
+				<ScaleType>BASED_ON_LENGTH</ScaleType>
+				<ModelLength>10</ModelLength>
+				<LengthUnits>METER</LengthUnits>
+				<Scale>10</Scale>
+				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
+			</ScaleRuler>
+			<CurrentLevel>1706776656815</CurrentLevel>
+			<ConnectionsId>1706776656809</ConnectionsId>
+			<AgentLinks>
+				<AgentLink>
+					<Id>1706776656809</Id>
+					<Name><![CDATA[connections]]></Name>
+					<X>50</X><Y>-50</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<HandleReceiveInConnections>false</HandleReceiveInConnections>
+					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
+					<AgentLinkBidirectional>true</AgentLinkBidirectional>
+					<MessageType><![CDATA[Object]]></MessageType>
+					<LineStyle>SOLID</LineStyle>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineZOrder>UNDER_AGENTS</LineZOrder>
+					<LineArrow>NONE</LineArrow>
+					<LineArrowPosition>END</LineArrowPosition>
+				</AgentLink>
+			</AgentLinks>
+
+
+			<Presentation>
+				<Level>
+					<Id>1706776656815</Id>
+					<Name><![CDATA[level]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
+
+
+				</Level>
+			</Presentation>
+
+		</ActiveObjectClass>
+		<!--   =========   Active Object Class   ========  -->
+		<ActiveObjectClass>
+			<Id>1706776661407</Id>
+			<Name><![CDATA[MyAgent1]]></Name>
+			<Generic>false</Generic>
+			<GenericParameter>
+				<Id>1706776661413</Id>
+				<Name><![CDATA[1706776661413]]></Name>
+				<GenericParameterValue Class="CodeValue">
+					<Code><![CDATA[T extends Agent]]></Code>
+				</GenericParameterValue>
+				<GenericParameterLabel><![CDATA[Параметр настройки:]]></GenericParameterLabel>
+			</GenericParameter>
+			<FlowChartsUsage>ENTITY</FlowChartsUsage>
+			<SamplesToKeep>100</SamplesToKeep>
+			<LimitNumberOfArrayElements>false</LimitNumberOfArrayElements>
+			<ElementsLimitValue>100</ElementsLimitValue>
+			<MakeDefaultViewArea>true</MakeDefaultViewArea>
+			<SceneGridColor/>
+			<SceneBackgroundColor/>
+			<SceneSkybox>null</SceneSkybox>
+			<AgentProperties>
+				<EnvironmentDefinesInitialLocation>true</EnvironmentDefinesInitialLocation>
+				<RotateAnimationTowardsMovement>true</RotateAnimationTowardsMovement>
+				<RotateAnimationVertically>false</RotateAnimationVertically>
+				<VelocityCode Class="CodeUnitValue">
+					<Code><![CDATA[10]]></Code>
+					<Unit Class="SpeedUnits"><![CDATA[MPS]]></Unit>
+				</VelocityCode>
+				<PhysicalLength Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalLength>
+				<PhysicalWidth Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalWidth>
+				<PhysicalHeight Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalHeight>
+			</AgentProperties>
+			<EnvironmentProperties>
+					<EnableSteps>false</EnableSteps>
+					<StepDurationCode Class="CodeUnitValue">
+						<Code><![CDATA[1.0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</StepDurationCode>
+					<SpaceType>CONTINUOUS</SpaceType>
+					<WidthCode><![CDATA[500]]></WidthCode>
+					<HeightCode><![CDATA[500]]></HeightCode>
+					<ZHeightCode><![CDATA[0]]></ZHeightCode>
+					<ColumnsCountCode><![CDATA[100]]></ColumnsCountCode>
+					<RowsCountCode><![CDATA[100]]></RowsCountCode>
+					<NeigborhoodType>MOORE</NeigborhoodType>
+					<LayoutType>USER_DEF</LayoutType>
+					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
+					<NetworkType>USER_DEF</NetworkType>
+					<NetworkTypeApplyOnStartup>true</NetworkTypeApplyOnStartup>
+					<ConnectionsPerAgentCode><![CDATA[2]]></ConnectionsPerAgentCode>
+					<ConnectionsRangeCode><![CDATA[50]]></ConnectionsRangeCode>
+					<NeighborLinkFractionCode><![CDATA[0.95]]></NeighborLinkFractionCode>
+					<MCode><![CDATA[10]]></MCode>
+			</EnvironmentProperties>
+			<DatasetsCreationProperties>
+				<AutoCreate>true</AutoCreate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1706860800000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+			</DatasetsCreationProperties>
+			<ScaleRuler>
+				<Id>1706776661410</Id>
+				<Name><![CDATA[scale]]></Name>
+				<X>0</X><Y>-150</Y>
+				<PublicFlag>false</PublicFlag>
+				<PresentationFlag>false</PresentationFlag>
+				<ShowLabel>false</ShowLabel>
+				<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+				<Length>100</Length>
+				<Rotation>0</Rotation>
+				<ScaleType>BASED_ON_LENGTH</ScaleType>
+				<ModelLength>10</ModelLength>
+				<LengthUnits>METER</LengthUnits>
+				<Scale>10</Scale>
+				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
+			</ScaleRuler>
+			<CurrentLevel>1706776661414</CurrentLevel>
+			<ConnectionsId>1706776661408</ConnectionsId>
+			<AgentLinks>
+				<AgentLink>
+					<Id>1706776661408</Id>
+					<Name><![CDATA[connections]]></Name>
+					<X>50</X><Y>-50</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<HandleReceiveInConnections>false</HandleReceiveInConnections>
+					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
+					<AgentLinkBidirectional>true</AgentLinkBidirectional>
+					<MessageType><![CDATA[Object]]></MessageType>
+					<LineStyle>SOLID</LineStyle>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineZOrder>UNDER_AGENTS</LineZOrder>
+					<LineArrow>NONE</LineArrow>
+					<LineArrowPosition>END</LineArrowPosition>
+				</AgentLink>
+			</AgentLinks>
+
+
+			<Presentation>
+				<Level>
+					<Id>1706776661414</Id>
+					<Name><![CDATA[level]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
+
+
+				</Level>
+			</Presentation>
+
+		</ActiveObjectClass>
+		<!--   =========   Active Object Class   ========  -->
+		<ActiveObjectClass>
+			<Id>1706776666216</Id>
+			<Name><![CDATA[MyAgent2]]></Name>
+			<Generic>false</Generic>
+			<GenericParameter>
+				<Id>1706776666222</Id>
+				<Name><![CDATA[1706776666222]]></Name>
+				<GenericParameterValue Class="CodeValue">
+					<Code><![CDATA[T extends Agent]]></Code>
+				</GenericParameterValue>
+				<GenericParameterLabel><![CDATA[Параметр настройки:]]></GenericParameterLabel>
+			</GenericParameter>
+			<FlowChartsUsage>ENTITY</FlowChartsUsage>
+			<SamplesToKeep>100</SamplesToKeep>
+			<LimitNumberOfArrayElements>false</LimitNumberOfArrayElements>
+			<ElementsLimitValue>100</ElementsLimitValue>
+			<MakeDefaultViewArea>true</MakeDefaultViewArea>
+			<SceneGridColor/>
+			<SceneBackgroundColor/>
+			<SceneSkybox>null</SceneSkybox>
+			<AgentProperties>
+				<EnvironmentDefinesInitialLocation>true</EnvironmentDefinesInitialLocation>
+				<RotateAnimationTowardsMovement>true</RotateAnimationTowardsMovement>
+				<RotateAnimationVertically>false</RotateAnimationVertically>
+				<VelocityCode Class="CodeUnitValue">
+					<Code><![CDATA[10]]></Code>
+					<Unit Class="SpeedUnits"><![CDATA[MPS]]></Unit>
+				</VelocityCode>
+				<PhysicalLength Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalLength>
+				<PhysicalWidth Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalWidth>
+				<PhysicalHeight Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalHeight>
+			</AgentProperties>
+			<EnvironmentProperties>
+					<EnableSteps>false</EnableSteps>
+					<StepDurationCode Class="CodeUnitValue">
+						<Code><![CDATA[1.0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</StepDurationCode>
+					<SpaceType>CONTINUOUS</SpaceType>
+					<WidthCode><![CDATA[500]]></WidthCode>
+					<HeightCode><![CDATA[500]]></HeightCode>
+					<ZHeightCode><![CDATA[0]]></ZHeightCode>
+					<ColumnsCountCode><![CDATA[100]]></ColumnsCountCode>
+					<RowsCountCode><![CDATA[100]]></RowsCountCode>
+					<NeigborhoodType>MOORE</NeigborhoodType>
+					<LayoutType>USER_DEF</LayoutType>
+					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
+					<NetworkType>USER_DEF</NetworkType>
+					<NetworkTypeApplyOnStartup>true</NetworkTypeApplyOnStartup>
+					<ConnectionsPerAgentCode><![CDATA[2]]></ConnectionsPerAgentCode>
+					<ConnectionsRangeCode><![CDATA[50]]></ConnectionsRangeCode>
+					<NeighborLinkFractionCode><![CDATA[0.95]]></NeighborLinkFractionCode>
+					<MCode><![CDATA[10]]></MCode>
+			</EnvironmentProperties>
+			<DatasetsCreationProperties>
+				<AutoCreate>true</AutoCreate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1706860800000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+			</DatasetsCreationProperties>
+			<ScaleRuler>
+				<Id>1706776666219</Id>
+				<Name><![CDATA[scale]]></Name>
+				<X>0</X><Y>-150</Y>
+				<PublicFlag>false</PublicFlag>
+				<PresentationFlag>false</PresentationFlag>
+				<ShowLabel>false</ShowLabel>
+				<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+				<Length>100</Length>
+				<Rotation>0</Rotation>
+				<ScaleType>BASED_ON_LENGTH</ScaleType>
+				<ModelLength>10</ModelLength>
+				<LengthUnits>METER</LengthUnits>
+				<Scale>10</Scale>
+				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
+			</ScaleRuler>
+			<CurrentLevel>1706776666223</CurrentLevel>
+			<ConnectionsId>1706776666217</ConnectionsId>
+			<AgentLinks>
+				<AgentLink>
+					<Id>1706776666217</Id>
+					<Name><![CDATA[connections]]></Name>
+					<X>50</X><Y>-50</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<HandleReceiveInConnections>false</HandleReceiveInConnections>
+					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
+					<AgentLinkBidirectional>true</AgentLinkBidirectional>
+					<MessageType><![CDATA[Object]]></MessageType>
+					<LineStyle>SOLID</LineStyle>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineZOrder>UNDER_AGENTS</LineZOrder>
+					<LineArrow>NONE</LineArrow>
+					<LineArrowPosition>END</LineArrowPosition>
+				</AgentLink>
+			</AgentLinks>
+
+
+			<Presentation>
+				<Level>
+					<Id>1706776666223</Id>
+					<Name><![CDATA[level]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
+
+
+				</Level>
+			</Presentation>
+
+		</ActiveObjectClass>
+		<!--   =========   Active Object Class   ========  -->
+		<ActiveObjectClass>
+			<Id>1706776671336</Id>
+			<Name><![CDATA[MyAgent3]]></Name>
+			<Generic>false</Generic>
+			<GenericParameter>
+				<Id>1706776671342</Id>
+				<Name><![CDATA[1706776671342]]></Name>
+				<GenericParameterValue Class="CodeValue">
+					<Code><![CDATA[T extends Agent]]></Code>
+				</GenericParameterValue>
+				<GenericParameterLabel><![CDATA[Параметр настройки:]]></GenericParameterLabel>
+			</GenericParameter>
+			<FlowChartsUsage>ENTITY</FlowChartsUsage>
+			<SamplesToKeep>100</SamplesToKeep>
+			<LimitNumberOfArrayElements>false</LimitNumberOfArrayElements>
+			<ElementsLimitValue>100</ElementsLimitValue>
+			<MakeDefaultViewArea>true</MakeDefaultViewArea>
+			<SceneGridColor/>
+			<SceneBackgroundColor/>
+			<SceneSkybox>null</SceneSkybox>
+			<AgentProperties>
+				<EnvironmentDefinesInitialLocation>true</EnvironmentDefinesInitialLocation>
+				<RotateAnimationTowardsMovement>true</RotateAnimationTowardsMovement>
+				<RotateAnimationVertically>false</RotateAnimationVertically>
+				<VelocityCode Class="CodeUnitValue">
+					<Code><![CDATA[10]]></Code>
+					<Unit Class="SpeedUnits"><![CDATA[MPS]]></Unit>
+				</VelocityCode>
+				<PhysicalLength Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalLength>
+				<PhysicalWidth Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalWidth>
+				<PhysicalHeight Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalHeight>
+			</AgentProperties>
+			<EnvironmentProperties>
+					<EnableSteps>false</EnableSteps>
+					<StepDurationCode Class="CodeUnitValue">
+						<Code><![CDATA[1.0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</StepDurationCode>
+					<SpaceType>CONTINUOUS</SpaceType>
+					<WidthCode><![CDATA[500]]></WidthCode>
+					<HeightCode><![CDATA[500]]></HeightCode>
+					<ZHeightCode><![CDATA[0]]></ZHeightCode>
+					<ColumnsCountCode><![CDATA[100]]></ColumnsCountCode>
+					<RowsCountCode><![CDATA[100]]></RowsCountCode>
+					<NeigborhoodType>MOORE</NeigborhoodType>
+					<LayoutType>USER_DEF</LayoutType>
+					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
+					<NetworkType>USER_DEF</NetworkType>
+					<NetworkTypeApplyOnStartup>true</NetworkTypeApplyOnStartup>
+					<ConnectionsPerAgentCode><![CDATA[2]]></ConnectionsPerAgentCode>
+					<ConnectionsRangeCode><![CDATA[50]]></ConnectionsRangeCode>
+					<NeighborLinkFractionCode><![CDATA[0.95]]></NeighborLinkFractionCode>
+					<MCode><![CDATA[10]]></MCode>
+			</EnvironmentProperties>
+			<DatasetsCreationProperties>
+				<AutoCreate>true</AutoCreate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1706860800000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+			</DatasetsCreationProperties>
+			<ScaleRuler>
+				<Id>1706776671339</Id>
+				<Name><![CDATA[scale]]></Name>
+				<X>0</X><Y>-150</Y>
+				<PublicFlag>false</PublicFlag>
+				<PresentationFlag>false</PresentationFlag>
+				<ShowLabel>false</ShowLabel>
+				<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+				<Length>100</Length>
+				<Rotation>0</Rotation>
+				<ScaleType>BASED_ON_LENGTH</ScaleType>
+				<ModelLength>10</ModelLength>
+				<LengthUnits>METER</LengthUnits>
+				<Scale>10</Scale>
+				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
+			</ScaleRuler>
+			<CurrentLevel>1706776671343</CurrentLevel>
+			<ConnectionsId>1706776671337</ConnectionsId>
+			<AgentLinks>
+				<AgentLink>
+					<Id>1706776671337</Id>
+					<Name><![CDATA[connections]]></Name>
+					<X>50</X><Y>-50</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<HandleReceiveInConnections>false</HandleReceiveInConnections>
+					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
+					<AgentLinkBidirectional>true</AgentLinkBidirectional>
+					<MessageType><![CDATA[Object]]></MessageType>
+					<LineStyle>SOLID</LineStyle>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineZOrder>UNDER_AGENTS</LineZOrder>
+					<LineArrow>NONE</LineArrow>
+					<LineArrowPosition>END</LineArrowPosition>
+				</AgentLink>
+			</AgentLinks>
+
+
+			<Presentation>
+				<Level>
+					<Id>1706776671343</Id>
+					<Name><![CDATA[level]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
+
+
+				</Level>
+			</Presentation>
+
+		</ActiveObjectClass>
 	</ActiveObjectClasses>	
 	<DifferentialEquationsMethod>EULER</DifferentialEquationsMethod>
 	<MixedEquationsMethod>RK45_NEWTON</MixedEquationsMethod>
@@ -37156,7 +39071,17 @@ public class Request {
     
     @Override
     public String toString() {
-    	return "Заявка с типом вагона " + typeVagon + " на фронт " + numFront;
+        return "Request{" +
+                "numRequest='" + numRequest + '\'' +
+                ", numVagon='" + numVagon + '\'' +
+                ", numInvoice='" + numInvoice + '\'' +
+                ", typeVagon='" + typeVagon + '\'' +
+                ", typeProduct='" + typeProduct + '\'' +
+                ", numFront='" + numFront + '\'' +
+                ", nameOwner='" + nameOwner + '\'' +
+                ", dateRequest=" + dateRequest +
+                ", change=" + change +
+                '}';
     }
 }
 ]]></Text>
@@ -37785,6 +39710,11 @@ public class TrainArrival {
 		</Resource>
 		<Resource>
 			<Path><![CDATA[5fde19f930e5ba3be4f2df573c70be9b-PhotoRoom.png-PhotoRoom.png]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Фонтан.gif]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>

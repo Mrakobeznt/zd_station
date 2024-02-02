@@ -1109,7 +1109,7 @@ return frontsCollection;]]></Body>
 					<Name><![CDATA[getCarsToSendForFront]]></Name>
 					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
 //Создание задач для локомотива по заявкам]]></Description>
-					<X>960</X><Y>2340</Y>
+					<X>960</X><Y>2450</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1279,32 +1279,6 @@ for (Request req : data.requestsCollection.stream().filter(p-> p.getNumFront().e
 return list;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1705411782369</Id>
-					<Name><![CDATA[setTasksForFronts]]></Name>
-					<X>930</X><Y>2230</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[List<Front> listFronts = getNotBlockedFronts().stream().filter(p-> p.getName().equals("9") || p.getName().equals("9t")).collect(Collectors.toList());
-if (listFronts.size() > 1){
-	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);
-	if (frontB != null){
-		makeTaskFormationToFront(frontB);
-	}
-}
-else{
-	for (Front front : getNotBlockedFronts()){
-		if (getActiveFrontRequest(front.getName()).size() > 0){
-			makeTaskFormationToFront(front);
-			break;
-		}
-	}
-}]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[List<TrackEdge>]]></ReturnType>
 					<Id>1705412280698</Id>
@@ -1349,7 +1323,7 @@ return edges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705655857748</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>930</X><Y>2440</Y>
+					<X>930</X><Y>2550</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1390,7 +1364,7 @@ enterTasks.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705666815983</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>930</X><Y>2470</Y>
+					<X>930</X><Y>2580</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1436,7 +1410,7 @@ enterTasks.take(task);]]></Body>
 					<Id>1706002170532</Id>
 					<Name><![CDATA[makeTasksSendToFront]]></Name>
 					<ExcludeFromBuild>true</ExcludeFromBuild>
-					<X>930</X><Y>2360</Y>
+					<X>930</X><Y>2470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1457,7 +1431,7 @@ enterTasks.take(task);]]></Body>
 					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
 //Создание задач для локомотива по заявкам]]></Description>
 					<ExcludeFromBuild>true</ExcludeFromBuild>
-					<X>955</X><Y>2380</Y>
+					<X>955</X><Y>2490</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1559,24 +1533,26 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706284017341</Id>
-					<Name><![CDATA[makeTasksPickUp]]></Name>
-					<X>930</X><Y>2410</Y>
+					<Name><![CDATA[makeTasksPickUpToFront]]></Name>
+					<X>930</X><Y>2350</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Front front : getFrontsNeedToPickUp()){
-	TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
-	targetTrack = targetTrack == null ? (targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.isEnoughPlace(front.getTrainOnFront())).findFirst().orElse(null)) : targetTrack;
-	if (targetTrack != null){
-		String type = targetTrack.getSelf().isEmpty() ? "Уборка всех вагонов с грузового фронта на пустой путь" : "Уборка всех вагонов с грузового фронта";
-		addTask(type, front.getHomeTrack().getSelf(), targetTrack.getSelf(), front.getTrainOnFront().size(), false, front);
-		traceln("Убираем вагоны с фронта " + front.getName());
-	}
-	else{
-		traceln("Нет места для вагонов с грузового фронта " + front.getName());
-	}
-	break;
+					<Parameter>
+						<Name><![CDATA[front]]></Name>
+						<Type><![CDATA[Front]]></Type>
+					</Parameter>
+					<Body><![CDATA[TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+targetTrack = targetTrack == null ? (targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.isEnoughPlace(front.getTrainOnFront())).findFirst().orElse(null)) : targetTrack;
+if (targetTrack != null && front.needToPickUp()){
+	String type = targetTrack.getSelf().isEmpty() ? "Уборка всех вагонов с грузового фронта на пустой путь" : "Уборка всех вагонов с грузового фронта";
+	addTask(type, front.getHomeTrack().getSelf(), targetTrack.getSelf(), front.getTrainOnFront().size(), false, front);
+	traceln("Убираем вагоны с фронта " + front.getName());
+	activeSuperTasks++;
+}
+else{
+	traceln("Нет места для вагонов с грузового фронта " + front.getName());
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1624,7 +1600,7 @@ return tracksEdges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706691375841</Id>
 					<Name><![CDATA[makeTaskFormationToFront]]></Name>
-					<X>940</X><Y>2250</Y>
+					<X>930</X><Y>2270</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1637,7 +1613,8 @@ return tracksEdges;]]></Body>
 TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty() || p.isEnoughPlace(fo.getCarsForSendtoFront())).findFirst().orElse(null);
 boolean isTarget = true;
 RailwayTrack startTrack = null;
-for (TaskAction task : fo.getTasks(targetTrack)){
+List<TaskAction> tasks = fo.getTasks(targetTrack);
+for (TaskAction task : tasks){
 	if (isTarget){
 		startTrack = task.endTrack;
 		isTarget = false;
@@ -1647,6 +1624,9 @@ for (TaskAction task : fo.getTasks(targetTrack)){
 }
 if (startTrack != null){
 	addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+}
+if (tasks.size() > 0){
+	activeSuperTasks++;
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1655,7 +1635,7 @@ if (startTrack != null){
 					<Id>1706725674933</Id>
 					<Name><![CDATA[getTasksForSendToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>1260</X><Y>2230</Y>
+					<X>940</X><Y>2250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1663,10 +1643,13 @@ if (startTrack != null){
 					<Body><![CDATA[List<Front> useFronts = new ArrayList();
 List<TaskAction> tasks = new ArrayList();
 List<Front> listFronts = getNotBlockedFronts().stream().filter(p-> p.getName().equals("9") || p.getName().equals("9t")).collect(Collectors.toList());
+//traceln("Количество фронтов с одним путем " + listFronts.size());
 ///// ОБРАБОТКА СНАЧАЛА ТУПИКОВОГО ФРОНТА
 if (listFronts.size() > 1){ // если есть 2 фронта на одном пути
 	Front frontB = listFronts.stream().filter(p-> p.getName().equals("9t")).findFirst().orElse(null);// определяем тупиковый фронт
+	//traceln("Количество заявок на отправку на фронт " + getRequestOnStationByFront(frontB.getName()).size());
 	if (frontB != null && getRequestOnStationByFront(frontB.getName()).size() > 0){ // если тупиковый фронт свободен и на него есть что отправить
+		//traceln("В условии");
 		useFronts.add(frontB);
 		TaskAction task = new TaskAction();
 		task.type = "Отправка на фронт";
@@ -1683,7 +1666,8 @@ for (Front front : getNotBlockedFronts()){
 		tasks.add(task);
 	}
 }
-/*traceln("===========================");
+/*
+traceln("===========================");
 traceln("Создал задачи:");
 tasks.stream().forEach(p-> traceln("Задача " + p.type + " на фронт " + p.front.getName()));
 traceln("===========================");*/
@@ -1699,7 +1683,8 @@ return tasks;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[setTasksForSendToFront();]]></Body>
+					<Body><![CDATA[setTasksForSendToFront();
+setTasksForPickUpToFront();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1718,8 +1703,11 @@ return tasks;]]></Body>
 					</Parameter>
 					<Body><![CDATA[List<Request> list = new ArrayList();
 Set<RailCar> cars = new HashSet();
+
 for (Request req : getActiveFrontRequest(numFront)){
+	//traceln("Смотрю заявку " + req);
 	for (RailCar car : getCarsOnPopsTracks()){
+		//traceln("Вагон подходит под отправку на фронт " + conditionForSendVagon(car, req));
 		if (conditionForSendVagon(car, req) && !cars.contains(car)){
 			list.add(req);
 			cars.add(car);
@@ -1727,6 +1715,7 @@ for (Request req : getActiveFrontRequest(numFront)){
 		}
 	}
 }
+//traceln("Количество заявко на фронт " + numFront + ": " + list.size());
 return list;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1754,7 +1743,7 @@ traceln(red, "Масса продукта " + car.weightProduct + " -> " + reque
 traceln(red, "Масса продукта " + car.weightProduct + " -> " + request.getWeight() + " результат " + (car.weightProduct + 1 > request.getWeight()));
 traceln(red, "Тип вагона " + car.type + " -> " + request.getTypeVagon() + " результат " + (car.type.equals(request.getTypeVagon())));
 traceln(red, "Собственник вагона " + car.owner + " -> " + request.getNameOwner() + " результат " + (car.owner.equals(request.getNameOwner())));
-traceln(red, "Тип продукта вагона " + car.productType + " -> " + request.getTypeProduct() + " результат " + (car.owner.equals(request.getNameOwner())));
+traceln(red, "Тип продукта вагона " + car.productType + " -> " + request.getTypeProduct() + " результат " + (car.productType.equals(request.getTypeProduct())));
 traceln(red, "Статус вагона " + car.status + " результат " + car.status.equals("Ожидание отправки на грузовой фронт"));*/
 if (car.weightProduct < request.getWeight() + 1 
 	&& car.weightProduct + 1 > request.getWeight() // если вес груза соответствует заявке
@@ -1764,6 +1753,7 @@ if (car.weightProduct < request.getWeight() + 1
 					&& car.status.equals("Ожидание отправки на грузовой фронт")){ // если стутус вагона соответствует статусу "Ожидание отправки на грузовой фронт"
 	isMatch = true;
 }
+//traceln("Что я возвращаю? " + isMatch);
 return isMatch;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1772,13 +1762,14 @@ return isMatch;]]></Body>
 					<Id>1706788558894</Id>
 					<Name><![CDATA[setTasksForSendToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>1250</X><Y>2200</Y>
+					<X>930</X><Y>2230</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[for (TaskAction task : getTasksForSendToFront()){
 	addTaskSuper(task);
+	//traceln(orange, "Добавляю задачу на отправку вагонов на фронт " + task.front);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1786,7 +1777,7 @@ return isMatch;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706788764300</Id>
 					<Name><![CDATA[addTaskSuper]]></Name>
-					<X>930</X><Y>2500</Y>
+					<X>930</X><Y>2610</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1799,6 +1790,42 @@ return isMatch;]]></Body>
 task.type = taskAction.type;
 task.front = taskAction.front;
 enterTasksSuper.take(task);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<TaskAction>]]></ReturnType>
+					<Id>1706874741711</Id>
+					<Name><![CDATA[getTasksForPickUpToFront]]></Name>
+					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
+					<X>940</X><Y>2330</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<TaskAction> tasks = new ArrayList();
+for (Front front : getFrontsNeedToPickUp()){
+	TaskAction task = new TaskAction();
+	task.type = "Уборка";
+	task.front = front;
+	tasks.add(task);
+}
+return tasks;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[List<TaskAction>]]></ReturnType>
+					<Id>1706874741713</Id>
+					<Name><![CDATA[setTasksForPickUpToFront]]></Name>
+					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
+					<X>930</X><Y>2310</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (TaskAction task : getTasksForPickUpToFront()){
+	addTaskSuper(task);
+	//traceln(orange, "Добавляю задачу на забор вагонов с фронта " + task.front);
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -3337,8 +3364,7 @@ if (queueTasksAction.size() == 0 && activeTasks == 0 && activeSuperTasks > 0 && 
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[activeSuperTasks++;
-if (agent.type.equals("Прибытие")){
+								<Code><![CDATA[if (agent.type.equals("Прибытие")){
 	group3D.setVisible(true);
 }
 traceln(purple, "Проверяю задачу с типом " + agent.type);
@@ -3346,12 +3372,13 @@ switch(agent.type){
 	case "Прибытие" :
 		break;
 	case "Отправка на фронт" :
-		traceln("Составляем задачи отправки на фронт " + ((TaskAction)agent).front.getName());
+		traceln(black, "Составляем задачи отправки на фронт " + ((TaskAction)agent).front.getName());
 		makeTaskFormationToFront(((TaskAction)agent).front);
-		
 		break;
-	case "Расстановка":
-		setArrange();
+	case "Уборка":
+		traceln(black, "Составляем задачи отправки c фронта " + ((TaskAction)agent).front.getName());
+		makeTasksPickUpToFront(((TaskAction)agent).front);
+		break;
 }]]></Code>
 							</Value>
 						</Parameter>
@@ -8191,7 +8218,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>390</Height>
+					<Height>520</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -8218,27 +8245,6 @@ logic.enterStart.take(agent);]]></Code>
 					</Font>
 					<Alignment>CENTER</Alignment>
 				</Text>
-				<Control Type="Button">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1705582896502</Id>
-					<Name><![CDATA[button]]></Name>
-					<X>140</X><Y>700</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="260" Height="100">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<TextColor/>
-						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[setTasksForFronts()]]></ActionCode>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<LabelText><![CDATA[Сформировать список задач на отправку]]></LabelText>
-					</ExtendedProperties>
-				</Control>
 				<Control Type="Button">
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
 					<Id>1705651510902</Id>
@@ -9073,27 +9079,6 @@ logic.enterStart.take(agent);]]></Code>
 				</Text>
 				<Control Type="Button">
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1706517625900</Id>
-					<Name><![CDATA[button2]]></Name>
-					<X>840</X><Y>700</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="260" Height="100">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<TextColor/>
-						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[makeTasksPickUp();]]></ActionCode>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<LabelText><![CDATA[Забрать вагоны со станции]]></LabelText>
-					</ExtendedProperties>
-				</Control>
-				<Control Type="Button">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
 					<Id>1706618607740</Id>
 					<Name><![CDATA[button3]]></Name>
 					<X>-190</X><Y>1030</Y>
@@ -9242,28 +9227,6 @@ logic.enterStart.take(agent);]]></Code>
 					<Latitude>0.0</Latitude>
 					<Longitude>0.0</Longitude>
 				</EmbeddedObjectPresentation>
-				<Control Type="Button">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1706813988952</Id>
-					<Name><![CDATA[button4]]></Name>
-					<X>600</X><Y>1700</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<TextColor/>
-						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[railCars.get(0).sendToAll("Загрузка");
-railCars.stream().forEach(p-> traceln(p.status));]]></ActionCode>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<LabelText><![CDATA[button]]></LabelText>
-					</ExtendedProperties>
-				</Control>
 			</Presentation>
 
 				</Level>
@@ -14182,8 +14145,8 @@ railCars.close();]]></Body>
 						<Name><![CDATA[front]]></Name>
 						<Type><![CDATA[Front]]></Type>
 					</Parameter>
-					<Body><![CDATA[traceln("По фронту " + front.getName() + " возвращаю смещение " + frontsFinishOffsets.get(front));
-traceln("А есть ли там фронт " + front.getName() + " " + frontsFinishOffsets.containsKey(front.getName()));
+					<Body><![CDATA[//traceln("По фронту " + front.getName() + " возвращаю смещение " + frontsFinishOffsets.get(front));
+//traceln("А есть ли там фронт " + front.getName() + " " + frontsFinishOffsets.containsKey(front.getName()));
 return frontsFinishOffsets.get(front.getName());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -15201,7 +15164,7 @@ if(main.data.frontsFinishOffsets.containsKey(targetTrack) || main.data.frontsDel
 	}
 	else{
 		//traceln("Фронт в таске");
-		traceln(front);
+		//traceln(front);
 		offset = main.data.getFinitshFrontOffset(front);
 	}
 }
@@ -29617,21 +29580,21 @@ return offset;]]></Body>
 						<Name><![CDATA[train]]></Name>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
-					<Body><![CDATA[traceln(orange, "Состав был расцеплен на пути " +train.getTrack(false).getName());
-traceln(orange, "Состав находится на грузовом фронте " + (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))));
+					<Body><![CDATA[//traceln(orange, "Состав был расцеплен на пути " +train.getTrack(false).getName());
+//traceln(orange, "Состав находится на грузовом фронте " + (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))));
 int sequenceInTrain = 1;
 if (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))){
 	for (RailCar car : train.getCars()){
 		if (car.weightProduct > 1){
 			car.sequenceInTrain = sequenceInTrain;
 			car.send("Выгрузка", car);
-			traceln("Присвоил статус " + car.status);
+			//traceln("Присвоил статус " + car.status);
 		}
 		else{
 			car.sequenceInTrain = sequenceInTrain;
 			car.send("Загрузка", car);
 			//send("Загрузка", car);
-			traceln("Присвоил статус " + car.status);
+			//traceln("Присвоил статус " + car.status);
 		}
 		sequenceInTrain++;
 	}
@@ -39014,8 +38977,14 @@ public class Front {
     }
     
     public boolean needToPickUp() {
-    	return !isBlockedForPickUp() && (homeTrack.getSelf().getCars().stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта") 
-    			|| ((RailCar)p).status.equals("Ожидание отправки на грузовой фронт")));
+    	boolean isNotBlocked = !isBlockedForPickUp();
+    	boolean allCarsReady = (homeTrack.getSelf().getCars().stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта")));
+    	/*if (allCarsReady) {
+    		homeTrack.getSelf().getCars().stream().forEach(p-> traceln("Вагон на пути " + ((RailCar)p).getTrack().getName() + " имеет статус " + ((RailCar)p).status));
+    	}*/
+    	//traceln("Все вагоны готовы к отправке " + allCarsReady);
+    	//traceln("Фронт не заблокирован для забора вагонов " + isNotBlocked);
+    	return isNotBlocked && allCarsReady;
     }
     
     @Override

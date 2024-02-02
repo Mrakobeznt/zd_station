@@ -1683,10 +1683,10 @@ for (Front front : getNotBlockedFronts()){
 		tasks.add(task);
 	}
 }
-traceln("===========================");
+/*traceln("===========================");
 traceln("Создал задачи:");
 tasks.stream().forEach(p-> traceln("Задача " + p.type + " на фронт " + p.front.getName()));
-traceln("===========================");
+traceln("===========================");*/
 return tasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -9518,6 +9518,21 @@ public String toString(){
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1706868180515</Id>
+					<Name><![CDATA[sequenceInTrain]]></Name>
+					<X>560</X><Y>120</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1700596772936</Id>
 					<Name><![CDATA[type]]></Name>
@@ -9719,7 +9734,8 @@ public String toString(){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
-						<EntryAction><![CDATA[status = "Загрузка"]]></EntryAction>
+						<EntryAction><![CDATA[status = "Ожидание уборки с грузового фронта";
+traceln("Я поменял статус");]]></EntryAction>
 						<FillColor/>
 					</Properties>
 				</StatechartElement>
@@ -9817,7 +9833,7 @@ public String toString(){
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705067799006" Target="1706813467631" Trigger="timeout">
 						<Timeout Class="CodeUnitValue">
-							<Code><![CDATA[1]]></Code>
+							<Code><![CDATA[getDelayForLoad()]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</Timeout>
 						<Condition><![CDATA[true]]></Condition>
@@ -9847,7 +9863,7 @@ public String toString(){
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705067932484" Target="1706813467631" Trigger="timeout">
 						<Timeout Class="CodeUnitValue">
-							<Code><![CDATA[1]]></Code>
+							<Code><![CDATA[getDelayForLoad()]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</Timeout>
 						<Condition><![CDATA[true]]></Condition>
@@ -9907,29 +9923,14 @@ groupGondola.setPos(-310,210);]]></Body>
 						<Type><![CDATA[boolean]]></Type>
 					</Parameter>
 					<Body><![CDATA[RailwayNetwork net = main.railwayNetwork;
+Train train = getTrain();
 int position = 0;
-for(RailwayTrack track : net.getTracks()){
-	for (Agent train : track.getTrains()){
-		Train copyTrain = (Train)train;
-		for (int i = 0; i < copyTrain.getCars().size();i++){
-			if (((RailCar)copyTrain.getCar(i)).hashCode() == hashCode()){
-				position = isHead ? (copyTrain.getCars().size() - i-1) : i;
-			}
-		}
+for (int i = 0; i < train.getCars().size();i++){
+	if (((RailCar)train.getCar(i)).hashCode() == hashCode()){
+		position = isHead ? (train.getCars().size() - i-1) : i;
 	}
 }
 return position+1;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1706014694235</Id>
-					<Name><![CDATA[makeStatus]]></Name>
-					<X>50</X><Y>270</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -9957,6 +9958,77 @@ switch(type){
 		break;
 }
 return sr;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Train]]></ReturnType>
+					<Id>1706863647056</Id>
+					<Name><![CDATA[getTrain]]></Name>
+					<X>50</X><Y>320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[Train myTrain = null;
+RailwayNetwork net = main.railwayNetwork;
+for(RailwayTrack track : net.getTracks()){
+	for (Agent train : track.getTrains()){
+		Train copyTrain = (Train)train;
+		for (int i = 0; i < copyTrain.getCars().size();i++){
+			if (((RailCar)copyTrain.getCar(i)).hashCode() == hashCode()){
+				myTrain = (Train)train;
+			}
+		}
+	}
+}
+return myTrain;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[RailwayTrack]]></ReturnType>
+					<Id>1706865551517</Id>
+					<Name><![CDATA[getTrack]]></Name>
+					<X>50</X><Y>350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return getTrain().getTrack(false);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1706865716334</Id>
+					<Name><![CDATA[getDelayForLoad]]></Name>
+					<X>50</X><Y>390</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[String trackName = getTrack().getName();
+double delay = 0;
+traceln("Путь, на котором возвращаю задержку " + trackName);
+switch(trackName){
+	case "track9p3" :
+		delay = main.data.delayLoadingPipes910;
+		break;
+	case "track10" :
+		if (productType.equals("Трубы")){
+			delay = main.data.delayLoadingPipes910;
+		}
+		else{
+			delay = main.data.delayLoadingScrap10;
+		}
+		break;
+	case "track7" :
+		delay = main.data.delayLoadingRolled7;
+		break;
+	case "track8p2" :
+		delay = main.data.delayLoadingPipes8;
+		break;
+}
+traceln(red, "Возвращаю задержку на разгрузку или погрузку " + (delay*sequenceInTrain));
+return delay * sequenceInTrain;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -13211,7 +13283,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="PlainVariable">
 					<Id>1701869982132</Id>
 					<Name><![CDATA[delaySwitchService]]></Name>
-					<Description><![CDATA[Длительность обслуживания стрелок]]></Description>
+					<Description><![CDATA[Длительность обслуживания стрелок, мин]]></Description>
 					<X>1010</X><Y>-160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -13219,12 +13291,15 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[120]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
 					<Id>1701870007516</Id>
 					<Name><![CDATA[delayTKO]]></Name>
-					<Description><![CDATA[Длительность Технико-коммерческого осмотра (ТКО) одного вагона]]></Description>
+					<Description><![CDATA[Длительность Технико-коммерческого осмотра (ТКО) одного вагона, мин]]></Description>
 					<X>1010</X><Y>-130</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -13232,6 +13307,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -13380,7 +13458,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="PlainVariable">
 					<Id>1703858373119</Id>
 					<Name><![CDATA[delayLoadingPipes910]]></Name>
-					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с трубами]]></Description>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с трубами мин]]></Description>
 					<X>1210</X><Y>-220</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -13388,12 +13466,15 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[57]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
 					<Id>1703858457879</Id>
 					<Name><![CDATA[delayLoadingScrap10]]></Name>
-					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с ломом негабаритным]]></Description>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона с ломом негабаритным, мин.]]></Description>
 					<X>1210</X><Y>-190</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -13401,12 +13482,15 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1380]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
 					<Id>1703858557428</Id>
 					<Name><![CDATA[delayLoadingRolled7]]></Name>
-					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона со сталью рулонной]]></Description>
+					<Description><![CDATA[Длительность погрузки/разгрузки одного вагона со сталью рулонной, мин.]]></Description>
 					<X>1210</X><Y>-160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -13414,6 +13498,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[54]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -13427,6 +13514,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[60]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -13811,19 +13901,20 @@ railCars.close();]]></Body>
 					<Body><![CDATA[int row = 3;
 railwayPaths.readFile();
 RailwayNetwork network = main.railwayNetwork;
-while(railwayPaths.cellExists("Лист1", row, 1)){
+String list = "Пути";
+while(railwayPaths.cellExists(list, row, 1)){
 	
-	String name = railwayPaths.getCellStringValue("Лист1", row, 1);
+	String name = railwayPaths.getCellStringValue(list, row, 1);
 	RailwayTrack self = network.getTracks().stream().filter(p-> p.getName().equals(name)).findFirst().orElse(null);
     RailwaySwitch startSwitch = self.getStartSwitch();
     RailwaySwitch endSwitch = self.getEndSwitch();
-    String numberTra = railwayPaths.getCellStringValue("Лист1", row, 3);
-    double usableLength = railwayPaths.getCellNumericValue("Лист1", row, 4);
+    String numberTra = railwayPaths.getCellStringValue(list, row, 3);
+    double usableLength = railwayPaths.getCellNumericValue(list, row, 4);
     double length = self.length(METER);
-    double fullLengthTRA = railwayPaths.getCellNumericValue("Лист1", row, 5);
-    String soloSpeed = railwayPaths.getCellStringValue("Лист1", row, 6);
-    String speed = railwayPaths.getCellStringValue("Лист1", row, 7);
-    String speedAlt = railwayPaths.getCellStringValue("Лист1", row, 8);
+    double fullLengthTRA = railwayPaths.getCellNumericValue(list, row, 5);
+    String soloSpeed = railwayPaths.getCellStringValue(list, row, 6);
+    String speed = railwayPaths.getCellStringValue(list, row, 7);
+    String speedAlt = railwayPaths.getCellStringValue(list, row, 8);
     
 	
 	
@@ -13886,10 +13977,11 @@ return mapSpeed;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[int row = 1;
 railwayPaths.readFile();
+String list = "Скорости";
 RailwayNetwork network = main.railwayNetwork;
-while(railwayPaths.cellExists("Лист2", row, 1)){
-	String name = railwayPaths.getCellStringValue("Лист2", row, 1);
-	double speed = railwayPaths.getCellNumericValue("Лист2", row, 2);
+while(railwayPaths.cellExists(list, row, 1)){
+	String name = railwayPaths.getCellStringValue(list, row, 1);
+	double speed = railwayPaths.getCellNumericValue(list, row, 2);
 	speedsMap.put(name, speed);
 	row++;
 }
@@ -13958,7 +14050,6 @@ while(file.cellExists(list, row, 1)){
 	newCar.numConf = numConf;
 	newCar.owner = owner;
 	newCar.dateArrive = getEngine().date();
-	newCar.makeStatus();
 	arrangeCars.add(newCar);
 	row++;
 }
@@ -29528,17 +29619,21 @@ return offset;]]></Body>
 					</Parameter>
 					<Body><![CDATA[traceln(orange, "Состав был расцеплен на пути " +train.getTrack(false).getName());
 traceln(orange, "Состав находится на грузовом фронте " + (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))));
+int sequenceInTrain = 1;
 if (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))){
 	for (RailCar car : train.getCars()){
 		if (car.weightProduct > 1){
+			car.sequenceInTrain = sequenceInTrain;
 			car.send("Выгрузка", car);
 			traceln("Присвоил статус " + car.status);
 		}
 		else{
+			car.sequenceInTrain = sequenceInTrain;
 			car.send("Загрузка", car);
 			//send("Загрузка", car);
 			traceln("Присвоил статус " + car.status);
 		}
+		sequenceInTrain++;
 	}
 }]]></Body>
 				</Function>

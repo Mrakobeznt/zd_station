@@ -1012,8 +1012,13 @@ if (activeSuperTasks == 0){
 На станцию могут прибывать составы, которые не будут относится к работе станции Мотмос, а будут какое-то время занимать место до тех пор, пока статус не поменяется на "Ожидание отправки со станции"
 Критерий прибытия (Добавить таблицу с критериями прибытия на станцию)
 Добавить в критрии выбора вагонов для формирования на отправку на грузовой фронт время простоя на станции (первый пришел первый ушел) + добавить в настраиваемый параметр
-Максимальный приоритет контактному графику (добавить в найстроечный параметр)
-Учесть в ключевых показателях простой участка второго участка 9 пути]]></Body>
+Максимальный приоритет контактному графику (добавить в найстроечный параметр) 23.01.2024
+Учесть в ключевых показателях простой участка второго участка 9 пути
+Путь номер 9 разделен на 2 фронта 30.01.2024
+Путь номер 10 переопределен 30.01.2024
+Задержка вагонов на грузовых фронтах определяется количеством кранов 06.02.2024
+Вагоны сразу могут отправиться на погрузку после разгрузки 06.02.2024
+При заборе вагонов с фронта 9, если на другом фронте есть вагоны, то нужно взять их все сразу, а не по очереди 06.02.2024]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1124,10 +1129,11 @@ List<Request> requsts = getRequestOnStationByFront(numFront);
 if (!front.isBlockedForSend()){
 	for (Request req : requsts){
 		for (RailCar car : getCarsOnPopsTracks()){
-			if (conditionForSendVagon(car, req) 
+			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт") 
 					&& hashList.size() < requsts.size()){
-				car.getRectangle().setVisible(true);
+				//car.getRectangle().setVisible(true);
 				hashList.add(car.hashCode());
+				car.hashRequest = req.hashCode();
 			}
 		}
 	}
@@ -1168,15 +1174,15 @@ getEngine().setStopDate(dateFinish);]]></Body>
 					<ReturnType><![CDATA[List<Request>]]></ReturnType>
 					<Id>1705333481671</Id>
 					<Name><![CDATA[getActiveRequests]]></Name>
-					<Description><![CDATA[Функция возвращает все активные заявки, которые не поставлены на грузовой фронт]]></Description>
-					<X>600</X><Y>2240</Y>
+					<Description><![CDATA[Функция возвращает все активные заявки до текущей даты, которые не поставлены на грузовой фронт]]></Description>
+					<X>575</X><Y>2240</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> list = new ArrayList();
 for (Request req : data.requestsCollection){
-	if (getDayOfMonth(getModelTime()) == getDayOfMonth(req.getDateRequest()) && !req.getIsDone()){
+	if (getModelTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
 		list.add(req);
 	}
 }
@@ -1247,8 +1253,8 @@ return listCar;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[План
-1. Разработка фнкционала поиска вагонов для отправки на грузовой фронт
-2. Разработка функционала сбора состава для отправки на грузовой фронт
+1. Разработка фнкционала поиска вагонов для отправки на грузовой фронт *
+2. Разработка функционала сбора состава для отправки на грузовой фронт *
 3. Доработать отправку и забор вагонов с грузового фронта и на грузовой
 4. Доработать функционал сбора состава для отправки со станции
 5. Исправить ошибку по составлению маршрута через пути, на которых стоят составы
@@ -1479,7 +1485,9 @@ return hashList;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[План
-1. Доработать отправку и забор вагонов с грузового фронта и на грузовой]]></Body>
+1. Прибытия составов на станцию по расписанию
+2. Сборка составов на станции
+3. Распределение задач на несколько локомотивов]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1692,7 +1700,7 @@ setTasksForPickUpToFront();]]></Body>
 					<Id>1706777546907</Id>
 					<Name><![CDATA[getRequestOnStationByFront]]></Name>
 					<Description><![CDATA[Возвращает список заявок, которые можно выполнить с помощью вагонов на станции]]></Description>
-					<X>600</X><Y>2320</Y>
+					<X>600</X><Y>2340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1708,7 +1716,7 @@ for (Request req : getActiveFrontRequest(numFront)){
 	//traceln("Смотрю заявку " + req);
 	for (RailCar car : getCarsOnPopsTracks()){
 		//traceln("Вагон подходит под отправку на фронт " + conditionForSendVagon(car, req));
-		if (conditionForSendVagon(car, req) && !cars.contains(car)){
+		if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт") && !cars.contains(car)){
 			list.add(req);
 			cars.add(car);
 			break;
@@ -1724,7 +1732,7 @@ return list;]]></Body>
 					<Id>1706786299609</Id>
 					<Name><![CDATA[conditionForSendVagon]]></Name>
 					<Description><![CDATA[Возвращает результат, подходит ли вагон к заявке]]></Description>
-					<X>600</X><Y>2360</Y>
+					<X>600</X><Y>2460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1736,6 +1744,10 @@ return list;]]></Body>
 					<Parameter>
 						<Name><![CDATA[request]]></Name>
 						<Type><![CDATA[Request]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[status]]></Name>
+						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[boolean isMatch = false;
 /*traceln("=====================================================================================================================");
@@ -1750,7 +1762,7 @@ if (car.weightProduct < request.getWeight() + 1
 		&& car.type.equals(request.getTypeVagon()) // если класс вагона соответствует заявке
 			&& car.owner.equals(request.getNameOwner()) // если собстенник вагона соответствует заявке
 				&& car.productType.equals(request.getTypeProduct()) // если тип продукта вагона соответствует заявке
-					&& car.status.equals("Ожидание отправки на грузовой фронт")){ // если стутус вагона соответствует статусу "Ожидание отправки на грузовой фронт"
+					&& car.status.equals(status)){ // если стутус вагона соответствует статусу "Ожидание отправки на грузовой фронт"
 	isMatch = true;
 }
 //traceln("Что я возвращаю? " + isMatch);
@@ -1826,6 +1838,148 @@ return tasks;]]></Body>
 	addTaskSuper(task);
 	//traceln(orange, "Добавляю задачу на забор вагонов с фронта " + task.front);
 }]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1707131867474</Id>
+					<Name><![CDATA[getRequestOnStation]]></Name>
+					<Description><![CDATA[Возвращает список заявок, которые можно выполнить с помощью вагонов на станции]]></Description>
+					<X>600</X><Y>2320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Request> list = new ArrayList();
+Set<RailCar> cars = new HashSet();
+
+for (Request req : getActiveRequests()){
+	//traceln("Смотрю заявку " + req);
+	for (RailCar car : getCarsOnPopsTracks()){
+		//traceln("Вагон подходит под отправку на фронт " + conditionForSendVagon(car, req));
+		if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт") && !cars.contains(car)){
+			list.add(req);
+			cars.add(car);
+			break;
+		}
+	}
+}
+//traceln("Количество заявко на фронт " + numFront + ": " + list.size());
+return list;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1707225645066</Id>
+					<Name><![CDATA[findRequestsForVagonOffset]]></Name>
+					<X>600</X><Y>2370</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[car]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[status]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[List<Request> requests = new ArrayList();
+for (Request req : getActiveRequests()){
+	if (conditionForSendVagon(car, req, status)){
+		requests.add(req);
+	}
+}
+return requests;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[TrackEdge]]></ReturnType>
+					<Id>1707226215755</Id>
+					<Name><![CDATA[getTrackEdgeByTrack]]></Name>
+					<X>-320</X><Y>1920</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[track]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Body><![CDATA[TrackEdge edge = null;
+for (TrackEdge edg : getTracksEdges()){
+	if (track.getName().equals(edg.getSelf().getName())){
+		edge = edg;
+	}
+}
+return edge;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1707229926140</Id>
+					<Name><![CDATA[getActiveRequestsByParams]]></Name>
+					<Description><![CDATA[Функция возвращает все активные заявки до текущей даты, которые не поставлены на грузовой фронт]]></Description>
+					<X>725</X><Y>2240</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Request> list = new ArrayList();
+for (Request req : data.requestsCollection){
+	if (getTimeWithOffset().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
+		list.add(req);
+	}
+}
+return list;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Date]]></ReturnType>
+					<Id>1707230742722</Id>
+					<Name><![CDATA[getTimeWithOffset]]></Name>
+					<X>280</X><Y>2310</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int offsetHours = 0;
+int offsetDays = 0;
+
+Calendar calendar = Calendar.getInstance();
+calendar.setTime(getModelTime());
+calendar.add(Calendar.HOUR_OF_DAY, offsetHours);
+calendar.add(Calendar.DAY_OF_MONTH, offsetDays);
+Date modelDate = calendar.getTime();
+
+return modelDate;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1707230841453</Id>
+					<Name><![CDATA[findRequestForVagon]]></Name>
+					<X>600</X><Y>2390</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[car]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[status]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[List<Request> requests = new ArrayList();
+for (Request req : getActiveRequestsByParams()){
+	if (conditionForSendVagon(car, req, status)){
+		requests.add(req);
+	}
+}
+return requests;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -8042,7 +8196,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>190</Height>
+					<Height>300</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -8153,7 +8307,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>280</Height>
+					<Height>335</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -9272,6 +9426,7 @@ public String toString(){
 					", собственник " + owner + 
 						", имеет массу " + getWeight();
 }]]></AdditionalClassCode>
+			<Import><![CDATA[import java.util.SplittableRandom;]]></Import>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1700596772933</Id>
@@ -9402,7 +9557,7 @@ public String toString(){
 				</Variable>
 				<Variable Class="PlainVariable">
 					<Id>1704804795102</Id>
-					<Name><![CDATA[numConf]]></Name>
+					<Name><![CDATA[numInvoice]]></Name>
 					<X>390</X><Y>290</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -9493,6 +9648,77 @@ public String toString(){
 						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707127595739</Id>
+					<Name><![CDATA[maxWeightForSend]]></Name>
+					<Description><![CDATA[Параметр для локомотива, максимальный вес состава для отправки со станцию]]></Description>
+					<X>390</X><Y>410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707127612422</Id>
+					<Name><![CDATA[maxWeightForArrive]]></Name>
+					<Description><![CDATA[Параметр для локомотива, максимальный вес состава для прибытия на станцию]]></Description>
+					<X>390</X><Y>440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707133812755</Id>
+					<Name><![CDATA[typeOwner]]></Name>
+					<X>560</X><Y>150</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707139830414</Id>
+					<Name><![CDATA[changeStatus]]></Name>
+					<X>500</X><Y>200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[date()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707232211410</Id>
+					<Name><![CDATA[finalStatus]]></Name>
+					<X>280</X><Y>170</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[String]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[""]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -9652,7 +9878,7 @@ public String toString(){
 					<Id>1705066762314</Id>
 					<Name><![CDATA[waitingSendToFront]]></Name>
 					<Description><![CDATA[Ожидание отправки на фронт]]></Description>
-					<X>820</X><Y>100</Y>
+					<X>1020</X><Y>100</Y>
 					<Label><X>70</X><Y>15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9665,7 +9891,7 @@ public String toString(){
 				<StatechartElement Class="State" ParentState="ROOT_NODE">
 					<Id>1705067799006</Id>
 					<Name><![CDATA[loading]]></Name>
-					<X>650</X><Y>270</Y>
+					<X>870</X><Y>270</Y>
 					<Label><X>110</X><Y>15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9678,34 +9904,96 @@ public String toString(){
 				<StatechartElement Class="State" ParentState="ROOT_NODE">
 					<Id>1705067932484</Id>
 					<Name><![CDATA[unloading]]></Name>
-					<X>960</X><Y>270</Y>
-					<Label><X>110</X><Y>15</Y></Label>
+					<X>1170</X><Y>270</Y>
+					<Label><X>105</X><Y>15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
 						<EntryAction><![CDATA[status = "Выгрузка"]]></EntryAction>
+						<ExitAction><![CDATA[hashRequest = 0;]]></ExitAction>
 						<FillColor/>
 					</Properties>
 				</StatechartElement>
 				<StatechartElement Class="State" ParentState="ROOT_NODE">
 					<Id>1706813467631</Id>
 					<Name><![CDATA[loaded]]></Name>
-					<X>800</X><Y>350</Y>
+					<X>1020</X><Y>440</Y>
 					<Label><X>107.333</X><Y>14</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
-						<EntryAction><![CDATA[status = "Ожидание уборки с грузового фронта";
-traceln("Я поменял статус");]]></EntryAction>
+						<EntryAction><![CDATA[status = "Ожидание уборки с грузового фронта";]]></EntryAction>
 						<FillColor/>
 					</Properties>
+				</StatechartElement>
+				<StatechartElement Class="State" ParentState="ROOT_NODE">
+					<Id>1707202444714</Id>
+					<Name><![CDATA[waitingSendFromStation]]></Name>
+					<X>660</X><Y>350</Y>
+					<Label><X>55</X><Y>15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties Width="270" Height="30">
+						<EntryAction><![CDATA[status = "Ожидание отправки со станции"]]></EntryAction>
+						<FillColor/>
+					</Properties>
+				</StatechartElement>
+				<StatechartElement Class="State" ParentState="ROOT_NODE">
+					<Id>1707204644896</Id>
+					<Name><![CDATA[techWaiting]]></Name>
+					<X>1365</X><Y>100</Y>
+					<Label><X>85</X><Y>15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties Width="250" Height="30">
+						<EntryAction><![CDATA[status = "Технологическое ожидание";]]></EntryAction>
+						<FillColor/>
+					</Properties>
+				</StatechartElement>
+				<StatechartElement Class="State" ParentState="ROOT_NODE">
+					<Id>1707207018447</Id>
+					<Name><![CDATA[notTechWaiting]]></Name>
+					<Description><![CDATA[Ожидание отправки на фронт]]></Description>
+					<X>710</X><Y>100</Y>
+					<Label><X>70</X><Y>15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties Width="270" Height="30">
+						<EntryAction><![CDATA[status = "Не технологическое ожидание";]]></EntryAction>
+						<FillColor/>
+					</Properties>
+				</StatechartElement>
+				<StatechartElement Class="Branch" ParentState="ROOT_NODE">
+					<Id>1707210464390</Id>
+					<Name><![CDATA[branch]]></Name>
+					<X>1150</X><Y>515</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Properties>	
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Branch" ParentState="ROOT_NODE">
+					<Id>1707225328851</Id>
+					<Name><![CDATA[branch1]]></Name>
+					<X>1305</X><Y>375</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Properties>	
+					</Properties>	
 				</StatechartElement>
 				<StatechartElement Class="EntryPoint" ParentState="ROOT_NODE">
 					<Id>1705066757446</Id>
 					<Name><![CDATA[statechart]]></Name>
-					<X>950</X><Y>60</Y>
+					<X>1150</X><Y>60</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -9720,19 +10008,19 @@ traceln("Я поменял статус");]]></EntryAction>
 				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
 					<Id>1705066848849</Id>
 					<Name><![CDATA[transition]]></Name>
-					<X>950</X><Y>130</Y>
+					<X>1140</X><Y>130</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-170</X><Y>140</Y></Point>
+						<Point><X>0</X><Y>85</Y></Point>
+						<Point><X>-135</X><Y>85</Y></Point>
+						<Point><X>-135</X><Y>140</Y></Point>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705066762314" Target="1705067799006" Trigger="message">
-						<Action><![CDATA[//status = "Загрузка";
-//traceln("Я получил сообщение");]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
@@ -9752,19 +10040,19 @@ traceln("Я поменял статус");]]></EntryAction>
 				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
 					<Id>1705068013880</Id>
 					<Name><![CDATA[transition1]]></Name>
-					<X>970</X><Y>130</Y>
+					<X>1170</X><Y>130</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>130</X><Y>140</Y></Point>
+						<Point><X>0</X><Y>85</Y></Point>
+						<Point><X>135</X><Y>85</Y></Point>
+						<Point><X>135</X><Y>140</Y></Point>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705066762314" Target="1705067932484" Trigger="message">
-						<Action><![CDATA[//status = "Выгрузка";
-//traceln("Я получил сообщение");]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
@@ -9784,14 +10072,16 @@ traceln("Я поменял статус");]]></EntryAction>
 				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
 					<Id>1706804521535</Id>
 					<Name><![CDATA[transition2]]></Name>
-					<X>785</X><Y>300</Y>
+					<X>1005</X><Y>300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>150</X><Y>50</Y></Point>
+						<Point><X>0</X><Y>35</Y></Point>
+						<Point><X>140</X><Y>35</Y></Point>
+						<Point><X>140</X><Y>140</Y></Point>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705067799006" Target="1706813467631" Trigger="timeout">
@@ -9814,19 +10104,394 @@ traceln("Я поменял статус");]]></EntryAction>
 				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
 					<Id>1706813520542</Id>
 					<Name><![CDATA[transition3]]></Name>
-					<X>1100</X><Y>300</Y>
+					<X>1305</X><Y>300</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-150</X><Y>50</Y></Point>
+						<Point><X>0</X><Y>65</Y></Point>
 					</Points>
 					<IconOffset>20.0</IconOffset>
-					<Properties Source="1705067932484" Target="1706813467631" Trigger="timeout">
+					<Properties Source="1705067932484" Target="1707225328851" Trigger="timeout">
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[getDelayForLoad()]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707204673828</Id>
+					<Name><![CDATA[transition5]]></Name>
+					<X>1290</X><Y>110</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>75</X><Y>0</Y></Point>
+					</Points>
+					<IconOffset>30.0</IconOffset>
+					<Properties Source="1705066762314" Target="1707204644896" Trigger="message">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[String]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[equalsTo]]></FilterType>
+						<EqualsExpression><![CDATA["Технологическое ожидание"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707205396267</Id>
+					<Name><![CDATA[transition6]]></Name>
+					<X>1365</X><Y>120</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-75</X><Y>0</Y></Point>
+					</Points>
+					<IconOffset>30.0</IconOffset>
+					<Properties Source="1707204644896" Target="1705066762314" Trigger="condition">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[changeStatus.getTime() >= date().getTime()]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707207282941</Id>
+					<Name><![CDATA[transition7]]></Name>
+					<X>1020</X><Y>110</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-40</X><Y>0</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1705066762314" Target="1707207018447" Trigger="message">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[String]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[equalsTo]]></FilterType>
+						<EqualsExpression><![CDATA["Не технологическое ожидание"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707207290886</Id>
+					<Name><![CDATA[transition8]]></Name>
+					<X>840</X><Y>130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>50</Y></Point>
+						<Point><X>-50</X><Y>50</Y></Point>
+						<Point><X>-50</X><Y>220</Y></Point>
+					</Points>
+					<IconOffset>30.0</IconOffset>
+					<Properties Source="1707207018447" Target="1707202444714" Trigger="condition">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[changeStatus.getTime() >= date().getTime()]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707207581645</Id>
+					<Name><![CDATA[transition9]]></Name>
+					<X>840</X><Y>350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>-21</Y></Point>
+						<Point><X>0</X><Y>-150</Y></Point>
+						<Point><X>250</X><Y>-150</Y></Point>
+						<Point><X>250</X><Y>-220</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1707202444714" Target="1705066762314" Trigger="condition">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[weightProduct < 1 && amIApplying("Ожидание отправки со станции")]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707210480180</Id>
+					<Name><![CDATA[transition10]]></Name>
+					<Description><![CDATA[Как только вагон прибывает на приемо-отправочные пути]]></Description>
+					<X>1150</X><Y>470</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>35</Y></Point>
+					</Points>
+					<IconOffset>15.0</IconOffset>
+					<Properties Source="1706813467631" Target="1707210464390" Trigger="condition">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[main.getPopsWithoutAvoid().contains(getTrack())]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707210487217</Id>
+					<Name><![CDATA[transition11]]></Name>
+					<X>1138</X><Y>515</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-178</X><Y>0</Y></Point>
+						<Point><X>-178</X><Y>-145</Y></Point>
+						<Point><X>-208</X><Y>-145</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1707210464390" Target="1707202444714" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707210500715</Id>
+					<Name><![CDATA[transition4]]></Name>
+					<X>1162</X><Y>515</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>328</X><Y>0</Y></Point>
+						<Point><X>328</X><Y>-385</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1707210464390" Target="1707204644896" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[finalStatus.equals("Технологическое ожидание")]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>false</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707210643421</Id>
+					<Name><![CDATA[transition12]]></Name>
+					<X>1155</X><Y>130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>310</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1705066762314" Target="1706813467631" Trigger="message">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[String]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[equalsTo]]></FilterType>
+						<EqualsExpression><![CDATA["Ожидание уборки с грузового фронта"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707210703919</Id>
+					<Name><![CDATA[transition13]]></Name>
+					<X>1060</X><Y>130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>60</Y></Point>
+						<Point><X>-240</X><Y>60</Y></Point>
+						<Point><X>-240</X><Y>220</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1705066762314" Target="1707202444714" Trigger="message">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[true]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[String]]></MessageType>
+						<DefaultTransition>true</DefaultTransition>
+						<FilterType><![CDATA[equalsTo]]></FilterType>
+						<EqualsExpression><![CDATA["Ожидание отправки со станции"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707225373572</Id>
+					<Name><![CDATA[transition15]]></Name>
+					<X>1293</X><Y>375</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-78</X><Y>0</Y></Point>
+						<Point><X>-78</X><Y>-50</Y></Point>
+						<Point><X>-223</X><Y>-50</Y></Point>
+						<Point><X>-223</X><Y>-75</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1707225328851" Target="1705067799006" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[amIApplying("Выгрузка")]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>false</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707225396034</Id>
+					<Name><![CDATA[transition16]]></Name>
+					<X>1305</X><Y>385</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>75</Y></Point>
+						<Point><X>-15</X><Y>75</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1707225328851" Target="1706813467631" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</Timeout>
 						<Condition><![CDATA[true]]></Condition>
@@ -9973,25 +10638,110 @@ double delay = 0;
 traceln("Путь, на котором возвращаю задержку " + trackName);
 switch(trackName){
 	case "track9p3" :
-		delay = main.data.delayLoadingPipes910;
+		delay = main.data.delayLoadingPipes910/2;
 		break;
 	case "track10" :
 		if (productType.equals("Трубы")){
-			delay = main.data.delayLoadingPipes910;
+			delay = main.data.delayLoadingPipes910/3;
 		}
 		else{
-			delay = main.data.delayLoadingScrap10;
+			delay = main.data.delayLoadingScrap10/3;
 		}
 		break;
 	case "track7" :
 		delay = main.data.delayLoadingRolled7;
 		break;
 	case "track8p2" :
-		delay = main.data.delayLoadingPipes8;
+		delay = main.data.delayLoadingPipes8/3;
 		break;
 }
 traceln(red, "Возвращаю задержку на разгрузку или погрузку " + (delay*sequenceInTrain));
 return delay * sequenceInTrain;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1707207649143</Id>
+					<Name><![CDATA[amIApplying]]></Name>
+					<Description><![CDATA[Возвращает результат true, если вагон может потребоваться по заявке в течение установленного времени]]></Description>
+					<X>50</X><Y>280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[state]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[List<Request> requests = state.equals("Выгрузка") ? main.findRequestForVagon(this, state) : main.findRequestsForVagonOffset(this, state);
+boolean amIAply = false;
+boolean isOnMyTrack = requests.stream().anyMatch(p-> p.getNumFront().equals(main.getTrackEdgeByTrack(getTrack()).getNumberTra()));
+if (requests.size() > 0){
+	if (state.equals("Выгрузка") // если вагон разгрузился
+		&& isOnMyTrack){
+		amIAply = true;
+	}
+	else if (state.equals("Ожидание отправки со станции")){
+		amIAply = true;
+	}
+}	
+return amIAply;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1707211452711</Id>
+					<Name><![CDATA[getRandom]]></Name>
+					<X>390</X><Y>550</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[arg]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[SplittableRandom random = new SplittableRandom();
+return random.nextInt(100) <= arg;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707232853390</Id>
+					<Name><![CDATA[setStatus]]></Name>
+					<X>50</X><Y>430</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[if (type.equals("Локомотив")){return;}
+//boolean isHaveTrack = edges.stream().anyMatch(p-> p.getNumberTra().equals(track));
+boolean isHaveTrackPops = main.getPopsTracksEdges().stream().anyMatch(p-> p.getNumberTra().equals(track));
+boolean isHaveTrackFronts = main.getFrontsTracksEdges().stream().anyMatch(p-> p.getNumberTra().equals(track));
+if (isHaveTrackPops && finalStatus.equals("Технологическое ожидание")){
+	if (weightProduct > 0){
+		this.send("Технологическое ожидание", this);
+		status = "Технологическое ожидание";
+	}
+	else{
+		this.send("Ожидание отправки на грузовой фронт", this);
+		status = "Ожидание отправки на грузовой фронт";
+	}
+}
+else if (isHaveTrackFronts && finalStatus.equals("Технологическое ожидание")){
+	if (weightProduct > 0){
+		this.send("Ожидание уборки с грузового фронта", this);
+		status = "Ожидание уборки с грузового фронта";
+	}
+	else{
+		this.send("Загрузка", this);
+		status = "Загрузка";
+	}
+}
+else {
+	this.send(finalStatus, this);
+	status = finalStatus;
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -10567,6 +11317,153 @@ traceln("Я имею позицию с конца состава" + getPositionO
 			</Presentation>
 
 				</Group>
+				<Text>
+					<Id>1707210758459</Id>
+					<Name><![CDATA[text]]></Name>
+					<X>1020</X><Y>250</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Загружаюсь]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1707210776570</Id>
+					<Name><![CDATA[text1]]></Name>
+					<X>1330</X><Y>250</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Разгружаюсь]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1707210793466</Id>
+					<Name><![CDATA[text2]]></Name>
+					<X>1160</X><Y>80</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Жду отправки на фронт]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1707210805743</Id>
+					<Name><![CDATA[text3]]></Name>
+					<X>1410</X><Y>80</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[На технологическом ожидании]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1707210822129</Id>
+					<Name><![CDATA[text4]]></Name>
+					<X>840</X><Y>80</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Не на технологическом ожидании]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1707210861958</Id>
+					<Name><![CDATA[text5]]></Name>
+					<X>1165</X><Y>420</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Жду уборки с фронта]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1707210882725</Id>
+					<Name><![CDATA[text6]]></Name>
+					<X>640</X><Y>330</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Жду отправки со станции]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -12465,32 +13362,6 @@ route = null;]]></Code>
 			</Ports>
 			<Connectors>
 				<Connector>
-					<Id>1701695677250</Id>
-					<Name><![CDATA[connector1]]></Name>
-					<X>455</X><Y>280</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[SourceStation]]></ClassName>
-						<ItemName><![CDATA[sourceStation]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
-						<ClassName><![CDATA[TrainSource]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetId>1701695683392</TargetId>
-					<Points>
-						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>95</X><Y>0</Y></Point>
-						<Point><X>95</X><Y>-160</Y></Point>
-						<Point><X>15</X><Y>-160</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
 					<Id>1701695780470</Id>
 					<Name><![CDATA[connector]]></Name>
 					<X>430</X><Y>120</Y>
@@ -12514,6 +13385,65 @@ route = null;]]></Code>
 						<Point><X>-180</X><Y>0</Y></Point>
 						<Point><X>-180</X><Y>160</Y></Point>
 						<Point><X>-65</X><Y>160</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1707243700981</Id>
+					<Name><![CDATA[connector1]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SourceStation]]></ClassName>
+						<ItemName><![CDATA[sourceStation]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
+						<ClassName><![CDATA[TrainSource]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SourceStation]]></ClassName>
+						<ItemName><![CDATA[delay]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>455</X><Y>280</Y></Point>
+						<Point><X>500</X><Y>280</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1707243700983</Id>
+					<Name><![CDATA[connector2]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SourceStation]]></ClassName>
+						<ItemName><![CDATA[delay]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetId>1701695683392</TargetId>
+					<Points>
+						<Point><X>540</X><Y>280</Y></Point>
+						<Point><X>550</X><Y>280</Y></Point>
+						<Point><X>550</X><Y>120</Y></Point>
+						<Point><X>470</X><Y>120</Y></Point>
 					</Points>
 				</Connector>
 			</Connectors>
@@ -12859,7 +13789,13 @@ car.productType = copyCar.productType;
 car.queueOnTrain = copyCar.queueOnTrain;
 car.owner = copyCar.owner;
 car.dateArrive = copyCar.dateArrive;
+car.track = copyCar.track;
+car.numInvoice = copyCar.numInvoice;
+car.finalStatus = copyCar.finalStatus;
+car.typeOwner = copyCar.typeOwner;
+car.changeStatus = copyCar.changeStatus;
 car.setPosition();
+car.setStatus();
 cnt++;]]></Code>
 							</Value>
 						</Parameter>
@@ -12944,6 +13880,112 @@ cnt++;]]></Code>
 								<Code><![CDATA[//traceln("На путь " + trackSource().getName() + " нужно с локомотивом " + cars().size() + " вагонов");
 sourceStation.inject();]]></Code>
 							</Value>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1707243699701</Id>
+					<Name><![CDATA[delay]]></Name>
+					<X>500</X><Y>260</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+							<Value Class="CodeUnitValue">
+								<Code><![CDATA[0]]></Code>
+								<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[true]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[//agent.getCars().forEach(p->p.setStatus(main.getPopsTracksEdges()));]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -13845,6 +14887,8 @@ while(railCars.cellExists(list, row, 1)){
 	double length = railCars.getCellNumericValue(list, row, 4);
 	double weigthSelf = railCars.getCellNumericValue(list, row, 5);
 	double weightProduct = railCars.getCellNumericValue(list, row, 6);
+	double maxWeightForSend = railCars.getCellNumericValue(list, row, 7);
+	double maxWeightForArrive = railCars.getCellNumericValue(list, row, 8);
 	RailCar car = new RailCar(type, model, productType, length, weigthSelf, (weightProduct - weigthSelf));
 	railCarsCollection.add(car);
 	row++;
@@ -14004,15 +15048,25 @@ while(file.cellExists(list, row, 1)){
 	String productType = file.getCellStringValue(list, row, 6);
 	double weightProduct = file.getCellNumericValue(list, row, 7);
 	String owner = file.getCellStringValue(list, row, 8);
+	String finalStatus = file.getCellStringValue(list, row, 9);
+	//String status = file.getCellStringValue(list, row, 9);
+	Date changeStatus = file.cellExists(list, row, 10) ? file.getCellDateValue(list, row, 10) : null;
+	String typeOwner = file.getCellStringValue(list, row, 11);
+	String model = file.getCellStringValue(list, row, 12);
 	RailCar car = railCarsCollection.stream().filter(p-> p.type.equals(type)).findFirst().orElse(null);
 	// TODO сейчас берет одну модель из одного типа
 	RailCar newCar = new RailCar(type, car.model, productType, car.length, car.weightSelf, weightProduct);
 	newCar.number = numberVagon;
 	newCar.track = track;
 	newCar.queueOnTrain = queueOnTrack;
-	newCar.numConf = numConf;
+	newCar.numInvoice = numConf;
 	newCar.owner = owner;
+	//newCar.status = status;
 	newCar.dateArrive = getEngine().date();
+	newCar.finalStatus = finalStatus;
+	newCar.typeOwner = typeOwner;
+	newCar.model = model;
+	newCar.changeStatus = changeStatus;
 	arrangeCars.add(newCar);
 	row++;
 }
@@ -14065,7 +15119,10 @@ while(file.cellExists(list, row, 1)){
 	String nameOwner = file.getCellStringValue(list, row, 8);
 	Date dateRequest = file.getCellDateValue(list, row, 9);
 	int changeNum = (int)file.getCellNumericValue(list, row, 10);
-	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight);
+	String status = file.getCellStringValue(list, row, 11);
+	Date changeStatus = file.cellExists(list, row, 12) ? file.getCellDateValue(list, row, 12) : null;
+	String typeOwner = file.getCellStringValue(list, row, 13);
+	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight, status, changeStatus, typeOwner);
 	requestsCollection.add(req);
 	row++;
 }
@@ -29586,16 +30643,20 @@ int sequenceInTrain = 1;
 if (main.getFronts().stream().anyMatch(p-> p.getHomeTrack().getSelf().equals(train.getTrack(false)))){
 	for (RailCar car : train.getCars()){
 		if (car.weightProduct > 1){
-			car.sequenceInTrain = sequenceInTrain;
+			
 			car.send("Выгрузка", car);
 			//traceln("Присвоил статус " + car.status);
 		}
 		else{
-			car.sequenceInTrain = sequenceInTrain;
 			car.send("Загрузка", car);
 			//send("Загрузка", car);
 			//traceln("Присвоил статус " + car.status);
 		}
+		Request req = main.data.requestsCollection.stream().filter(p-> p.hashCode() == car.hashRequest).findFirst().orElse(null);
+		if (req != null){
+			req.setIsDone(true); // заявка считается выполненной
+		}
+		car.sequenceInTrain = sequenceInTrain;
 		sequenceInTrain++;
 	}
 }]]></Body>
@@ -39005,6 +40066,7 @@ public class Front {
 			<Name><![CDATA[Request]]></Name>
 			<Text><![CDATA[import java.util.Date;
 
+
 public class Request {
     private String numRequest;
     private String numVagon;
@@ -39018,8 +40080,13 @@ public class Request {
     private int change;
     private boolean isDone;
     private boolean acceptedInWork;
+    private String status;
+    private Date changeStatus;
+    private String typeOwner;
 
-    public Request(String numRequest, String numVagon, String numInvoice, String typeVagon, String typeProduct, String numFront, String nameOwner, Date dateRequest, int change, double weight) {
+    public Request(String numRequest, String numVagon, String numInvoice, String typeVagon,
+                   String typeProduct, String numFront, String nameOwner, Date dateRequest,
+                   int change, double weight, String status, Date changeStatus, String typeOwner) {
         this.numRequest = numRequest;
         this.numVagon = numVagon;
         this.numInvoice = numInvoice;
@@ -39031,12 +40098,64 @@ public class Request {
         this.change = change;
         isDone = false;
         this.weight = weight;
-        
+        this.status = status;
+        this.changeStatus = changeStatus;
+        this.typeOwner = typeOwner;
+    }
+    
+    public RailCar getCar() {
+    	RailCar car = new RailCar();
+    	car.numInvoice = numInvoice;
+    	car.number = numVagon;
+    	car.status = status;
+    	car.type = typeVagon;
+    	car.productType = typeProduct;
+    	car.owner = nameOwner;
+    	car.weightProduct = weight;
+    	car.changeStatus = changeStatus;
+    	car.typeOwner = typeOwner;
+    	return car;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
+    }
+
+    public boolean isAcceptedInWork() {
+        return acceptedInWork;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getChangeStatus() {
+        return changeStatus;
+    }
+
+    public void setChangeStatus(Date changeStatus) {
+        this.changeStatus = changeStatus;
+    }
+
+    public String getTypeOwner() {
+        return typeOwner;
+    }
+
+    public void setTypeOwner(String typeOwner) {
+        this.typeOwner = typeOwner;
     }
 
     public Request() {
     }
-    
+
     public double getWeight() {
         return weight;
     }
@@ -39052,15 +40171,15 @@ public class Request {
     public void setIsDone(boolean isDone) {
         this.isDone = isDone;
     }
-    
+
     public boolean getIsDone() {
         return isDone;
     }
-    
+
     public void setAcceptedInWork(boolean acceptedInWork) {
         this.acceptedInWork = acceptedInWork;
     }
-    
+
     public boolean getAcceptedInWork() {
         return acceptedInWork;
     }
@@ -39132,7 +40251,7 @@ public class Request {
     public void setChange(int change) {
         this.change = change;
     }
-    
+
     @Override
     public String toString() {
         return "Request{" +
@@ -39632,7 +40751,7 @@ public class Tools implements Serializable {
 			<Id>1706278941138</Id>
 			<Name><![CDATA[TrainArrival]]></Name>
 			<Text><![CDATA[import java.util.Date;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class TrainArrival {
     private Date date;
@@ -39677,6 +40796,41 @@ public class TrainArrival {
     public void setTargetTrack(TrackEdge targetTrack) {
         this.targetTrack = targetTrack;
     }
+    
+    /**
+     * 
+     * @param activeFrontRequest - заявки, которые необходимо поставить до конца текущего дня
+     * @param requestsOnStation - заявки, которые уже находятся на станции
+     * @param allRequests - все заявки, которые заложены на горизонт моделирования
+     * @return - возвращает список заявок, из которого можно составить состав на прибытие
+     */
+    public List<Request> getAllRequestsForArrive(List<Request> getActiveRequests, List<Request> requestsOnStation, List<Request> allRequests){
+    	List<Request> listForArrive = new ArrayList();
+    	for (Request req : getActiveRequests) {
+    		if (!requestsOnStation.contains(req)) {
+    			listForArrive.add(req);
+    		}
+    	}
+    	return listForArrive;
+    }
+    
+    
+    public List<RailCar> getCarsOfTrain(List<Request> requests, RailCar locomotive){
+    	List<RailCar> cars = new ArrayList();
+    	double sumWeight = 0;
+    	// Сначала необходимо включить в состав вагоны местного парка, вес которых больше 0 (чтобы выгрузить продукцию) 
+    	for (Request req : requests.stream().filter(p-> p.getTypeOwner().equals("Местный") && p.getWeight() > 0).collect(Collectors.toList())) {
+    		if (sumWeight + req.getWeight() < locomotive.maxWeightForArrive) {
+    			RailCar car = req.getCar();
+    			
+    		}
+    	}
+    	/*for () {
+    		
+    	}*/
+    	return null;
+    }
+    
 }
 ]]></Text>
 		</JavaClass>

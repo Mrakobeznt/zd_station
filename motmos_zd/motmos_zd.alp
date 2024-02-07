@@ -174,6 +174,19 @@
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707246687180</Id>
+					<Name><![CDATA[cntContactVagons]]></Name>
+					<Description><![CDATA[Количество оставшихся вагонов по контактно]]></Description>
+					<X>860</X><Y>1640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1703864725228</Id>
 					<Name><![CDATA[pops]]></Name>
@@ -9988,6 +10001,7 @@ public String toString(){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<Properties>	
+						<Action><![CDATA[weightProduct = 0;]]></Action>
 					</Properties>	
 				</StatechartElement>
 				<StatechartElement Class="EntryPoint" ParentState="ROOT_NODE">
@@ -10085,6 +10099,7 @@ public String toString(){
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705067799006" Target="1706813467631" Trigger="timeout">
+						<Action><![CDATA[weightProduct = main.data.getMaxWeightByCar(this)]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[getDelayForLoad()]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -10115,6 +10130,7 @@ public String toString(){
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1705067932484" Target="1707225328851" Trigger="timeout">
+						<Action><![CDATA[weightProduct = 0;]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[getDelayForLoad()]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -10743,6 +10759,44 @@ else {
 	status = finalStatus;
 }]]></Body>
 				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Color]]></ReturnType>
+					<Id>1707295129016</Id>
+					<Name><![CDATA[getColorByStatus]]></Name>
+					<X>670</X><Y>-40</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[Color color = white;
+if (!type.equals("Локомотив")){
+	switch(status){
+		case "Ожидание отправки на грузовой фронт" :
+			color = cyan;
+			break;
+		case "Ожидание уборки с грузового фронта" :
+			color = yellowGreen;
+			break;
+		case "Загрузка" :
+			color = dodgerBlue;
+			break;
+		case "Выгрузка" :
+			color = dodgerBlue;
+			break;
+		case "Ожидание отправки со станции" :
+			color = springGreen;
+			break;
+		case "Технологическое ожидание" :
+			color = gainsboro;
+			break;
+		case "Не технологическое ожидание" :
+			color = dimGray;
+			break;
+	}
+}
+return color;]]></Body>
+				</Function>
 			</Functions>
 			<AgentLinks>
 				<AgentLink>
@@ -10811,7 +10865,8 @@ else {
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<OnClickCode><![CDATA[traceln("Я имею позицию с начала состава" + getPositionOnTrain(true));
-traceln("Я имею позицию с конца состава" + getPositionOnTrain(false));]]></OnClickCode>
+traceln("Я имею позицию с конца состава" + getPositionOnTrain(false));
+traceln("Мой статус " + status);]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -10826,6 +10881,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[type.equals("Полувагон")]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -10867,7 +10923,6 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<ApplyShading>true</ApplyShading>
 					<InternalLighting>OFF</InternalLighting>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Полувагон")]]></VisibleCode>
 				</Figure3D>
 				<Rectangle>
 					<Id>1706021225589</Id>
@@ -10875,7 +10930,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<X>-63</X><Y>-17</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
+					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -10889,6 +10944,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Height>32</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-16711681</FillColor>
+					<FillColorCode><![CDATA[getColorByStatus()]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Image>
@@ -10900,11 +10956,11 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && type.equals("Полувагон")]]></VisibleCode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка"))]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
-					<Width>111</Width>
-					<Height>25</Height>
+					<Width>111.75</Width>
+					<Height>26</Height>
 					<Rotation>0.0</Rotation>
 					<ImageFiles>
 						<ImageResourceReference>
@@ -10926,6 +10982,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[(type.equals("Трубовоз") && !model.equals("13-1796-01"))]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -10971,7 +11028,6 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<ApplyShading>true</ApplyShading>
 					<InternalLighting>OFF</InternalLighting>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Трубовоз")]]></VisibleCode>
 				</Figure3D>
 				<Rectangle>
 					<Id>1706021309653</Id>
@@ -10979,7 +11035,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<X>-124.4</X><Y>-16</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
+					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -10993,6 +11049,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Height>30</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-16711681</FillColor>
+					<FillColorCode><![CDATA[getColorByStatus()]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Image>
@@ -11004,7 +11061,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && type.equals("Трубовоз")]]></VisibleCode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка"))]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Width>232</Width>
@@ -11030,6 +11087,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[(type.equals("Трубовоз") && model.equals("13-1796-01"))]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -11075,7 +11133,6 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<ApplyShading>true</ApplyShading>
 					<InternalLighting>OFF</InternalLighting>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Трубовоз мал") && model.equals("13-1796-01")]]></VisibleCode>
 				</Figure3D>
 				<Rectangle>
 					<Id>1706021420862</Id>
@@ -11083,7 +11140,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<X>-122</X><Y>-16</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
+					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -11097,6 +11154,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Height>29</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-16711681</FillColor>
+					<FillColorCode><![CDATA[getColorByStatus()]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Image>
@@ -11108,7 +11166,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && (type.equals("Трубовоз мал") && model.equals("13-1796-01"))]]></VisibleCode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка"))]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Width>233</Width>
@@ -11134,6 +11192,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[type.equals("Локомотив")]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -11187,7 +11246,6 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<ApplyShading>true</ApplyShading>
 					<InternalLighting>OFF</InternalLighting>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Локомотив")]]></VisibleCode>
 				</Figure3D>
 				<Rectangle>
 					<Id>1706021542552</Id>
@@ -11220,9 +11278,10 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<X>-26</X><Y>-149</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[type.equals("Платформа")]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -11264,7 +11323,6 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<ApplyShading>true</ApplyShading>
 					<InternalLighting>OFF</InternalLighting>
 					<IgnoreSceneLights>false</IgnoreSceneLights>
-					<VisibleCode><![CDATA[type.equals("Платформа")]]></VisibleCode>
 				</Figure3D>
 				<Rectangle>
 					<Id>1706021596728</Id>
@@ -11272,7 +11330,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<X>-67</X><Y>-18</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
+					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -11286,6 +11344,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Height>33</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-16711681</FillColor>
+					<FillColorCode><![CDATA[getColorByStatus()]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Image>
@@ -11297,7 +11356,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка")) && type.equals("Платформа")]]></VisibleCode>
+					<VisibleCode><![CDATA[(status.equals("Загрузка") || status.equals("Выгрузка"))]]></VisibleCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Width>121</Width>
@@ -11322,7 +11381,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text]]></Name>
 					<X>1020</X><Y>250</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -11343,7 +11402,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text1]]></Name>
 					<X>1330</X><Y>250</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -11364,7 +11423,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text2]]></Name>
 					<X>1160</X><Y>80</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -11385,7 +11444,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text3]]></Name>
 					<X>1410</X><Y>80</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -11406,7 +11465,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text4]]></Name>
 					<X>840</X><Y>80</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -11427,7 +11486,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text5]]></Name>
 					<X>1165</X><Y>420</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -11448,7 +11507,7 @@ traceln("Я имею позицию с конца состава" + getPositionO
 					<Name><![CDATA[text6]]></Name>
 					<X>640</X><Y>330</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
+					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
@@ -14763,7 +14822,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="CollectionVariable">
 					<Id>1704986560637</Id>
 					<Name><![CDATA[productsCollection]]></Name>
-					<X>530</X><Y>470</Y>
+					<X>840</X><Y>480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -14808,7 +14867,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="CollectionVariable">
 					<Id>1706035589184</Id>
 					<Name><![CDATA[frontsDelayOffset]]></Name>
-					<X>960</X><Y>460</Y>
+					<X>1100</X><Y>470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -14823,7 +14882,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="CollectionVariable">
 					<Id>1706167880302</Id>
 					<Name><![CDATA[frontsFinishOffsets]]></Name>
-					<X>1120</X><Y>460</Y>
+					<X>1260</X><Y>470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -14865,6 +14924,21 @@ sourceStation.inject();]]></Code>
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1707291566726</Id>
+					<Name><![CDATA[contactRequests]]></Name>
+					<X>490</X><Y>460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[Request]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -14886,10 +14960,10 @@ while(railCars.cellExists(list, row, 1)){
 	String productType = railCars.getCellStringValue(list, row, 3);
 	double length = railCars.getCellNumericValue(list, row, 4);
 	double weigthSelf = railCars.getCellNumericValue(list, row, 5);
-	double weightProduct = railCars.getCellNumericValue(list, row, 6);
+	double maxWeight = railCars.getCellNumericValue(list, row, 6);
 	double maxWeightForSend = railCars.getCellNumericValue(list, row, 7);
 	double maxWeightForArrive = railCars.getCellNumericValue(list, row, 8);
-	RailCar car = new RailCar(type, model, productType, length, weigthSelf, (weightProduct - weigthSelf));
+	RailCar car = new RailCar(type, model, productType, length, weigthSelf, (maxWeight - weigthSelf));
 	railCarsCollection.add(car);
 	row++;
 }
@@ -15077,7 +15151,7 @@ file.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1704986139318</Id>
 					<Name><![CDATA[readProducts]]></Name>
-					<X>530</X><Y>440</Y>
+					<X>840</X><Y>450</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15152,7 +15226,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706036589613</Id>
 					<Name><![CDATA[setFrontsOffset]]></Name>
-					<X>960</X><Y>400</Y>
+					<X>1100</X><Y>410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15177,7 +15251,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706036656582</Id>
 					<Name><![CDATA[getOffsetForDelay]]></Name>
-					<X>960</X><Y>430</Y>
+					<X>1100</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15193,7 +15267,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706167877968</Id>
 					<Name><![CDATA[getFinitshFrontOffset]]></Name>
-					<X>1120</X><Y>430</Y>
+					<X>1260</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15211,7 +15285,7 @@ return frontsFinishOffsets.get(front.getName());]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706167936367</Id>
 					<Name><![CDATA[setFinishFrontsOffset]]></Name>
-					<X>1120</X><Y>400</Y>
+					<X>1260</X><Y>410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15287,6 +15361,8 @@ readProducts();
 
 readRequests();
 
+readContactPlan();
+
 readArrivals();
 
 setFrontsOffset(main.positionsOnTracks, main.tracksException);
@@ -15322,6 +15398,97 @@ while(tasks.cellExists(list, row, 1)){
 }
 tasks.close();
 //taskCollection.stream().forEach(p-> traceln(p));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707291566728</Id>
+					<Name><![CDATA[readContactPlan]]></Name>
+					<X>490</X><Y>430</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int row = 2;
+ExcelFile file = startData;
+String list = "Контактный график";
+file.readFile();
+
+String track = file.getCellStringValue(list, row, 1);
+int cntVagons = (int)file.getCellNumericValue(list, row, 2);
+String typeVagon = file.getCellStringValue(list, row, 3);
+String typeVProduct = file.getCellStringValue(list, row, 4);
+int time = (int)file.getCellNumericValue(list, row, 5);
+for (Request req : requestsCollection){
+	if (req.getNumFront().equals(track) 
+		&& req.getTypeVagon().equals(typeVagon)
+			&& req.getTypeProduct().equals(typeVProduct)
+				&& req.getWeight() > 0){
+		contactRequests.add(req);
+	}
+}
+file.close();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Map<RailwayTrack, Double>]]></ReturnType>
+					<Id>1707294496325</Id>
+					<Name><![CDATA[getSpeed1]]></Name>
+					<X>660</X><Y>430</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[cntVagon]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[typeTask]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[Map<RailwayTrack, String> map = null;
+Map<RailwayTrack, Double> mapSpeed = new HashMap();
+if (cntVagon > 1){
+	map = railwayPathsCollection.stream()
+      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeed, (a1, a2) -> a1));
+    if (typeTask.equals("Прибытие состава на станцию") 
+    	|| typeTask.equals("Прибытие состава на станцию solo") 
+    		|| typeTask.equals("Отправка состава со станции solo") 
+    			|| typeTask.equals("Отправка состава со станции")){
+    	map = railwayPathsCollection.stream()
+      		.collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeedAlt, (a1, a2) -> a1));
+    }
+}
+else{
+	map = railwayPathsCollection.stream()
+      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSoloSpeed, (a1, a2) -> a1));
+}
+for (Map.Entry<RailwayTrack, String> copyMap : map.entrySet()){
+	mapSpeed.put(copyMap.getKey(), speedsMap.get(copyMap.getValue()));
+}
+return mapSpeed;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707294775890</Id>
+					<Name><![CDATA[getMaxWeightByCar]]></Name>
+					<X>60</X><Y>280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[car]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Body><![CDATA[RailCar copyCar = railCarsCollection.stream().filter(p-> p.type.equals(car.type) && p.model.equals(car.model)).findFirst().orElse(null);
+double maxWeight = 0;
+if (copyCar != null){
+	maxWeight = copyCar.weightProduct;
+}
+return maxWeight;]]></Body>
 				</Function>
 			</Functions>
 			<Connectivity>
@@ -15405,7 +15572,7 @@ tasks.close();
 				<ExcelFile>
 					<Id>1704986118580</Id>
 					<Name><![CDATA[products]]></Name>
-					<X>530</X><Y>400</Y>
+					<X>840</X><Y>410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -40867,37 +41034,7 @@ public class TrainArrival {
 			<Location>FILE_SYSTEM</Location>
 		</Resource>
 		<Resource>
-			<Path><![CDATA[С 6 путем 18 copy min.jpg]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Path><![CDATA[Справочники/Вагоны и локомотивы.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Path><![CDATA[Справочники/Пути.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Path><![CDATA[Справочники/Задачи.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Path><![CDATA[Исходные данные.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Path><![CDATA[Справочники/Продукты.xlsx]]></Path>
-			<ReferencedFromUserCode>false</ReferencedFromUserCode>
-			<Location>FILE_SYSTEM</Location>
-		</Resource>
-		<Resource>
-			<Path><![CDATA[istockphoto-1063683552-1024x1024.jpg]]></Path>
+			<Path><![CDATA[5fde19f930e5ba3be4f2df573c70be9b-PhotoRoom.png-PhotoRoom.png]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>
@@ -40907,7 +41044,7 @@ public class TrainArrival {
 			<Location>FILE_SYSTEM</Location>
 		</Resource>
 		<Resource>
-			<Path><![CDATA[SourceStation.png]]></Path>
+			<Path><![CDATA[istockphoto-1063683552-1024x1024.jpg]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>
@@ -40922,12 +41059,42 @@ public class TrainArrival {
 			<Location>FILE_SYSTEM</Location>
 		</Resource>
 		<Resource>
-			<Path><![CDATA[текстура.png]]></Path>
+			<Path><![CDATA[SourceStation.png]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>
 		<Resource>
-			<Path><![CDATA[5fde19f930e5ba3be4f2df573c70be9b-PhotoRoom.png-PhotoRoom.png]]></Path>
+			<Path><![CDATA[Исходные данные.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[С 6 путем 18 copy min.jpg]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Справочники/Вагоны и локомотивы.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Справочники/Задачи.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Справочники/Продукты.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Справочники/Пути.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[текстура.png]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>

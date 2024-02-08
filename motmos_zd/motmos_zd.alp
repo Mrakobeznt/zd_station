@@ -1001,6 +1001,37 @@ if (activeSuperTasks == 0){
 					</Properties>
 					<Action><![CDATA[checkAndMakeGlobalTask();]]></Action>
 				</Event>
+				<Event>
+					<Id>1707321879923</Id>
+					<Name><![CDATA[event1]]></Name>
+					<X>450</X><Y>1640</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties TriggerType="timeout" Mode="occuresOnce">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1707379200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[0]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</RecurrenceCode>
+						<Condition><![CDATA[false]]></Condition>
+					</Properties>
+					<Action><![CDATA[//pauseSimulation();]]></Action>
+				</Event>
 			</Events>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -1014,24 +1045,25 @@ if (activeSuperTasks == 0){
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[(Включено в концепцию)В одной заявки может быть несколько фронтов
-(Включено в концепцию)Отправка вагонов происходит по расписанию (раз в сколько-то часов) или по вместимости приемо-отправочных путей.
-(Включено в концепцию)Если за сутки порожний вагон местного парка не будет нужен в заявках на грузовые фронты, то он будет отправлять со станции в составе (добавить в параметр в excel)
-Добавить вагону, который предназначен для отправка на грузовой фронт, поля приоритет отправки и сторону, на которой он должен быть в составе по прибытию на фронт.
+					<Body><![CDATA[(Включено в концепцию) В одной заявки может быть несколько фронтов
+(Включено в концепцию) Отправка вагонов происходит по расписанию (раз в сколько-то часов) или по вместимости приемо-отправочных путей.
+(Включено в концепцию) Если за сутки порожний вагон местного парка не будет нужен в заявках на грузовые фронты, то он будет отправлять со станции в составе (добавить в параметр в excel)
+(оч сложно, даже представить) Добавить вагону, который предназначен для отправка на грузовой фронт, поля приоритет отправки и сторону, на которой он должен быть в составе по прибытию на фронт.
 (Включено в концепцию)Прибытие технологических вагонов заранее до заявки.
 Форс-мажорная ситуация - везут 2 локомотива, когда вес и размер состава превышен.
-Состав, прибывабщий на станцию может изменяться пользователем (как расположение вагонов в составе, так и смена вагонов в прибывающем составе)
-Вагоны, которые прибывают на станциют заранее могут быть не местного парка и тоже долго ждать отправки на грузовой фронт
+(Включено в концепцию) Состав, прибывабщий на станцию может изменяться пользователем (как расположение вагонов в составе, так и смена вагонов в прибывающем составе)
+(Включено в концепцию) Вагоны, которые прибывают на станциют заранее могут быть не местного парка и тоже долго ждать отправки на грузовой фронт
 На станцию могут прибывать составы, которые не будут относится к работе станции Мотмос, а будут какое-то время занимать место до тех пор, пока статус не поменяется на "Ожидание отправки со станции"
-Критерий прибытия (Добавить таблицу с критериями прибытия на станцию)
-Добавить в критрии выбора вагонов для формирования на отправку на грузовой фронт время простоя на станции (первый пришел первый ушел) + добавить в настраиваемый параметр
-Максимальный приоритет контактному графику (добавить в найстроечный параметр) 23.01.2024
-Учесть в ключевых показателях простой участка второго участка 9 пути
-Путь номер 9 разделен на 2 фронта 30.01.2024
-Путь номер 10 переопределен 30.01.2024
-Задержка вагонов на грузовых фронтах определяется количеством кранов 06.02.2024
+(Включено в концепцию)Критерий прибытия (Добавить таблицу с критериями прибытия на станцию)
+(Включено в концепцию)Добавить в критрии выбора вагонов для формирования на отправку на грузовой фронт время простоя на станции (первый пришел первый ушел) + добавить в настраиваемый параметр
+(Включено в концепцию) Максимальный приоритет контактному графику (добавить в найстроечный параметр) 23.01.2024
+(Включено в концепцию) Учесть в ключевых показателях простой участка второго участка 9 пути
+(Включено в концепцию) Путь номер 9 разделен на 2 фронта 30.01.2024
+(Включено в концепцию) Путь номер 10 переопределен 30.01.2024
+(Включено в концепцию) Задержка вагонов на грузовых фронтах определяется количеством кранов 06.02.2024
 Вагоны сразу могут отправиться на погрузку после разгрузки 06.02.2024
-При заборе вагонов с фронта 9, если на другом фронте есть вагоны, то нужно взять их все сразу, а не по очереди 06.02.2024]]></Body>
+При заборе вагонов с фронта 9, если на другом фронте есть вагоны, то нужно взять их все сразу, а не по очереди 06.02.2024
+Если у вагона с не технологическим ожиданием заканчивается срок, он может отправляться по заявкам на станции]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1054,6 +1086,8 @@ for (TrackEdge track : getTracksEdges()){
 		addTask("Расстановка", track.getSelf(), null, train, false);
 	}
 }
+data.addLocoOnStation("ТЭМ-2");
+data.addLocoForService("ТЭМ-9");
 createLocomotives();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1127,7 +1161,7 @@ return frontsCollection;]]></Body>
 					<Name><![CDATA[getCarsToSendForFront]]></Name>
 					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
 //Создание задач для локомотива по заявкам]]></Description>
-					<X>960</X><Y>2450</Y>
+					<X>270</X><Y>2520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1138,15 +1172,40 @@ return frontsCollection;]]></Body>
 					</Parameter>
 					<Body><![CDATA[Front front = getFrontByNum(numFront);
 List<Integer> hashList = new ArrayList();
+Set<Request> useRequests = new HashSet();
 List<Request> requsts = getRequestOnStationByFront(numFront);
+double sizeTrain = 0;
+double sizeFront = getFrontByNum(numFront).getHomeTrack().getUsableLength();
 if (!front.isBlockedForSend()){
-	for (Request req : requsts){
+	traceln("Количество заявок по контактному графику на сегодня " + data.getContactRequestForNow().size());
+	for (Request req : data.getContactRequestForNow()){ // сначала ищем вагоны по заявкам контактного графика
 		for (RailCar car : getCarsOnPopsTracks()){
-			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт") 
-					&& hashList.size() < requsts.size()){
+			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")
+				//&& hashList.size() < requsts.size() 
+					&& (sizeTrain + car.length <= sizeFront)
+						&& !useRequests.contains(req)){
 				//car.getRectangle().setVisible(true);
 				hashList.add(car.hashCode());
 				car.hashRequest = req.hashCode();
+				sizeTrain += car.length;
+				useRequests.add(req);
+				break;
+			}
+		}
+	}
+	traceln("Количество заявок " + requsts.size());
+	for (Request req : requsts){ // ищем вагоны не контактного графика
+		for (RailCar car : getCarsOnPopsTracks()){
+			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")
+				//&& hashList.size() < requsts.size() 
+					&& (sizeTrain + car.length <= sizeFront)
+						&& !useRequests.contains(req)){
+				//car.getRectangle().setVisible(true);
+				hashList.add(car.hashCode());
+				car.hashRequest = req.hashCode();
+				sizeTrain += car.length;
+				useRequests.add(req);
+				break;
 			}
 		}
 	}
@@ -1188,7 +1247,7 @@ getEngine().setStopDate(dateFinish);]]></Body>
 					<Id>1705333481671</Id>
 					<Name><![CDATA[getActiveRequests]]></Name>
 					<Description><![CDATA[Функция возвращает все активные заявки до текущей даты, которые не поставлены на грузовой фронт]]></Description>
-					<X>575</X><Y>2240</Y>
+					<X>600</X><Y>2250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1268,7 +1327,7 @@ return listCar;]]></Body>
 					<Body><![CDATA[План
 1. Разработка фнкционала поиска вагонов для отправки на грузовой фронт *
 2. Разработка функционала сбора состава для отправки на грузовой фронт *
-3. Доработать отправку и забор вагонов с грузового фронта и на грузовой
+3. Доработать отправку и забор вагонов с грузового фронта и на грузовой *
 4. Доработать функционал сбора состава для отправки со станции
 5. Исправить ошибку по составлению маршрута через пути, на которых стоят составы
 6. Если локомотив стоит на фронтовом пути, то нужно обработать забор вагонов]]></Body>
@@ -1279,7 +1338,7 @@ return listCar;]]></Body>
 					<Id>1705410000815</Id>
 					<Name><![CDATA[getActiveFrontRequest]]></Name>
 					<Description><![CDATA[Возвращает список активных заявок до текущего числа месяца по номеру фронта]]></Description>
-					<X>600</X><Y>2260</Y>
+					<X>600</X><Y>2330</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1289,10 +1348,11 @@ return listCar;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[List<Request> list = new ArrayList();
-for (Request req : data.requestsCollection.stream().filter(p-> p.getNumFront().equals(numFront)).collect(Collectors.toList())){
-	if (getModelTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
+List<Request> activeList = getActiveRequests();
+for (Request req : activeList.stream().filter(p-> p.getNumFront().equals(numFront)).collect(Collectors.toList())){
+	//if (getModelTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
 		list.add(req);
-	}
+	//}
 }
 //traceln(orange, "На фронт " + numFront + " есть " + list.size() + " заявок");
 return list;]]></Body>
@@ -1342,7 +1402,7 @@ return edges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705655857748</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>930</X><Y>2550</Y>
+					<X>1000</X><Y>2550</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1383,7 +1443,7 @@ enterTasks.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705666815983</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>930</X><Y>2580</Y>
+					<X>1000</X><Y>2580</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1426,49 +1486,9 @@ enterTasks.take(task);]]></Body>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1706002170532</Id>
-					<Name><![CDATA[makeTasksSendToFront]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
-					<X>930</X><Y>2470</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (Front front : getEmptyFronts()){
-	FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSend(), getEngine().date());
-	for (TaskAction task : fo.getTasks()){
-		addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco);
-		traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
-	}
-}]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[List<Integer>]]></ReturnType>
-					<Id>1706011607083</Id>
-					<Name><![CDATA[getCarsToSend]]></Name>
-					<Description><![CDATA[Возващает список хэш-кодов вагонов, которые необходимо поставить на фронт
-//Создание задач для локомотива по заявкам]]></Description>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
-					<X>955</X><Y>2490</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[List<Integer> hashList = new ArrayList();
-for (RailCar car : getCarsOnPopsTracks()){//
-	if (car.status.equals("Ожидание отправки со станции")){
-		hashList.add(car.hashCode());
-	}
-}
-return hashList;]]></Body>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706016004692</Id>
 					<Name><![CDATA[fulfillRequests]]></Name>
-					<X>600</X><Y>2280</Y>
+					<X>600</X><Y>2350</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1480,7 +1500,7 @@ return hashList;]]></Body>
 					<Id>1706023532235</Id>
 					<Name><![CDATA[getRequestsToArrive]]></Name>
 					<Description><![CDATA[Функция возвращает заявки, которые должны войти в следующее прибытие состава]]></Description>
-					<X>600</X><Y>2300</Y>
+					<X>600</X><Y>2370</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1500,14 +1520,15 @@ return hashList;]]></Body>
 					<Body><![CDATA[План
 1. Прибытия составов на станцию по расписанию
 2. Сборка составов на станции
-3. Распределение задач на несколько локомотивов]]></Body>
+3. Распределение задач на несколько локомотивов
+4. Обработать конечное движение]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706281308026</Id>
 					<Name><![CDATA[createLocomotives]]></Name>
-					<X>220</X><Y>2140</Y>
+					<X>120</X><Y>2140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1526,7 +1547,8 @@ addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[setTime();// Установка времени начала эксперимента
+					<Body><![CDATA[pauseSimulation();
+setTime();// Установка времени начала эксперимента
 
 data.dataInitialization();// Инициализация данных справочников и файла "Исходные данные"
 
@@ -1555,7 +1577,7 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706284017341</Id>
 					<Name><![CDATA[makeTasksPickUpToFront]]></Name>
-					<X>930</X><Y>2350</Y>
+					<X>1000</X><Y>2350</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1621,7 +1643,7 @@ return tracksEdges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706691375841</Id>
 					<Name><![CDATA[makeTaskFormationToFront]]></Name>
-					<X>930</X><Y>2270</Y>
+					<X>1000</X><Y>2270</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1656,7 +1678,7 @@ if (tasks.size() > 0){
 					<Id>1706725674933</Id>
 					<Name><![CDATA[getTasksForSendToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>940</X><Y>2250</Y>
+					<X>1010</X><Y>2250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1705,7 +1727,8 @@ return tasks;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[setTasksForSendToFront();
-setTasksForPickUpToFront();]]></Body>
+setTasksForPickUpToFront();
+setTaskForArrive();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1713,7 +1736,7 @@ setTasksForPickUpToFront();]]></Body>
 					<Id>1706777546907</Id>
 					<Name><![CDATA[getRequestOnStationByFront]]></Name>
 					<Description><![CDATA[Возвращает список заявок, которые можно выполнить с помощью вагонов на станции]]></Description>
-					<X>600</X><Y>2340</Y>
+					<X>600</X><Y>2410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1724,8 +1747,8 @@ setTasksForPickUpToFront();]]></Body>
 					</Parameter>
 					<Body><![CDATA[List<Request> list = new ArrayList();
 Set<RailCar> cars = new HashSet();
-
-for (Request req : getActiveFrontRequest(numFront)){
+List<Request> activeList = getActiveFrontRequest(numFront);
+for (Request req : activeList){
 	//traceln("Смотрю заявку " + req);
 	for (RailCar car : getCarsOnPopsTracks()){
 		//traceln("Вагон подходит под отправку на фронт " + conditionForSendVagon(car, req));
@@ -1745,7 +1768,7 @@ return list;]]></Body>
 					<Id>1706786299609</Id>
 					<Name><![CDATA[conditionForSendVagon]]></Name>
 					<Description><![CDATA[Возвращает результат, подходит ли вагон к заявке]]></Description>
-					<X>600</X><Y>2460</Y>
+					<X>600</X><Y>2530</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1787,7 +1810,7 @@ return isMatch;]]></Body>
 					<Id>1706788558894</Id>
 					<Name><![CDATA[setTasksForSendToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>930</X><Y>2230</Y>
+					<X>1000</X><Y>2230</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1802,7 +1825,7 @@ return isMatch;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706788764300</Id>
 					<Name><![CDATA[addTaskSuper]]></Name>
-					<X>930</X><Y>2610</Y>
+					<X>1000</X><Y>2610</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1814,6 +1837,7 @@ return isMatch;]]></Body>
 					<Body><![CDATA[TaskAction task = add_taskAction();
 task.type = taskAction.type;
 task.front = taskAction.front;
+task.priority = taskAction.priority;
 enterTasksSuper.take(task);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1822,7 +1846,7 @@ enterTasksSuper.take(task);]]></Body>
 					<Id>1706874741711</Id>
 					<Name><![CDATA[getTasksForPickUpToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>940</X><Y>2330</Y>
+					<X>1010</X><Y>2330</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1842,7 +1866,7 @@ return tasks;]]></Body>
 					<Id>1706874741713</Id>
 					<Name><![CDATA[setTasksForPickUpToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>930</X><Y>2310</Y>
+					<X>1000</X><Y>2310</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1858,15 +1882,15 @@ return tasks;]]></Body>
 					<Id>1707131867474</Id>
 					<Name><![CDATA[getRequestOnStation]]></Name>
 					<Description><![CDATA[Возвращает список заявок, которые можно выполнить с помощью вагонов на станции]]></Description>
-					<X>600</X><Y>2320</Y>
+					<X>600</X><Y>2390</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> list = new ArrayList();
 Set<RailCar> cars = new HashSet();
-
-for (Request req : getActiveRequests()){
+List<Request> activeList = getActiveRequests();
+for (Request req : activeList){
 	//traceln("Смотрю заявку " + req);
 	for (RailCar car : getCarsOnPopsTracks()){
 		//traceln("Вагон подходит под отправку на фронт " + conditionForSendVagon(car, req));
@@ -1885,7 +1909,7 @@ return list;]]></Body>
 					<ReturnType><![CDATA[List<Request>]]></ReturnType>
 					<Id>1707225645066</Id>
 					<Name><![CDATA[findRequestsForVagonOffset]]></Name>
-					<X>600</X><Y>2370</Y>
+					<X>600</X><Y>2440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1899,7 +1923,8 @@ return list;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[List<Request> requests = new ArrayList();
-for (Request req : getActiveRequests()){
+List<Request> activeList = getActiveRequests();
+for (Request req : activeList){
 	if (conditionForSendVagon(car, req, status)){
 		requests.add(req);
 	}
@@ -1934,14 +1959,15 @@ return edge;]]></Body>
 					<Id>1707229926140</Id>
 					<Name><![CDATA[getActiveRequestsByParams]]></Name>
 					<Description><![CDATA[Функция возвращает все активные заявки до текущей даты, которые не поставлены на грузовой фронт]]></Description>
-					<X>725</X><Y>2240</Y>
+					<X>600</X><Y>2280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> list = new ArrayList();
+Date date = getTimeWithOffset();
 for (Request req : data.requestsCollection){
-	if (getTimeWithOffset().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
+	if (date.getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
 		list.add(req);
 	}
 }
@@ -1973,7 +1999,7 @@ return modelDate;]]></Body>
 					<ReturnType><![CDATA[List<Request>]]></ReturnType>
 					<Id>1707230841453</Id>
 					<Name><![CDATA[findRequestForVagon]]></Name>
-					<X>600</X><Y>2390</Y>
+					<X>600</X><Y>2460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1993,6 +2019,68 @@ for (Request req : getActiveRequestsByParams()){
 	}
 }
 return requests;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707313799937</Id>
+					<Name><![CDATA[findTrackForArrive]]></Name>
+					<X>-320</X><Y>1940</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707315679325</Id>
+					<Name><![CDATA[setTaskForArrive]]></Name>
+					<X>1000</X><Y>2390</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int cntEmptyTrack = (int)getPopsTracksEdges().stream().filter(p-> p.getSelf().isEmpty()).count();
+int offsetTime = data.useStationLocoForArrive ? 2 : 1;
+offsetTime = cntEmptyTrack > 1 ? offsetTime : 2;
+for (TrainArrival arrival : data.arrivalsCollection){
+	if (!data.arrivalsDone.contains(arrival) // если дата по расписанию не была
+		&& getModelTime().getTime() <= arrival.getDate().getTime() + offsetTime // если дата прибытия через 2 часа от текущей даты
+			&& arrival.getDate().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 2 часа от текущей даты
+		data.arrivalsDone.add(arrival);
+		
+		TaskAction task = new TaskAction();
+		task.type = "Прибытие";
+		task.priority = 1000;
+		task.trainArrival = arrival;
+		addTaskSuper(task);
+		break;
+	}
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707320181132</Id>
+					<Name><![CDATA[makeTaskForArrive]]></Name>
+					<X>1010</X><Y>2410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
+RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
+List<RailCar> train = TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco);
+train.add(0,loco);
+boolean withLoco = data.useStationLocoForArrive;
+traceln("Размер состава " + train.size());
+if (cntEmptyTrack < 2){
+	addTask("Расчистка", track6, trackArrive.getSelf(), train, withLoco);
+}
+addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
+activeSuperTasks++;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -3537,6 +3625,7 @@ if (queueTasksAction.size() == 0 && activeTasks == 0 && activeSuperTasks > 0 && 
 traceln(purple, "Проверяю задачу с типом " + agent.type);
 switch(agent.type){
 	case "Прибытие" :
+		makeTaskForArrive();
 		break;
 	case "Отправка на фронт" :
 		traceln(black, "Составляем задачи отправки на фронт " + ((TaskAction)agent).front.getName());
@@ -8208,8 +8297,8 @@ logic.enterStart.take(agent);]]></Code>
 					<LineColor>-16777216</LineColor>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>300</Width>
-					<Height>300</Height>
+					<Width>370</Width>
+					<Height>410</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -8275,7 +8364,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineColor>-16777216</LineColor>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>310</Width>
+					<Width>350</Width>
 					<Height>170</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
@@ -8371,7 +8460,7 @@ logic.enterStart.take(agent);]]></Code>
 				<RoundedRectangle>
 					<Id>1705390952571</Id>
 					<Name><![CDATA[roundRectangle23]]></Name>
-					<X>900</X><Y>2190</Y>
+					<X>970</X><Y>2190</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8394,7 +8483,7 @@ logic.enterStart.take(agent);]]></Code>
 				<Text>
 					<Id>1705390952573</Id>
 					<Name><![CDATA[text40]]></Name>
-					<X>1050</X><Y>2200</Y>
+					<X>1120</X><Y>2200</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -8426,7 +8515,21 @@ logic.enterStart.take(agent);]]></Code>
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<TextColor/>
 						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[addTask("Прибытие состава на станцию", track6, track3p2, TaskAction.getRandomCars(20, true, data.railCarsCollection), true);]]></ActionCode>
+						<ActionCode><![CDATA[RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
+List<RailCar> cars = TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco);//new ArrayList();//
+//cars.add(loco);
+TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco);
+cars.add(0,loco);
+cars.forEach(p-> {
+	RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
+	if (copyCar != null){
+		p.length = copyCar.length;
+		p.dateArrive = getModelTime();
+	}
+});
+//cars.forEach(p-> p.setStatus());
+addTask("Прибытие состава на станцию", track6, track3p2, cars, true);
+activeSuperTasks++;]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
@@ -10522,6 +10625,40 @@ public String toString(){
 						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
 					</Properties>	
 				</StatechartElement>
+				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
+					<Id>1707389439867</Id>
+					<Name><![CDATA[transition14]]></Name>
+					<X>1150</X><Y>525</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>0</X><Y>135</Y></Point>
+						<Point><X>-500</X><Y>135</Y></Point>
+						<Point><X>-500</X><Y>-335</Y></Point>
+						<Point><X>-400</X><Y>-335</Y></Point>
+						<Point><X>-400</X><Y>-395</Y></Point>
+					</Points>
+					<IconOffset>20.0</IconOffset>
+					<Properties Source="1707210464390" Target="1707207018447" Trigger="timeout">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Condition><![CDATA[finalStatus.equals("Не технологическое ожидание")]]></Condition>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<MessageType><![CDATA[Object]]></MessageType>
+						<DefaultTransition>false</DefaultTransition>
+						<FilterType><![CDATA[unconditionally]]></FilterType>
+						<EqualsExpression><![CDATA["text"]]></EqualsExpression>
+						<SatisfiesExpression><![CDATA[true]]></SatisfiesExpression>
+					</Properties>	
+				</StatechartElement>
 			</StatechartElements>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -10649,7 +10786,8 @@ return myTrain;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[String trackName = getTrack().getName();
+					<Body><![CDATA[// TODO привязать количество кранов к грузовым фронта
+String trackName = getTrack().getName();
 double delay = 0;
 traceln("Путь, на котором возвращаю задержку " + trackName);
 switch(trackName){
@@ -10770,7 +10908,7 @@ else {
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[Color color = white;
-if (!type.equals("Локомотив")){
+if (!type.equals("Локомотив") && status != null){
 	switch(status){
 		case "Ожидание отправки на грузовой фронт" :
 			color = cyan;
@@ -12546,7 +12684,7 @@ if (currTrack.equals(endTrack()) // если текущий целевой пу�
 		&& !logic.currentTask.getType().equals("Движение в цех")){ // есди задача не движение в цех
 	if (endTrack().getTrains().size() > 1 && logic.superTask.front == null){// если на конечном пути больше 1 состава
 		offset = 0;
-		//traceln(black, "Смещение выбрано по 1 " + offset);
+		traceln(black, "Смещение выбрано по 1 " + offset);
 	}
 	else if (endTrack().getTrains().size() > 1 && logic.superTask.front != null){
 		if (logic.superTask.front.getCarsOnFront().size() < 1){
@@ -12556,11 +12694,11 @@ if (currTrack.equals(endTrack()) // если текущий целевой пу�
 	else{
 		if (((Train)endTrack().getTrains().get(0)).equals(train)){// если состав на конечном пути соответствует 
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			//traceln(black, "Смещение выбрано по 2 " + offset);
+			traceln(black, "Смещение выбрано по 2 " + offset);
 		}
 		else{
 			offset = 0;
-			//traceln(black, "Смещение выбрано по 3 " + offset);
+			traceln(black, "Смещение выбрано по 3 " + offset);
 		}
 	}
 }
@@ -12569,21 +12707,21 @@ else if (currTrack.equals(endTrack()) // если текущий целевой 
 				&& endTrack().length(METER) > (train.getLength(METER) - koef)){ // если длина конечного пути больше длины состава - коэффициент смещения
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Смещение выбрано по 4 " + offset);
+		traceln(black, "Смещение выбрано по 4 " + offset);
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else if(currTrack.equals(endTrack()) && logic.currentTask.getType().equals("Движение в цех")){
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Я вырал тот что нужно " + needOffset());
+		traceln(black, "Я вырал тот что нужно " + needOffset());
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else{
@@ -12593,7 +12731,7 @@ else{
 	if (route.getRouteSwitches().get(currTrack) != route.getRouteSwitches().get(nextTrack) // если стрелка текущего пути не равна стрелке следующего пути 
 		&& currTrack.length(METER) >= (train.getLength(METER) + koef)){ // если длина текущего пути больше длины состава 
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 6 " + offset);
+		traceln(black, "Смещение выбрано по 6 " + offset);
 	}
 }
 //traceln(red, "А я использую офсет " + offset);
@@ -12998,10 +13136,10 @@ route = null;]]></Code>
 	trainMoveTo.setSpeed(speedsOnTracks(agent.size()).get(agent.getTrack(true)), KPH);
 //}
 boolean isEnd = route.getRouteSwitches().get(route.getUsedTracks().get(cntRoute));
-//traceln("Смещение от " + (isEnd ? "начала пути" : "конца пути"));
-//traceln(red, "Смещение: " + getOffset(train) + " на путь " + route.getUsedTracks().get(cntRoute).getName());
-//traceln("У TrainMoveTo направление движения: " + trainMoveTo.forward);
-//traceln(red, "Смещение: " + getOffset(train));
+traceln("Смещение от " + (isEnd ? "начала пути" : "конца пути"));
+traceln(red, "Смещение: " + getOffset(train) + " на путь " + route.getUsedTracks().get(cntRoute).getName());
+traceln("У TrainMoveTo направление движения: " + trainMoveTo.forward);
+traceln(red, "Смещение: " + getOffset(train));
 ]]></Code>
 							</Value>
 						</Parameter>
@@ -13449,7 +13587,7 @@ route = null;]]></Code>
 				<Connector>
 					<Id>1707243700981</Id>
 					<Name><![CDATA[connector1]]></Name>
-					<X>0</X><Y>0</Y>
+					<X>455</X><Y>280</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -13464,45 +13602,12 @@ route = null;]]></Code>
 						<ClassName><![CDATA[TrainSource]]></ClassName>
 						<ItemName><![CDATA[out]]></ItemName>
 					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[SourceStation]]></ClassName>
-						<ItemName><![CDATA[delay]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Delay]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>455</X><Y>280</Y></Point>
-						<Point><X>500</X><Y>280</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
-					<Id>1707243700983</Id>
-					<Name><![CDATA[connector2]]></Name>
-					<X>0</X><Y>0</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[SourceStation]]></ClassName>
-						<ItemName><![CDATA[delay]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Delay]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</SourceConnectableItemReference>
 					<TargetId>1701695683392</TargetId>
 					<Points>
-						<Point><X>540</X><Y>280</Y></Point>
-						<Point><X>550</X><Y>280</Y></Point>
-						<Point><X>550</X><Y>120</Y></Point>
-						<Point><X>470</X><Y>120</Y></Point>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>95</X><Y>0</Y></Point>
+						<Point><X>95</X><Y>-160</Y></Point>
+						<Point><X>15</X><Y>-160</Y></Point>
 					</Points>
 				</Connector>
 			</Connectors>
@@ -13939,112 +14044,6 @@ cnt++;]]></Code>
 								<Code><![CDATA[//traceln("На путь " + trackSource().getName() + " нужно с локомотивом " + cars().size() + " вагонов");
 sourceStation.inject();]]></Code>
 							</Value>
-						</Parameter>
-					</Parameters>
-					<ReplicationFlag>false</ReplicationFlag>
-					<Replication Class="CodeValue">
-						<Code><![CDATA[100]]></Code>
-					</Replication>
-					<CollectionType>ARRAY_LIST_BASED</CollectionType>
-					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
-					<XCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</XCode>
-					<YCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</YCode>
-					<ZCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</ZCode>
-					<ColumnCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</ColumnCode>
-					<RowCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</RowCode>
-					<LatitudeCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</LatitudeCode>
-					<LongitudeCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</LongitudeCode>
-					<LocationNameCode Class="CodeValue">
-						<Code><![CDATA[""]]></Code>
-					</LocationNameCode>
-					<InitializationType>SPECIFIED_NUMBER</InitializationType>
-					<InitializationDatabaseTableQuery>
-						<TableReference>
-						</TableReference>
-					</InitializationDatabaseTableQuery>
-					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
-					<QuantityColumn>
-					</QuantityColumn>
-				</EmbeddedObject>
-				<EmbeddedObject>
-					<Id>1707243699701</Id>
-					<Name><![CDATA[delay]]></Name>
-					<X>500</X><Y>260</Y>
-					<Label><X>-5</X><Y>-15</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<ActiveObjectClass>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Delay]]></ClassName>
-					</ActiveObjectClass>
-					<GenericParameterSubstitute>
-						<GenericParameterSubstituteReference>
-							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-							<ClassName><![CDATA[Delay]]></ClassName>
-							<ItemName><![CDATA[1412336242930]]></ItemName>
-						</GenericParameterSubstituteReference>
-					</GenericParameterSubstitute>
-					<Parameters>
-						<Parameter>
-							<Name><![CDATA[type]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[delayTime]]></Name>
-							<Value Class="CodeUnitValue">
-								<Code><![CDATA[0]]></Code>
-								<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
-							</Value>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[capacity]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[maximumCapacity]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[true]]></Code>
-							</Value>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[entityLocation]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[pushProtocol]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[forceStatisticsCollection]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onEnter]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[//agent.getCars().forEach(p->p.setStatus(main.getPopsTracksEdges()));]]></Code>
-							</Value>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onAtExit]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onExit]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onRemove]]></Name>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -14744,6 +14743,51 @@ sourceStation.inject();]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707317674557</Id>
+					<Name><![CDATA[useStationLocoForArrive]]></Name>
+					<X>2240</X><Y>-410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707383647603</Id>
+					<Name><![CDATA[TKOSwitchesInFreeTime]]></Name>
+					<X>2240</X><Y>-380</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707387033887</Id>
+					<Name><![CDATA[useStayTime]]></Name>
+					<X>2240</X><Y>-350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[true]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1701703496676</Id>
 					<Name><![CDATA[railCarsCollection]]></Name>
@@ -14939,6 +14983,51 @@ sourceStation.inject();]]></Code>
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1707315710335</Id>
+					<Name><![CDATA[arrivalsDone]]></Name>
+					<X>340</X><Y>490</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[TrainArrival]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1707320884653</Id>
+					<Name><![CDATA[locosInStation]]></Name>
+					<X>2480</X><Y>-440</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailCar]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1707320909264</Id>
+					<Name><![CDATA[locosService]]></Name>
+					<X>2480</X><Y>-410</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailCar]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -14964,6 +15053,8 @@ while(railCars.cellExists(list, row, 1)){
 	double maxWeightForSend = railCars.getCellNumericValue(list, row, 7);
 	double maxWeightForArrive = railCars.getCellNumericValue(list, row, 8);
 	RailCar car = new RailCar(type, model, productType, length, weigthSelf, (maxWeight - weigthSelf));
+	car.maxWeightForSend = maxWeightForSend;
+	car.maxWeightForArrive = maxWeightForArrive;
 	railCarsCollection.add(car);
 	row++;
 }
@@ -15196,7 +15287,8 @@ while(file.cellExists(list, row, 1)){
 	String status = file.getCellStringValue(list, row, 11);
 	Date changeStatus = file.cellExists(list, row, 12) ? file.getCellDateValue(list, row, 12) : null;
 	String typeOwner = file.getCellStringValue(list, row, 13);
-	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight, status, changeStatus, typeOwner);
+	String model = file.getCellStringValue(list, row, 14);
+	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight, status, changeStatus, typeOwner, model);
 	requestsCollection.add(req);
 	row++;
 }
@@ -15419,11 +15511,13 @@ int cntVagons = (int)file.getCellNumericValue(list, row, 2);
 String typeVagon = file.getCellStringValue(list, row, 3);
 String typeVProduct = file.getCellStringValue(list, row, 4);
 int time = (int)file.getCellNumericValue(list, row, 5);
+int change = (int)file.getCellNumericValue(list, row, 6);
 for (Request req : requestsCollection){
 	if (req.getNumFront().equals(track) 
 		&& req.getTypeVagon().equals(typeVagon)
 			&& req.getTypeProduct().equals(typeVProduct)
-				&& req.getWeight() > 0){
+				&& req.getWeight() > 0
+					&& req.getChange() == change){
 		contactRequests.add(req);
 	}
 }
@@ -15431,43 +15525,21 @@ file.close();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
-					<ReturnType><![CDATA[Map<RailwayTrack, Double>]]></ReturnType>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
 					<Id>1707294496325</Id>
-					<Name><![CDATA[getSpeed1]]></Name>
-					<X>660</X><Y>430</Y>
+					<Name><![CDATA[getContactRequestForNow]]></Name>
+					<X>630</X><Y>430</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Parameter>
-						<Name><![CDATA[cntVagon]]></Name>
-						<Type><![CDATA[int]]></Type>
-					</Parameter>
-					<Parameter>
-						<Name><![CDATA[typeTask]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Body><![CDATA[Map<RailwayTrack, String> map = null;
-Map<RailwayTrack, Double> mapSpeed = new HashMap();
-if (cntVagon > 1){
-	map = railwayPathsCollection.stream()
-      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeed, (a1, a2) -> a1));
-    if (typeTask.equals("Прибытие состава на станцию") 
-    	|| typeTask.equals("Прибытие состава на станцию solo") 
-    		|| typeTask.equals("Отправка состава со станции solo") 
-    			|| typeTask.equals("Отправка состава со станции")){
-    	map = railwayPathsCollection.stream()
-      		.collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSpeedAlt, (a1, a2) -> a1));
-    }
+					<Body><![CDATA[List<Request> list = new ArrayList();
+for (Request req : contactRequests){
+	if (main.getModelTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
+		list.add(req);
+	}
 }
-else{
-	map = railwayPathsCollection.stream()
-      .collect(Collectors.toMap(TrackEdge::getSelf, TrackEdge::getSoloSpeed, (a1, a2) -> a1));
-}
-for (Map.Entry<RailwayTrack, String> copyMap : map.entrySet()){
-	mapSpeed.put(copyMap.getKey(), speedsMap.get(copyMap.getValue()));
-}
-return mapSpeed;]]></Body>
+return list;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -15489,6 +15561,89 @@ if (copyCar != null){
 	maxWeight = copyCar.weightProduct;
 }
 return maxWeight;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707320946913</Id>
+					<Name><![CDATA[mainParamsInit]]></Name>
+					<X>500</X><Y>-50</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1707321915112</Id>
+					<Name><![CDATA[addLocoOnStation]]></Name>
+					<Description><![CDATA[Добавляет локомотив по выбранной модели]]></Description>
+					<X>80</X><Y>620</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[model]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[locosInStation.add(railCarsCollection.stream().filter(p-> p.type.equals("Локомотив") && p.model.equals(model)).findFirst().orElse(null));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1707379146856</Id>
+					<Name><![CDATA[addLocoForService]]></Name>
+					<Description><![CDATA[Добавляет локомотив по выбранной модели]]></Description>
+					<X>80</X><Y>650</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[model]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[locosService.add(railCarsCollection.stream().filter(p-> p.type.equals("Локомотив") && p.model.equals(model)).findFirst().orElse(null));]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<RailCar>]]></ReturnType>
+					<Id>1707398914033</Id>
+					<Name><![CDATA[getAllLocos]]></Name>
+					<X>80</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<RailCar> cars = new ArrayList();
+cars.addAll(locosInStation);
+cars.addAll(locosService);
+return cars;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1707399448495</Id>
+					<Name><![CDATA[getRespLocos]]></Name>
+					<X>80</X><Y>710</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[car]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Body><![CDATA[String resp = "Безответственный";
+if (locosInStation.contains(car)){
+	resp = "Станция";
+}
+else{
+	resp = "Приездной";
+}
+return resp;]]></Body>
 				</Function>
 			</Functions>
 			<Connectivity>
@@ -15801,7 +15956,7 @@ return maxWeight;]]></Body>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Инициализация]]></Text>
+					<Text><![CDATA[Функции]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>22</Size>
@@ -16042,6 +16197,18 @@ public String toString(){
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1707320787692</Id>
+					<Name><![CDATA[trainArrival]]></Name>
+					<X>580</X><Y>160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[TrainArrival]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1703139102821</Id>
 					<Name><![CDATA[startTrack]]></Name>
@@ -16164,7 +16331,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 	RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(simpleTask, nextTask, i, cntCouple, cntDecouple, task.listTask);// конечный путь для задачи
 	RailwayTrack curStartTrack = newListTasks.isEmpty() ? null : getNextStartTrack(previousTask, nextTask); // начальный путь для задачи
 	RailwayTrack trackForOffst = curEndTrack == null ? null : curEndTrack;
-	
+	traceln("Выбрал конечный путь для задачи " + curEndTrack.getName());
 	Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
 	switch (simpleTask.getType()){
 		case "Создание" :
@@ -16315,10 +16482,9 @@ else if (currTask.getType().equals("Сцепка")
 	&& cntCouple == 0){
 	long j = tasks.stream().filter(p-> p.getType().equals("Сцепка")).count();
 	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
-		|| type.equals("Полрейс формирования всех вагонов с пути на пустой путь") 
+		|| type.equals("Полурейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
 				|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
-				//|| type.equals("Полрейс формирования всех вагонов с пути")
 		nextTrack = startTrack;
 	}
 	else{
@@ -16585,7 +16751,7 @@ Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0
 if (cntCouple == 0){
 	long j = tasks.stream().filter(p-> p.getType().equals("Сцепка")).count();
 	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
-		|| type.equals("Полрейс формирования всех вагонов с пути на пустой путь") 
+		|| type.equals("Полурейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
 				|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
 		curEndTrack = startTrack;
@@ -16886,7 +17052,9 @@ import java.util.Date;]]></Import>
 					<Body><![CDATA[locomotives.addAll(main.data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).collect(Collectors.toList()));
 products.addAll(main.data.productsCollection);
 tracks.addAll(main.getTracksEdges());
-switches.addAll(main.railwayNetwork.getSwitches());]]></Body>
+switches.addAll(main.railwayNetwork.getSwitches());
+String[] mass = main.data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).map(mod -> mod.model).collect(Collectors.toList()).toArray(new String[4]);
+combobox.setItems(mass);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -16949,6 +17117,228 @@ return date;]]></Body>
 					</ActiveObjectClass>
 				</ContainerLink>
 			</ContainerLinks>
+			<EmbeddedObjects>
+				<EmbeddedObject>
+					<Id>1707379357465</Id>
+					<Name><![CDATA[switchApp1]]></Name>
+					<X>1130</X><Y>160</Y>
+					<Label><X>-40</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<PresentationId>1707379358045</PresentationId>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SwitchApp]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[SwitchApp]]></ClassName>
+							<ItemName><![CDATA[1707379259213]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[action]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.useStationLocoForArrive = !main.data.useStationLocoForArrive;]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[startParams]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.useStationLocoForArrive]]></Code>
+							</Value>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1707383595301</Id>
+					<Name><![CDATA[switchApp2]]></Name>
+					<X>1130</X><Y>220</Y>
+					<Label><X>-40</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SwitchApp]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[SwitchApp]]></ClassName>
+							<ItemName><![CDATA[1707379259213]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[action]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.TKOSwitchesInFreeTime = !main.data.TKOSwitchesInFreeTime;]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[startParams]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.TKOSwitchesInFreeTime]]></Code>
+							</Value>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1707386911300</Id>
+					<Name><![CDATA[switchApp3]]></Name>
+					<X>1130</X><Y>295</Y>
+					<Label><X>-40</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SwitchApp]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[SwitchApp]]></ClassName>
+							<ItemName><![CDATA[1707379259213]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[action]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.useStayTime = !main.data.useStayTime;]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[startParams]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.useStayTime]]></Code>
+							</Value>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+			</EmbeddedObjects>
 
 			<Presentation>
 				<Level>
@@ -28152,7 +28542,7 @@ else{
 				<Text>
 					<Id>1706023563593</Id>
 					<Name><![CDATA[text14]]></Name>
-					<X>710</X><Y>190</Y>
+					<X>710</X><Y>170</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -28162,7 +28552,7 @@ else{
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Какой локомотив будет работать на отправку и прибытие составов]]></Text>
+					<Text><![CDATA[Станционный локомотив работает на отправку и прибытие]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -28173,7 +28563,7 @@ else{
 				<Text>
 					<Id>1706024146252</Id>
 					<Name><![CDATA[text18]]></Name>
-					<X>710</X><Y>310</Y>
+					<X>710</X><Y>380</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -28183,7 +28573,7 @@ else{
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Путь]]></Text>
+					<Text><![CDATA[Модел  локомотива]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -28194,7 +28584,7 @@ else{
 				<Text>
 					<Id>1706024182459</Id>
 					<Name><![CDATA[text26]]></Name>
-					<X>710</X><Y>280</Y>
+					<X>710</X><Y>350</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -28216,13 +28606,13 @@ else{
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
 					<Id>1706024202282</Id>
 					<Name><![CDATA[combobox]]></Name>
-					<X>770</X><Y>310</Y>
+					<X>840</X><Y>380</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="20">
+					<BasicProperties Width="160" Height="20">
                         <EmbeddedIcon>false</EmbeddedIcon>	
 						<FillColor/>
 						<TextColor/>
@@ -28237,7 +28627,7 @@ else{
 				<Text>
 					<Id>1706024213993</Id>
 					<Name><![CDATA[text27]]></Name>
-					<X>980</X><Y>280</Y>
+					<X>710</X><Y>420</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -28247,7 +28637,47 @@ else{
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Поставленные локомотивы:]]></Text>
+					<Text><![CDATA[Выбранные локомотивы:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<EmbeddedObjectPresentation>
+					<Id>1707379358045</Id>
+					<Name><![CDATA[switchApp1_presentation]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<DrawingMode>AGENT_CURRENT_POSITION</DrawingMode>
+					<ScaleType>AUTOMATICALLY_CALCULATED</ScaleType>
+					<GISScaleForRealEmbeddedObjectPresentationSize>1000</GISScaleForRealEmbeddedObjectPresentationSize>
+					<GISScaleForFixedEmbeddedObjectPresentationSize>1000000000</GISScaleForFixedEmbeddedObjectPresentationSize>
+					<Latitude>0.0</Latitude>
+					<Longitude>0.0</Longitude>
+				</EmbeddedObjectPresentation>
+				<Text>
+					<Id>1707383595297</Id>
+					<Name><![CDATA[text41]]></Name>
+					<X>710</X><Y>230</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Производить обслуживание стрелок когда нет задач]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -28256,9 +28686,9 @@ else{
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<Text>
-					<Id>1706024219446</Id>
-					<Name><![CDATA[text34]]></Name>
-					<X>1160</X><Y>300</Y>
+					<Id>1707386911296</Id>
+					<Name><![CDATA[text42]]></Name>
+					<X>710</X><Y>290</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -28268,18 +28698,524 @@ else{
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Постановка локомотивов:]]></Text>
+					<Text><![CDATA[Приоритет вагонов на отправку с наибольшим временем
+пребывания на станции]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
+				</Text>
+				<Group>
+					<Id>1707395442578</Id>
+					<Name><![CDATA[actionButton38]]></Name>
+					<X>1060.333</X><Y>396.333</Y>
+					<Label><X>7.516</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<OnClickCode><![CDATA[main.data.addLocoOnStation(combobox.getValue());]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<RoundedRectangle>
+					<Id>1707395442580</Id>
+					<Name><![CDATA[roundRectangle44]]></Name>
+					<X>-45.093</X><Y>-21.951</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>120.248</Width>
+					<Height>29.268</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-8355712</FillColor>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>20</ArcRadius>
+				</RoundedRectangle>
+				<Text>
+					<Id>1707395442582</Id>
+					<Name><![CDATA[text314]]></Name>
+					<X>15</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Станция]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>16</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1707395476080</Id>
+					<Name><![CDATA[actionButton39]]></Name>
+					<X>1186.334</X><Y>395.666</Y>
+					<Label><X>7.516</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<OnClickCode><![CDATA[main.data.addLocoForService(combobox.getValue());]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<RoundedRectangle>
+					<Id>1707395476082</Id>
+					<Name><![CDATA[roundRectangle45]]></Name>
+					<X>-45.093</X><Y>-21.951</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>120.248</Width>
+					<Height>29.268</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-8355712</FillColor>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>20</ArcRadius>
+				</RoundedRectangle>
+				<Text>
+					<Id>1707395476084</Id>
+					<Name><![CDATA[text328]]></Name>
+					<X>15</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Приездной]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>16</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1707398544468</Id>
+					<Name><![CDATA[actionButton40]]></Name>
+					<X>760</X><Y>700</Y>
+					<Label><X>7.516</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<OnClickCode><![CDATA[main.data.addLocoForService(combobox.getValue());]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<RoundedRectangle>
+					<Id>1707398544470</Id>
+					<Name><![CDATA[roundRectangle46]]></Name>
+					<X>-45.093</X><Y>-21.951</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>120.248</Width>
+					<Height>29.268</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-8355712</FillColor>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>20</ArcRadius>
+				</RoundedRectangle>
+				<Text>
+					<Id>1707398544472</Id>
+					<Name><![CDATA[text329]]></Name>
+					<X>15</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Приездной]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>16</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1707399227696</Id>
+					<Name><![CDATA[group2]]></Name>
+					<X>921</X><Y>485</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Group>
+					<Id>1707399010096</Id>
+					<Name><![CDATA[group]]></Name>
+					<X>5</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<YCode><![CDATA[10 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.getAllLocos().size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Line>
+					<Id>1707398753648</Id>
+					<Name><![CDATA[line132]]></Name>
+					<X>-215</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398772645</Id>
+					<Name><![CDATA[line133]]></Name>
+					<X>-215</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>425</Dx>
+					<Dy>0</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398781992</Id>
+					<Name><![CDATA[line134]]></Name>
+					<X>210</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398890721</Id>
+					<Name><![CDATA[line135]]></Name>
+					<X>-125</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398898592</Id>
+					<Name><![CDATA[line136]]></Name>
+					<X>-25</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398901719</Id>
+					<Name><![CDATA[line137]]></Name>
+					<X>78</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+			</Presentation>
+
+				</Group>
+				<Text>
+					<Id>1707399036325</Id>
+					<Name><![CDATA[text45]]></Name>
+					<X>-165</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[0 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.getAllLocos().size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Модель]]></Text>
+					<TextCode><![CDATA[main.data.getAllLocos().get(index).model]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1707399048192</Id>
+					<Name><![CDATA[text67]]></Name>
+					<X>-70</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[0 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.getAllLocos().size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Макс. масса]]></Text>
+					<TextCode><![CDATA[main.data.getAllLocos().get(index).maxWeightForSend]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1707399064644</Id>
+					<Name><![CDATA[text68]]></Name>
+					<X>30</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[0 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.getAllLocos().size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Макс. масса]]></Text>
+					<TextCode><![CDATA[main.data.getAllLocos().get(index).maxWeightForArrive]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1707399115956</Id>
+					<Name><![CDATA[text69]]></Name>
+					<X>150</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[0 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.getAllLocos().size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Макс. масса]]></Text>
+					<TextCode><![CDATA[main.data.getRespLocos(main.data.getAllLocos().get(index))]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Group>
+					<Id>1707399211664</Id>
+					<Name><![CDATA[group1]]></Name>
+					<X>5</X><Y>-20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Text>
+					<Id>1706024219446</Id>
+					<Name><![CDATA[text34]]></Name>
+					<X>-75</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Макс. масса
+на отправку, т]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
 				</Text>
 				<Text>
 					<Id>1706024220819</Id>
 					<Name><![CDATA[text40]]></Name>
-					<X>980</X><Y>300</Y>
+					<X>-170</X><Y>-20</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -28289,14 +29225,232 @@ else{
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Постановка локомотивов:]]></Text>
+					<Text><![CDATA[Модель
+локомотива]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>CENTER</Alignment>
 				</Text>
+				<Text>
+					<Id>1707398615626</Id>
+					<Name><![CDATA[text43]]></Name>
+					<X>25</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Макс. масса
+на прибытие, т]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1707398629433</Id>
+					<Name><![CDATA[text44]]></Name>
+					<X>145</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Ответственность]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Line>
+					<Id>1707398697396</Id>
+					<Name><![CDATA[line125]]></Name>
+					<X>-215</X><Y>-20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>425</Dx>
+					<Dy>0</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398706429</Id>
+					<Name><![CDATA[line126]]></Name>
+					<X>-215</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-40</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398712630</Id>
+					<Name><![CDATA[line127]]></Name>
+					<X>-215</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>425</Dx>
+					<Dy>0</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398719377</Id>
+					<Name><![CDATA[line128]]></Name>
+					<X>210</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-40</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398728814</Id>
+					<Name><![CDATA[line129]]></Name>
+					<X>78</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-40</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398732969</Id>
+					<Name><![CDATA[line130]]></Name>
+					<X>-25</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-40</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1707398735638</Id>
+					<Name><![CDATA[line131]]></Name>
+					<X>-125</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-40</Dy>
+					<Dz>0</Dz>
+				</Line>
+			</Presentation>
+
+				</Group>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Level>
@@ -32407,8 +33561,8 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 	}
 	else{
 		if (currentTask.getStartTrack().getTrains().size() > 1){
-			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
-			//traceln("Количество составов " + currentTask.getStartTrack().getTrains().size());
+			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
+			traceln("Количество составов " + currentTask.getStartTrack().getTrains().size());
 			for (Agent train1 : currentTask.getStartTrack().getTrains()){
 				if (((Train)train1).getCars().stream().anyMatch(p-> p.type.equals("Локомотив"))){
 					train = ((Train)train1);
@@ -32420,7 +33574,7 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 			train = (Train)currentTask.getEndTrack().getTrains().get(0);
 		}
 		else{
-			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
+			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
 			train = (Train)currentTask.getStartTrack().getTrains().get(0);
 		}
 	}
@@ -39184,6 +40338,298 @@ traceln(yellow, "=========================");]]></Code>
 			</Presentation>
 
 		</ActiveObjectClass>
+		<!--   =========   Active Object Class   ========  -->
+		<ActiveObjectClass>
+			<Id>1707379259207</Id>
+			<Name><![CDATA[SwitchApp]]></Name>
+			<Generic>false</Generic>
+			<GenericParameter>
+				<Id>1707379259213</Id>
+				<Name><![CDATA[1707379259213]]></Name>
+				<GenericParameterValue Class="CodeValue">
+					<Code><![CDATA[T extends Agent]]></Code>
+				</GenericParameterValue>
+				<GenericParameterLabel><![CDATA[Параметр настройки:]]></GenericParameterLabel>
+			</GenericParameter>
+			<FlowChartsUsage>ENTITY</FlowChartsUsage>
+			<SamplesToKeep>100</SamplesToKeep>
+			<LimitNumberOfArrayElements>false</LimitNumberOfArrayElements>
+			<ElementsLimitValue>100</ElementsLimitValue>
+			<MakeDefaultViewArea>true</MakeDefaultViewArea>
+			<SceneGridColor/>
+			<SceneBackgroundColor/>
+			<SceneSkybox>null</SceneSkybox>
+			<AgentProperties>
+				<EnvironmentDefinesInitialLocation>true</EnvironmentDefinesInitialLocation>
+				<RotateAnimationTowardsMovement>true</RotateAnimationTowardsMovement>
+				<RotateAnimationVertically>false</RotateAnimationVertically>
+				<VelocityCode Class="CodeUnitValue">
+					<Code><![CDATA[10]]></Code>
+					<Unit Class="SpeedUnits"><![CDATA[MPS]]></Unit>
+				</VelocityCode>
+				<PhysicalLength Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalLength>
+				<PhysicalWidth Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalWidth>
+				<PhysicalHeight Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalHeight>
+			</AgentProperties>
+			<EnvironmentProperties>
+					<EnableSteps>false</EnableSteps>
+					<StepDurationCode Class="CodeUnitValue">
+						<Code><![CDATA[1.0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</StepDurationCode>
+					<SpaceType>CONTINUOUS</SpaceType>
+					<WidthCode><![CDATA[500]]></WidthCode>
+					<HeightCode><![CDATA[500]]></HeightCode>
+					<ZHeightCode><![CDATA[0]]></ZHeightCode>
+					<ColumnsCountCode><![CDATA[100]]></ColumnsCountCode>
+					<RowsCountCode><![CDATA[100]]></RowsCountCode>
+					<NeigborhoodType>MOORE</NeigborhoodType>
+					<LayoutType>USER_DEF</LayoutType>
+					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
+					<NetworkType>USER_DEF</NetworkType>
+					<NetworkTypeApplyOnStartup>true</NetworkTypeApplyOnStartup>
+					<ConnectionsPerAgentCode><![CDATA[2]]></ConnectionsPerAgentCode>
+					<ConnectionsRangeCode><![CDATA[50]]></ConnectionsRangeCode>
+					<NeighborLinkFractionCode><![CDATA[0.95]]></NeighborLinkFractionCode>
+					<MCode><![CDATA[10]]></MCode>
+			</EnvironmentProperties>
+			<DatasetsCreationProperties>
+				<AutoCreate>true</AutoCreate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1707465600000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+			</DatasetsCreationProperties>
+			<ScaleRuler>
+				<Id>1707379259210</Id>
+				<Name><![CDATA[scale]]></Name>
+				<X>0</X><Y>-150</Y>
+				<PublicFlag>false</PublicFlag>
+				<PresentationFlag>false</PresentationFlag>
+				<ShowLabel>false</ShowLabel>
+				<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+				<Length>100</Length>
+				<Rotation>0</Rotation>
+				<ScaleType>BASED_ON_LENGTH</ScaleType>
+				<ModelLength>10</ModelLength>
+				<LengthUnits>METER</LengthUnits>
+				<Scale>10</Scale>
+				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
+			</ScaleRuler>
+			<CurrentLevel>1707379259214</CurrentLevel>
+			<ConnectionsId>1707379259208</ConnectionsId>
+			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1707379422791</Id>
+					<Name><![CDATA[isOn]]></Name>
+					<X>-155</X><Y>-35</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[startParams()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1707379333341</Id>
+					<Name><![CDATA[action]]></Name>
+					<X>105</X><Y>35</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="ACTION">
+						<Type><![CDATA[boolean]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<ParameterEditor>
+							<Id>1707379333339</Id>
+							<Label><![CDATA[Связанное значение]]></Label>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1707382317203</Id>
+					<Name><![CDATA[startParams]]></Name>
+					<X>105</X><Y>70</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="DYNAMIC">
+						<Type><![CDATA[boolean]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<ParameterEditor>
+							<Id>1707382317201</Id>
+							<EditorContolType>RADIO_BUTTONS</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+			</Variables>
+			<AgentLinks>
+				<AgentLink>
+					<Id>1707379259208</Id>
+					<Name><![CDATA[connections]]></Name>
+					<X>50</X><Y>-50</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<HandleReceiveInConnections>false</HandleReceiveInConnections>
+					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
+					<AgentLinkBidirectional>true</AgentLinkBidirectional>
+					<MessageType><![CDATA[Object]]></MessageType>
+					<LineStyle>SOLID</LineStyle>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineZOrder>UNDER_AGENTS</LineZOrder>
+					<LineArrow>NONE</LineArrow>
+					<LineArrowPosition>END</LineArrowPosition>
+				</AgentLink>
+			</AgentLinks>
+
+			<ContainerLinks>
+				<ContainerLink>
+					<Id>1707379358060</Id>
+					<Name><![CDATA[interfaceSettings]]></Name>
+					<X>50</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[InterfaceSettings]]></ClassName>
+					</ActiveObjectClass>
+				</ContainerLink>
+				<ContainerLink>
+					<Id>1707379358063</Id>
+					<Name><![CDATA[main]]></Name>
+					<X>200</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+					</ActiveObjectClass>
+				</ContainerLink>
+			</ContainerLinks>
+
+			<Presentation>
+				<Level>
+					<Id>1707379259214</Id>
+					<Name><![CDATA[level]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
+
+			<Presentation>
+				<Group>
+					<Id>1707379266671</Id>
+					<Name><![CDATA[switchApp]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[isOn = !isOn;
+action();]]></OnClickCode>
+					<EmbeddedIcon>true</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<RoundedRectangle>
+					<Id>1707379266673</Id>
+					<Name><![CDATA[roundRectangle6]]></Name>
+					<X>-35</X><Y>-20</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>70</Width>
+					<Height>40</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-6751336</FillColor>
+					<FillColorCode><![CDATA[isOn ? paleGreen : deepSkyBlue]]></FillColorCode>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>20</ArcRadius>
+				</RoundedRectangle>
+				<Oval>
+					<Id>1707379266675</Id>
+					<Name><![CDATA[oval]]></Name>
+					<X>-15</X><Y>0</Y>
+					<Label><X>0</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<XCode><![CDATA[isOn ? 15 : -15]]></XCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<RadiusX>20</RadiusX>
+					<RadiusY>40</RadiusY>
+					<Rotation>0.0</Rotation>
+					<FillColor>-4144960</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Oval>
+			</Presentation>
+
+				</Group>
+			</Presentation>
+
+				</Level>
+			</Presentation>
+
+		</ActiveObjectClass>
 	</ActiveObjectClasses>	
 	<DifferentialEquationsMethod>EULER</DifferentialEquationsMethod>
 	<MixedEquationsMethod>RK45_NEWTON</MixedEquationsMethod>
@@ -40250,10 +41696,11 @@ public class Request {
     private String status;
     private Date changeStatus;
     private String typeOwner;
+    private String model;
 
     public Request(String numRequest, String numVagon, String numInvoice, String typeVagon,
                    String typeProduct, String numFront, String nameOwner, Date dateRequest,
-                   int change, double weight, String status, Date changeStatus, String typeOwner) {
+                   int change, double weight, String status, Date changeStatus, String typeOwner, String model) {
         this.numRequest = numRequest;
         this.numVagon = numVagon;
         this.numInvoice = numInvoice;
@@ -40268,19 +41715,21 @@ public class Request {
         this.status = status;
         this.changeStatus = changeStatus;
         this.typeOwner = typeOwner;
+        this.model = model;
     }
     
     public RailCar getCar() {
     	RailCar car = new RailCar();
     	car.numInvoice = numInvoice;
     	car.number = numVagon;
-    	car.status = status;
+    	car.finalStatus = status;
     	car.type = typeVagon;
     	car.productType = typeProduct;
     	car.owner = nameOwner;
     	car.weightProduct = weight;
     	car.changeStatus = changeStatus;
     	car.typeOwner = typeOwner;
+    	car.model = model;
     	return car;
     }
 
@@ -40302,6 +41751,15 @@ public class Request {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public Date getChangeStatus() {
@@ -40702,24 +42160,6 @@ public class FormationOptimizer {
 		        			RailwayTrack endTrack = toTargetTrack ? targetTrack.getSelf() : track.getSelf();
 		        			targetComprassion = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
 		        			String type = getTypeTask(targetTrack.getSelf(), endTrack, fragments.get(i), startTrackSize, endTrackSize);
-		        			/*String type = targetComprassion == 0 ? "Полурейс формирования на пустой путь" : "Полурейс формирования";
-		        			if (toTargetTrack) {
-		        				if (startTrackSize ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
-		        					type = "Полрейс формирования всех вагонов с пути на пустой путь";
-		        				}
-		        				else {
-		        					type = startTrackSize ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
-		        				}
-		        			}
-		        			else {
-		        				if (endTrackSize ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
-		        					type = "Полрейс формирования всех вагонов с пути на пустой путь";
-		        				}
-		        				else {
-		        					type = endTrackSize ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
-		        				}
-		        			}*/
-		        					//Полрейс формирования всех вагонов с пути
 		        			TaskAction task = new TaskAction (type, startTrack, endTrack, fragments.get(i));
 		        			tasks.add(task);
 		        			if (endTrack.equals(targetTrack.getSelf())) {
@@ -40760,10 +42200,10 @@ public class FormationOptimizer {
     	int start = toTargetTrack ? startTrackSize : endTrackSize;
     	String type = "";
 			if (start == fragment && target == 0) {
-				type = "Полрейс формирования всех вагонов с пути на пустой путь";
+				type = "Полурейс формирования всех вагонов с пути на пустой путь";
 			}
 			else if (start == fragment && target > 0){
-				type = "Полрейс формирования всех вагонов с пути";
+				type = "Полурейс формирования всех вагонов с пути";
 			}
 			else if(start > fragment && target == 0) {
 				type = "Полурейс формирования на пустой путь";
@@ -40799,21 +42239,20 @@ public class FormationOptimizer {
 		        			String type = targetComprassion == 0 ? "Полурейс формирования на пустой путь" : "Полурейс формирования";
 		        			if (indicator) {
 		        				if (startTraskCnt ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
-		        					type = "Полрейс формирования всех вагонов с пути на пустой путь";
+		        					type = "Полурейс формирования всех вагонов с пути на пустой путь";
 		        				}
 		        				else {
-		        					type = startTraskCnt ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
+		        					type = startTraskCnt ==  fragments.get(i) ? "Полурейс формирования всех вагонов с пути" : type;
 		        				}
 		        			}
 		        			else {
 		        				if (endTrackCnt ==  fragments.get(i) && type.equals("Полурейс формирования на пустой путь")) {
-		        					type = "Полрейс формирования всех вагонов с пути на пустой путь";
+		        					type = "Полурейс формирования всех вагонов с пути на пустой путь";
 		        				}
 		        				else {
-		        					type = endTrackCnt ==  fragments.get(i) ? "Полрейс формирования всех вагонов с пути" : type;
+		        					type = endTrackCnt ==  fragments.get(i) ? "Полурейс формирования всех вагонов с пути" : type;
 		        				}
 		        			}
-		        					//Полрейс формирования всех вагонов с пути
 		        			TaskAction task = new TaskAction (type, startTrack, endTrack, fragments.get(i));
 		        			tasks.add(task);
 		        			if (endTrack.equals(targetTrack.getSelf())) {
@@ -40982,20 +42421,41 @@ public class TrainArrival {
     }
     
     
-    public List<RailCar> getCarsOfTrain(List<Request> requests, RailCar locomotive){
+    public static List<RailCar> getCarsOfTrain(List<Request> requests, List<Request> contactRequests, RailCar locomotive){
     	List<RailCar> cars = new ArrayList();
+    	Set<Request> usedRequests = new HashSet();
     	double sumWeight = 0;
-    	// Сначала необходимо включить в состав вагоны местного парка, вес которых больше 0 (чтобы выгрузить продукцию) 
-    	for (Request req : requests.stream().filter(p-> p.getTypeOwner().equals("Местный") && p.getWeight() > 0).collect(Collectors.toList())) {
-    		if (sumWeight + req.getWeight() < locomotive.maxWeightForArrive) {
+    	double maxSum = (locomotive.maxWeightForArrive - locomotive.weightSelf);
+    	traceln("Локомотив может везти " + locomotive.maxWeightForArrive);
+    	traceln("Масса локомотива " + locomotive.weightSelf);
+    	traceln("Размер списка текущих заявок " + requests.size());
+    	traceln("Размер списка контактных заявок " + contactRequests.size());
+    	// Сначала необходимо включить в состав вагоны местного парка, вес которых больше 0 (чтобы выгрузить продукцию)
+    	for (Request req : contactRequests) {
+    		if (sumWeight + req.getWeight() <= maxSum && !usedRequests.contains(req)) {
     			RailCar car = req.getCar();
-    			
+    			cars.add(car);
+    			sumWeight += req.getWeight();
+    			usedRequests.add(req);
     		}
     	}
-    	/*for () {
-    		
-    	}*/
-    	return null;
+    	for (Request req : requests) {
+    		traceln(black, "Рассматриваю заявку " + req);
+    		traceln(black, "maxSum " + maxSum);
+    		traceln(black, "req.getWeight() " + req.getWeight());
+    		traceln(black, "usedRequests.contains(req) " + usedRequests.contains(req));
+    		if ((sumWeight + req.getWeight()) <= maxSum && !usedRequests.contains(req)) {
+    			traceln(green, "Подходит ");
+    			RailCar car = req.getCar();
+    			cars.add(car);
+    			sumWeight += req.getWeight();
+    			usedRequests.add(req);
+    		}
+    		else {
+    			traceln(red, "Не подходит ");
+    		}
+    	}
+    	return cars;
     }
     
 }

@@ -1529,7 +1529,9 @@ enterTasks.take(task);]]></Body>
 8. Вагоны, которые отправляются с грузового фронта должны прибывать на не пустые приемо-отправочные пути
 9. Корректно выставить задержку на расцепку и сцепку
 10. Разгрести функцию makeTasks()
-11. Разобратся со срабатыванием события по прибытию, должен срабатывать за час]]></Body>
+11. Разобратся со срабатыванием события по прибытию, должен срабатывать за час
+12. У вагонов плохо отображается статус, когда они пребывают на приемо-отправочные пути
+13. После того, как определяется состав под расцепку, если все вагоны сначала состава, то сразу отправляем на фронт]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1668,16 +1670,23 @@ TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> !trackWithTarg
 boolean isTarget = true;
 RailwayTrack startTrack = null;
 List<TaskAction> tasks = fo.getTasks(targetTrack);
-for (TaskAction task : tasks){
-	if (isTarget){
-		startTrack = task.endTrack;
-		isTarget = false;
-	}
-	addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco, front);
-	//traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
+if (tasks.size() == 1){ // если всего один фрагмент
+	String type = tasks.get(0).startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == fo.getCarsForSendtoFront().size() ? "Отправка всех вагонов на пустой грузовой фронт" : "Отправка вагонов на пустой грузовой фронт";
+	addTask(type, tasks.get(0).startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
 }
-if (startTrack != null){
-	addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+else{
+	for (TaskAction task : tasks){
+		if (isTarget){
+			startTrack = task.endTrack;
+			isTarget = false;
+		}
+		addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco, front);
+		//traceln("Создали задачу на отправку " + task.cntVagon + " с пути " + task.startTrack.getName() + " на путь " + task.endTrack.getName());
+	}
+	
+	if (startTrack != null){
+		addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+	}
 }
 if (tasks.size() > 0){
 	activeSuperTasks++;
@@ -16370,7 +16379,8 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 }
 traceln(orange, "Для задачи " + type);
 newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
-+ " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()));
++ " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()+ " смещение " + p.getOffset()));
+
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -16492,7 +16502,8 @@ else if (currTask.getType().equals("Сцепка")
 	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
 		|| type.equals("Полурейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
-				|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
+				|| type.equals("Отправка вагонов на пустой грузовой фронт")
+					|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
 		nextTrack = startTrack;
 	}
 	else{
@@ -16646,23 +16657,17 @@ if (!type.equals("Прибытие состава на станцию")){
 	}
 }
 else{
-	if (/*cnt == 0 ||*/ 
-	(nextTask != null && nextTask.getType().equals("Терминирование"))) {
-		//traceln("Конечный путь выбран 1" + startTrack.getName());
+	if ((nextTask != null && nextTask.getType().equals("Терминирование"))) {
 		curEndTrack = startTrack;
 	}
 	else{
-		//traceln("Конечный путь выбран 2" + endTrack.getName());
 		curEndTrack = endTrack;
 	}
 }
-//traceln("nextTask.getType() " + nextTask.getType());
 if (nextTask != null && nextTask.getType().equals("Терминирование")){
-	//traceln("Начальный путь выбран 1" + endTrack.getName());
 	curStartTrack = endTrack;
 }
 else {
-	//traceln("Начальный путь выбран 2" + startTrack.getName());
 	curStartTrack = startTrack;
 }
 task = new Task("Движение", curStartTrack, curEndTrack, getOffsetForTask(curEndTrack, currTask.getType()));
@@ -16761,7 +16766,8 @@ if (cntCouple == 0){
 	if (j > 1 || type.equals("Полурейс формирования на пустой путь") 
 		|| type.equals("Полурейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
-				|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
+				|| type.equals("Отправка вагонов на пустой грузовой фронт")
+					|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
 		curEndTrack = startTrack;
 	}
 	else{
@@ -16824,11 +16830,13 @@ return task;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[Task task = null;
 TrackEdge finalEmptyTrack = main.getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+traceln("finalEmptyTrack " + finalEmptyTrack);
 TrackEdge finalEndTrack = main.getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty()).findFirst().orElse(finalEmptyTrack);
 if (type.contains("Отправка") && main.queueTasksAction.size() < 1){
 	traceln(yellow, "Добавляю задачу движение кон, начальный путь " + endTrack.getName());
-	task = new Task("Движение", endTrack, finalEndTrack.getSelf(), -1);
+	task = new Task("Движение", endTrack, finalEndTrack.getSelf(), -1.0);
 	traceln(yellow, "Задача, начальный путь " + task.getStartTrack().getName());
+	traceln("А смещение " + task.getOffset());
 }
 return task;]]></Body>
 				</Function>
@@ -41381,7 +41389,7 @@ public class Route implements Serializable {
         this.cars = cars;
     }
     // Движение
-    public Task(String type, RailwayTrack startTrack, RailwayTrack endTrack, double offset) {
+    public Task(String type, RailwayTrack startTrack, RailwayTrack endTrack, Double offset) {
     	this.type = type;
         this.startTrack = startTrack;
         this.endTrack = endTrack;
@@ -42126,6 +42134,8 @@ public class FormationOptimizer {
     	int sizeTrain = train.size(); 
     	boolean indicator = allTargetFrontCars.contains(train.get(train.size() - 1)) ? true : false;
     	traceln("indicator " + indicator + " Первый вагон состава " + train.get(0).type + " имеет хэш-код " + train.get(0).hashCode());
+    	traceln(orange, "Размер состава " + sizeTrain);
+    	train.stream().forEach(p-> traceln(black, "Тип вагона " + p.type + ", хэш-код " + p.hashCode() + ", позиция в составе " + p.getPositionOnTrain(true) ));
     	for (int i = train.size() - 1; i > -1; i--) {
     		RailCar car = train.get(i);
     		traceln(green, "Вагон по порядку функции " + (train.size() - i) + ", по порядку жд сети " + car.getPositionOnTrain(true));
@@ -42188,7 +42198,8 @@ public class FormationOptimizer {
 	    		if (allTargetFrontCars.size() > 0) {
 		        	int posCar = 0;
 		        	boolean toTargetTrack = true;
-		        	List<Integer> fragments = getFragmentsTrain(track.getRailCarsOnTrack(), allTargetFrontCars);
+		        	List<RailCar> trainWithoutLocos = track.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList());
+		        	List<Integer> fragments = getFragmentsTrain(trainWithoutLocos, allTargetFrontCars);
 		        	int startTrackSize = track.getSelf().getCars().size();
 		        	
 		        	//traceln("Начальный размер состава на пути " + track.getSelf().getName()  + " " + startTraskCnt);

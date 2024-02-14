@@ -1340,7 +1340,9 @@ return listCar;]]></Body>
 11. Вагоны, которые отправляются с грузового фронта должны прибывать на не пустые приемо-отправочные пути *13.02.24
 12. У вагонов плохо отображается статус, когда они пребывают на приемо-отправочные пути *13.02.24
 14. Вагоны для технологического или не технологического ожидания должны пребывать на путь с наименьшим количеством вагонов под отправку со станции *14.02.24
-15. Вагоны для отправки со станции должны пребывать с фронта сразу на пути с вагонами под отправку *14.02.24]]></Body>
+15. Вагоны для отправки со станции должны пребывать с фронта сразу на пути с вагонами под отправку *14.02.24
+12. Не должно быть дублирования задач *14.02.24
+11. Правильно считать смещение при проталкивании * 14.02.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1528,7 +1530,7 @@ enterTasks.take(task);]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[План
-1. Уборка вагонов с фронта, когда на фронте находится локомотив//пока не делать, не знаю чем обернется для общей логики
+////////////1. Уборка вагонов с фронта, когда на фронте находится локомотив//пока не делать, не знаю чем обернется для общей логики
 2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу
 3. Сборка составов на станции 
 4. Распределение задач на несколько локомотивов
@@ -1537,8 +1539,7 @@ enterTasks.take(task);]]></Body>
 7. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа
 8. Разработать экран настройки прибывающих составов
 9. Продумать отображение заявок на экране
-10. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
-11. Правильно считать смещение при проталкивании]]></Body>
+10. Вагоны контактного графика должны пребывать на грузовой фронт в точное время]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1863,7 +1864,26 @@ return isMatch;]]></Body>
 task.type = taskAction.type;
 task.front = taskAction.front;
 task.priority = taskAction.priority;
-enterTasksSuper.take(task);]]></Body>
+String frontName = task.front == null ? "null" : task.front.getName();
+String checkType = task.type + " " + frontName;
+//traceln(green, "Проверяю соответствие " + checkType);
+//traceln(black, "Все имеющиеся задачи:");
+boolean isAdd = true;
+for (int i = 0; i < queueTasksSuper.size(); i++){
+	TaskAction action = (TaskAction)queueTasksSuper.get(i);
+	String front = task.front == null ? "null" : task.front.getName();
+	String check = action.type + " " + front;
+	traceln(red, check);
+	if (check.equals(checkType)){
+		isAdd = false;
+	}
+}
+if (isAdd){
+	enterTasksSuper.take(task);
+}
+else{
+	//traceln(red, "Уже есть такая задача, не добавляю");
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -2067,14 +2087,15 @@ return requests;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[int cntEmptyTrack = (int)getPopsTracksEdges().stream().filter(p-> p.getSelf().isEmpty()).count();
-int offsetTime = data.useStationLocoForArrive ? 2 : 1;
-offsetTime = cntEmptyTrack > 1 ? offsetTime : 2;
+//traceln("Количество пустых путей " + cntEmptyTrack);
+int offsetTime = data.useStationLocoForArrive ? 7200000 : 3600000;
+offsetTime = cntEmptyTrack > 3600000 ? offsetTime : 7200000;
+//traceln("Временное смещение" +  (offsetTime/3600000) + " час(а)");
 for (TrainArrival arrival : data.arrivalsCollection){
 	if (!data.arrivalsDone.contains(arrival) // если дата по расписанию не была
 		&& getModelTime().getTime() <= arrival.getDate().getTime() + offsetTime // если дата прибытия через 2 часа от текущей даты
 			&& arrival.getDate().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 2 часа от текущей даты
 		data.arrivalsDone.add(arrival);
-		
 		TaskAction task = new TaskAction();
 		task.type = "Прибытие";
 		task.priority = 1000;
@@ -3404,6 +3425,9 @@ switch (typeTask){
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[capacity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[10]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[maximumCapacity]]></Name>
@@ -11524,7 +11548,7 @@ return delay;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<OnClickCode><![CDATA[traceln("Позиция с начала " + getPositionOnTrain(true) + ", с конца " + getPositionOnTrain(false));
+					<OnClickCode><![CDATA[/*traceln("Позиция с начала " + getPositionOnTrain(true) + ", с конца " + getPositionOnTrain(false));
 int pos = 0;
 for (int i = 0; i < getTrack().getCars().size(); i++){
 	if (getTrack().getCars().get(i).equals(this)){
@@ -11535,7 +11559,10 @@ for (int i = 0; i < getTrack().getCars().size(); i++){
 traceln("Позиция от функции пути " + pos);
 traceln("Мой хэш-код " + hashCode());
 traceln("Мой путь " + getTrack().getName());
-traceln("Я нахожусь на приемо-отправочном пути " + amIOnPops());
+traceln("Я нахожусь на приемо-отправочном пути " + amIOnPops());*/
+traceln("Я в составе, который стоит на пути " + getTrain().getTrack(true).getName() + " головой и хвостом на " + getTrain().getTrack(false).getName());
+traceln("Места на пути с головы осталось " + getTrain().getTrack(true).getFreeSpace(true) + " с начала пути и с конца пути " + getTrain().getTrack(true).getFreeSpace(false));
+traceln("Места на пути с хвоста осталось " + getTrain().getTrack(false).getFreeSpace(true) + " с начала пути и с конца пути " + getTrain().getTrack(false).getFreeSpace(false));
 carLogic.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -12193,6 +12220,27 @@ carLogic.navigateTo();]]></OnClickCode>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
+				<Control Type="Button">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1707925214560</Id>
+					<Name><![CDATA[button]]></Name>
+					<X>240</X><Y>10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[getTrain().trainLogic.navigateTo();]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<LabelText><![CDATA[К поезду]]></LabelText>
+					</ExtendedProperties>
+				</Control>
 			</Presentation>
 
 				</Level>
@@ -12436,6 +12484,20 @@ return cars;]]></Body>
 
 				</Level>
 			</Presentation>
+			<Areas>
+				<Area>
+					<Id>1707925226229</Id>
+					<Name><![CDATA[trainLogic]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Title><![CDATA[]]></Title>
+					<Width>1920</Width>
+					<Height>1025</Height>
+				</Area>
+			</Areas>
 
 		</ActiveObjectClass>
 		<!--   =========   Active Object Class   ========  -->
@@ -22656,9 +22718,14 @@ if ((superTask.listTask.size() - 1) >= cntTask+1){
 	nextTask = superTask.listTask.get(cntTask+1);
 }
 if (nextTask != null && nextTask.getType().equals("Расцепка") && !endTrack.isEmpty() && train.size() > 1){
+	traceln(red, "==============================================================");
+	traceln("Отправляюсь на путь " + nextTask.getEndTrack().getName());
+	traceln("Свободного места на пути с краю " + nextTask.getEndTrack().getFreeSpace(true));
+	traceln("Длина перемещаемого состава " + (train.size() - nextTask.getCntVagons()));
+	traceln(red, "==============================================================");
 	int sizeLiftTrain = train.size() - nextTask.getCntVagons();
 	List<RailCar> cars = new ArrayList();
-	for (int i = nextTask.getCntVagons(); i > -1; i--){
+	for (int i = sizeLiftTrain; i > -1; i--){
 		cars.add((RailCar)train.getCar(i));
 	}
 	if ((endTrack.getFreeSpace(true) - 40) < Tools.getLengthTrain(cars)){// Если расстояние с начальной стороны пути меньше состава, и состав меньше 1 TODO Проверка сейчас только с одной стороны
@@ -24588,9 +24655,13 @@ cntTask++;]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[traceln("Отправляюсь на путь " + agent.getTrack(true).getName());
+								<Code><![CDATA[traceln(red, "==============================================================");
+traceln("Отправляюсь на путь " + agent.getTrack(true).getName());
+traceln("Свободного места на пути с краю " + agent.getTrack(true).getFreeSpace(true));
+traceln("Длина перемещаемого состава " + (Tools.getLengthTrain(agent.getCars()) - 15));
 traceln("Состав состоит из " + agent.size() + " вагонов");
-traceln("Смещение состовляет " + distancePush);]]></Code>
+traceln("Смещение состовляет " + distancePush);
+traceln(red, "==============================================================");]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -38927,7 +38998,7 @@ public class TrackEdge implements Serializable {
     	int cntLocos = (int)getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).count();
     	double cntVagons = cars.size() - cntLocos;
     	double cntVagonsReady = (double)cars.stream().filter(p-> p.status.equals("Ожидание отправки со станции")).count();
-    	traceln(purple, "На пути " + getName() + " процент отправки " + (cntVagonsReady/cntVagons));
+    	//traceln(purple, "На пути " + getName() + " процент отправки " + (cntVagonsReady/cntVagons));
     	return cntVagonsReady/cntVagons;
     }
     

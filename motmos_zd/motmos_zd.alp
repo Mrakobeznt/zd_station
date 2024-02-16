@@ -1558,7 +1558,9 @@ enterTasks.take(task);]]></Body>
 17. Обработать все ключевые показатели
 18. Сформировать файл отчета
 19. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
-20. Обсудить с заказчиком вариант с 2 моделями ]]></Body>
+20. Обсудить с заказчиком вариант с 2 моделями
+21. Разобраться со смещениями на пути по прибытию
+22. Отработать ситуацию, когда локомотив мешает забрать вагоны]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2166,7 +2168,7 @@ return arrivalDone;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1707488302845</Id>
 					<Name><![CDATA[setTaskForClean]]></Name>
-					<X>1000</X><Y>2440</Y>
+					<X>1025</X><Y>2430</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2182,7 +2184,7 @@ addTaskSuper(task);
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1707488629094</Id>
 					<Name><![CDATA[makeTaskForClean]]></Name>
-					<X>1010</X><Y>2460</Y>
+					<X>1035</X><Y>2450</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2283,6 +2285,70 @@ return targetTrack;]]></Body>
 										|| p.getRailCarsOnTrack().size() > 1))
 							.min((p1, p2) -> Double.compare(p1.getProcentReadyToSend(), p2.getProcentReadyToSend()))
 							.get();]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1708096555973</Id>
+					<Name><![CDATA[setTaskForSend]]></Name>
+					<X>1000</X><Y>2475</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int cntEmptyTrack = (int)getPopsTracksEdges().stream().filter(p-> p.getSelf().isEmpty()).count();
+//traceln("Количество пустых путей " + cntEmptyTrack);
+int offsetTime = data.useStationLocoForArrive ? 7200000 : 3600000;
+offsetTime = cntEmptyTrack > 3600000 ? offsetTime : 7200000;
+//traceln("Временное смещение" +  (offsetTime/3600000) + " час(а)");
+for (TrainArrival arrival : data.arrivalsCollection){
+	if (!data.arrivalsDone.contains(arrival) // если дата по расписанию не была
+		&& getModelTime().getTime() <= arrival.getDate().getTime() + offsetTime // если дата прибытия через 2 часа от текущей даты
+			&& arrival.getDate().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 2 часа от текущей даты
+		data.arrivalsDone.add(arrival);
+		TaskAction task = new TaskAction();
+		task.type = "Отправка";
+		task.priority = 1050;
+		task.trainArrival = arrival;
+		addTaskSuper(task);
+		break;
+	}
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1708096555975</Id>
+					<Name><![CDATA[makeTaskForArrive1]]></Name>
+					<X>1010</X><Y>2495</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[boolean arrivalDone = false;
+TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
+RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
+List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco, trackArrive);
+train.add(0,loco);
+train.forEach(p-> {
+	RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
+	if (copyCar != null){
+		p.length = copyCar.length;
+		p.dateArrive = getModelTime();
+	}
+});
+boolean withLoco = data.useStationLocoForArrive;
+if (cntEmptyTrack < 2){
+	setTaskForClean();
+}
+else{
+	addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
+	arrivalDone = true;
+	activeSuperTasks++;
+}
+
+return arrivalDone;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -15551,7 +15617,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="CollectionVariable">
 					<Id>1704986560637</Id>
 					<Name><![CDATA[productsCollection]]></Name>
-					<X>840</X><Y>480</Y>
+					<X>1100</X><Y>480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15596,7 +15662,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="CollectionVariable">
 					<Id>1706035589184</Id>
 					<Name><![CDATA[frontsDelayOffset]]></Name>
-					<X>1100</X><Y>470</Y>
+					<X>1360</X><Y>470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15611,7 +15677,7 @@ sourceStation.inject();]]></Code>
 				<Variable Class="CollectionVariable">
 					<Id>1706167880302</Id>
 					<Name><![CDATA[frontsFinishOffsets]]></Name>
-					<X>1260</X><Y>470</Y>
+					<X>1520</X><Y>470</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -15709,6 +15775,21 @@ sourceStation.inject();]]></Code>
 					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
 						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
 						<ElementClass><![CDATA[RailCar]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1708096676438</Id>
+					<Name><![CDATA[sendsCollection]]></Name>
+					<X>850</X><Y>460</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[TrainSend]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 					</Properties>
 
@@ -15927,7 +16008,7 @@ file.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1704986139318</Id>
 					<Name><![CDATA[readProducts]]></Name>
-					<X>840</X><Y>450</Y>
+					<X>1100</X><Y>450</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -16004,7 +16085,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706036589613</Id>
 					<Name><![CDATA[setFrontsOffset]]></Name>
-					<X>1100</X><Y>410</Y>
+					<X>1360</X><Y>410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -16029,7 +16110,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706036656582</Id>
 					<Name><![CDATA[getOffsetForDelay]]></Name>
-					<X>1100</X><Y>440</Y>
+					<X>1360</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -16045,7 +16126,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706167877968</Id>
 					<Name><![CDATA[getFinitshFrontOffset]]></Name>
-					<X>1260</X><Y>440</Y>
+					<X>1520</X><Y>440</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -16061,7 +16142,7 @@ railCars.close();]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706167936367</Id>
 					<Name><![CDATA[setFinishFrontsOffset]]></Name>
-					<X>1260</X><Y>410</Y>
+					<X>1520</X><Y>410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -16329,6 +16410,29 @@ else{
 }
 return resp;]]></Body>
 				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1708096673616</Id>
+					<Name><![CDATA[readSends]]></Name>
+					<X>850</X><Y>430</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int row = 2;
+ExcelFile file = startData;
+String list = "Отправка";
+file.readFile();
+
+while(file.cellExists(list, row, 1)){
+	Date dateArrival = file.getCellDateValue(list, row, 1);
+	TrainArrival arrival = new TrainArrival(dateArrival);
+	arrivalsCollection.add(arrival);
+	row++;
+}
+file.close();]]></Body>
+				</Function>
 			</Functions>
 			<Connectivity>
 				<ExcelFile>
@@ -16411,7 +16515,7 @@ return resp;]]></Body>
 				<ExcelFile>
 					<Id>1704986118580</Id>
 					<Name><![CDATA[products]]></Name>
-					<X>840</X><Y>410</Y>
+					<X>1100</X><Y>410</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -38947,6 +39051,8 @@ public class RouteFinder<T extends GraphNode> {
 			<Text><![CDATA[/**
  * TrackNode
  */
+import java.util.stream.Collectors;
+
 public class TrackEdge implements Serializable {
 
     private RailwayTrack self;
@@ -39059,7 +39165,7 @@ public class TrackEdge implements Serializable {
     }
     
     /**
-    Возвращает список вагонов с типом RailCar
+    Возвращает список вагонов на пути с типом RailCar
     **/
     public List<RailCar> getRailCarsOnTrack() {
     	List<RailCar> carsOnTrack = new ArrayList();
@@ -39097,7 +39203,10 @@ public class TrackEdge implements Serializable {
         this.speedAlt = speedAlt;
         this.numberTra = numberTra;
     }
-    
+    /**
+     * 
+     * @return - возвращает процент вагонов на пути, которые ожидают отправки со станции
+     */
     public double getProcentReadyToSend() {
     	List<RailCar> cars = getRailCarsOnTrack();
     	int cntLocos = (int)getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).count();
@@ -39105,6 +39214,14 @@ public class TrackEdge implements Serializable {
     	double cntVagonsReady = (double)cars.stream().filter(p-> p.status.equals("Ожидание отправки со станции")).count();
     	//traceln(purple, "На пути " + getName() + " процент отправки " + (cntVagonsReady/cntVagons));
     	return cntVagonsReady/cntVagons;
+    }
+    /**
+     * 
+     * @return возвращает список вагонов, стоящих на пути, со статусами Ожидание отправки со станции
+     */
+    public List<RailCar> getReadyCars(){
+    	List<RailCar> cars = getRailCarsOnTrack();
+    	return cars.stream().filter(p-> p.status.equals("Ожидание отправки со станции")).collect(Collectors.toList());
     }
     
 
@@ -40359,6 +40476,18 @@ public class Tools implements Serializable {
     	return trainLength;
     }
     
+    
+    /**
+    Возвращает массу вагонов
+    **/
+    public static double getWeightTrain(List<RailCar> cars) {
+    	double weightTrain = 0;
+    	for (RailCar car : cars) {
+    		weightTrain += ((RailCar)car).getWeight();
+    	}
+    	return weightTrain;
+    }
+    
     public static void trace(Color color, String msg, boolean ownIsTrace) {
     	if (isTrace) {
     		if (ownIsTrace) {
@@ -40649,6 +40778,162 @@ public class TrainCleaner implements Serializable {
 	 */ 
 	private static final long serialVersionUID = 1L;
 
+}]]></Text>
+		</JavaClass>
+		<!--   =========   Java Class   ========  -->
+		<JavaClass>
+			<Id>1708096744944</Id>
+			<Name><![CDATA[TrainSend]]></Name>
+			<Text><![CDATA[import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+/**
+ * TrainSend
+ */
+public class TrainSend{
+    private Date dateSend;
+    private List<TrackEdge> pops;
+    private RailCar locomotive;
+
+    public TrainSend() {
+    }
+
+    public TrainSend(Date dateSend, List<TrackEdge> pops) {
+        this.dateSend = dateSend;
+        this.pops = pops;
+    }
+    
+    public TrainSend(Date dateSend) {
+        this.dateSend = dateSend;
+    }
+    
+    public TrainSend(List<TrackEdge> pops, RailCar locomotive) {
+        this.pops = pops;
+        this.locomotive = locomotive;
+    }
+
+    public List<TrackEdge> getPops() {
+        return pops;
+    }
+
+    public void setPops(List<TrackEdge> pops) {
+        this.pops = pops;
+    }
+
+    public Date getDateSend() {
+        return dateSend;
+    }
+
+    public void setDateSend(Date dateSend) {
+        this.dateSend = dateSend;
+    }
+    
+    public RailCar getLocomotive() {
+        return locomotive;
+    }
+
+    public void setLocomotive(RailCar locomotive) {
+        this.locomotive = locomotive;
+    }
+    /**
+     * 
+     * @return - возвращает путь, под отправку (для отправки по расписанию)
+     */
+    public TrackEdge getTrackForSend() {
+    	List<TrackEdge> convTracks = pops
+    			.stream()
+    			.filter( p-> isAvailableWeight(p) && p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции")) ).collect(Collectors.toList()); // все вагоны под отправку
+    	TrackEdge edge = null;
+    	if (convTracks.size() > 0) {
+    		edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку
+    	}
+    			//
+    	return edge;
+    }
+    
+    /*public int getCountCarsForWeightApply(TrackEdge edge) {
+    	int cntCars = 0;
+    }*/
+    /**
+     * 
+     * @return возвращает путь, который может отправиться со станции, если занимает практически весь путь и вес подходит для отправки локомотивом
+     */
+    public TrackEdge checkLengthTracksForSends() {
+    	 TrackEdge needToSend = null;
+    	 for (TrackEdge edge : getReadyTracks()) {
+    		 if (checkAvailableLength(edge) && isAvailableWeight(edge)) {
+    			 needToSend = edge;
+    		 }
+    	 }
+    	 return needToSend;
+    }
+    
+    /**
+     * 
+     * @return возвращает путь, который может отправиться со станции, если вес состава приближен к максимальному весу для отправки локомотивом
+     */
+    public TrackEdge checkWeightTracksForSends() {
+    	 TrackEdge needToSend = null;
+    	 for (TrackEdge edge : getReadyTracks()) {
+    		 if (isAvailableWeightLim(edge)) {
+    			 needToSend = edge;
+    		 }
+    	 }
+    	 return needToSend;
+    }
+    
+    public List<TrackEdge> getReadyTracks(){
+    	List<TrackEdge> readyEdges = pops.stream().filter( p-> p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
+    	return readyEdges;
+    }
+    /**
+     * 
+     * @param edge - путь, который рассматривается
+     * @return - возвращает результат true, если на пути стоит состав, который ЗАНИМАЕТ ПРАКТИЧЕСКИ ВЕСЬ ПУТЬ
+     */
+    public boolean checkAvailableLength(TrackEdge edge) {
+    	boolean isAvailable = false;
+		if (edge.getUsableLength() <= 20) { // если вместимость пути меньше 20 
+			isAvailable = true;
+		}
+    	return isAvailable;
+    }
+    /**
+     * 
+     * @param edge - путь, который рассматривается
+     * @return - возвращает результат true, если на пути стоит состав, который ВЕСИТ МЕНЬШЕ ЧЕМ МОЖЕТ ПЕРЕВЕЗТИ ЛОКОМОТИВ
+     */
+    public boolean isAvailableWeight(TrackEdge edge) {
+    	boolean isAvailable = false;
+    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
+		if (trainWeight <= locomotive.maxWeightForSend) {
+			isAvailable = true;
+		}
+    	return isAvailable;
+    }
+    
+    /**
+     * 
+     * @param edge - путь, который рассматривается
+     * @return - возвращает результат true, если на пути стоит состав, который ПРИБЛИЖЕН К МАКСИМАЛЬНОМУ ВЕСУ ОТПРАВКИ ЛОКОМОТИВА
+     */
+    public boolean isAvailableWeightLim(TrackEdge edge) {
+    	boolean isAvailable = false;
+    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
+		if (trainWeight <= locomotive.maxWeightForSend
+				&& trainWeight >= locomotive.maxWeightForSend - 100) {
+			isAvailable = true;
+		}
+    	return isAvailable;
+    }
+
+    @Override
+    public String toString() {
+        return "TrainSend{" +
+                "dateSend=" + dateSend +
+                ", pops=" + pops +
+                '}';
+    }
 }]]></Text>
 		</JavaClass>
 	</JavaClasses>

@@ -138,7 +138,7 @@
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
 						<InitialValue Class="CodeValue">
-							<Code><![CDATA[toDate(2024, 0, 15, 7, 0, 0);]]></Code>
+							<Code><![CDATA[toDate(2024, 0, 1, 0, 0, 0);]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -1079,12 +1079,18 @@ keyIndicators.updateStats();]]></Action>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<RailCar> cars = data.arrangeCars;
 for (TrackEdge track : getTracksEdges()){
-	List<RailCar> train = cars.stream().filter(p-> p.track.equals(track.getNumberTra())).collect(Collectors.toList());
+	List<RailCar> train = cars.stream().filter(p-> p.track.equals(track.getNumberTra()) || (p.track.equals("9t") && track.getNumberTra().equals("9"))).collect(Collectors.toList());
 	train.stream().sorted((o1, o2)->((Integer)o1.queueOnTrain).
                                    compareTo(((Integer)o2.queueOnTrain))).
                                    collect(Collectors.toList());
 	if (!train.isEmpty()){
-		addTask("Расстановка", track.getSelf(), null, train, false);
+		if (getFrontsTracksEdges().stream().anyMatch(p-> p.getName().equals(track.getName()))){
+			addTask("Расстановка", track.getSelf(), null, train, false);
+		}
+		else{ // если это не фронтовые пути
+			addTask("Расстановка", track.getSelf(), null, train, false);
+		}
+		
 	}
 }
 data.addLocoOnStation("ТЭМ-2");
@@ -1342,7 +1348,10 @@ return listCar;]]></Body>
 14. Вагоны для технологического или не технологического ожидания должны пребывать на путь с наименьшим количеством вагонов под отправку со станции *14.02.24
 15. Вагоны для отправки со станции должны пребывать с фронта сразу на пути с вагонами под отправку *14.02.24
 12. Не должно быть дублирования задач *14.02.24
-11. Правильно считать смещение при проталкивании * 14.02.24]]></Body>
+11. Правильно считать смещение при проталкивании * 14.02.24
+11. Форматировать файл сценария * 15.02.24
+6. Разгрести функцию makeTasks() * 16.02.24
+12. Расставлять вагоны на грузовые фронты в соответствии с ограничениями * 16.02.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1533,13 +1542,23 @@ enterTasks.take(task);]]></Body>
 ////////////1. Уборка вагонов с фронта, когда на фронте находится локомотив//пока не делать, не знаю чем обернется для общей логики
 2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу
 3. Сборка составов на станции 
-4. Распределение задач на несколько локомотивов
-5. Корректно выставить задержку на расцепку и сцепку
-6. Разгрести функцию makeTasks()
+4. Отправка составов со станции
+5. Распределение задач на несколько локомотивов
+6. Корректно выставить задержку на расцепку и сцепку
 7. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа
 8. Разработать экран настройки прибывающих составов
 9. Продумать отображение заявок на экране
-10. Вагоны контактного графика должны пребывать на грузовой фронт в точное время]]></Body>
+10. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
+11. Добавить событие обед
+12. Добавить событие экипировка
+13. Добавить событие перерыв
+14. Добавить событие заправка
+15. Добавить событие пересменка
+16. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
+17. Обработать все ключевые показатели
+18. Сформировать файл отчета
+19. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
+20. Обсудить с заказчиком вариант с 2 моделями ]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1673,9 +1692,10 @@ return tracksEdges;]]></Body>
 					<Body><![CDATA[FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
 Set<RailwayTrack> trackWithTargetCars = new HashSet();
 fo.getCarsForSendtoFront().forEach(p-> trackWithTargetCars.add(p.getTrack()));
+traceln(red, "Выбираю путь для сбора вагонов под отправку");
 TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> !trackWithTargetCars.contains(p.getSelf()) && (p.getSelf().isEmpty() || p.isEnoughPlace(fo.getCarsForSendtoFront()))).findFirst().orElse(null);
-boolean isTarget = true;
-RailwayTrack startTrack = null;
+//boolean isTarget = true;
+//RailwayTrack startTrack = null;
 List<TaskAction> tasks = fo.getTasks(targetTrack);
 if (tasks.size() == 1){ // если всего один фрагмент
 	String type = tasks.get(0).startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == fo.getCarsForSendtoFront().size() ? "Отправка всех вагонов на пустой грузовой фронт" : "Отправка вагонов на пустой грузовой фронт";
@@ -1683,15 +1703,16 @@ if (tasks.size() == 1){ // если всего один фрагмент
 }
 else{
 	for (TaskAction task : tasks){
-		if (isTarget){
+		/*if (isTarget){
 			startTrack = task.endTrack;
 			isTarget = false;
-		}
+		}*/
 		addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco, front);
 	}
 	
-	if (startTrack != null){
-		addTask("Отправка всех вагонов на пустой грузовой фронт", startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+	if (tasks.size() > 0 && targetTrack != null){
+		String type = targetTrack.getRailCarsOnTrack().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == fo.getCarsForSendtoFront().size() ? "Отправка всех вагонов на пустой грузовой фронт" : "Отправка вагонов на пустой грузовой фронт";
+		addTask(type, targetTrack.getSelf(), front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
 	}
 }
 if (tasks.size() > 0){
@@ -1873,7 +1894,7 @@ for (int i = 0; i < queueTasksSuper.size(); i++){
 	TaskAction action = (TaskAction)queueTasksSuper.get(i);
 	String front = task.front == null ? "null" : task.front.getName();
 	String check = action.type + " " + front;
-	traceln(red, check);
+	//traceln(red, check);
 	if (check.equals(checkType)){
 		isAdd = false;
 	}
@@ -2119,7 +2140,7 @@ for (TrainArrival arrival : data.arrivalsCollection){
 TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
 RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
-List<RailCar> train = TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco);
+List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco, trackArrive);
 train.add(0,loco);
 train.forEach(p-> {
 	RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
@@ -3806,7 +3827,11 @@ if (queueTasksAction.size() == 0 && activeTasks == 0 && activeSuperTasks > 0 && 
 								<Code><![CDATA[if (agent.type.equals("Прибытие")){
 	group3D.setVisible(true);
 }
-//traceln(purple, "Проверяю задачу с типом " + agent.type);
+/*traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
+traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
+traceln(purple, "Исполнение задачи " + agent.type);
+traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
+traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");*/
 switch(agent.type){
 	case "Прибытие" :
 		if (!makeTaskForArrive()){
@@ -9894,6 +9919,27 @@ logic.enterStart.take(agent);]]></Code>
 					<Latitude>0.0</Latitude>
 					<Longitude>0.0</Longitude>
 				</EmbeddedObjectPresentation>
+				<Control Type="Button">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1708086352114</Id>
+					<Name><![CDATA[button]]></Name>
+					<X>-350</X><Y>1260</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[railwayNetwork.getTracks().stream().forEach(p-> traceln("Путь - " + p.getName() + " имеет длину " + p.length(METER)));]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<LabelText><![CDATA[button]]></LabelText>
+					</ExtendedProperties>
+				</Control>
 			</Presentation>
 
 				</Level>
@@ -11480,6 +11526,34 @@ if (status.equals(str)){
 	delay += ((double)(date().getTime() - dateBeginState.getTime())/3600000);
 }
 return delay;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707990035752</Id>
+					<Name><![CDATA[setWeightBySpr]]></Name>
+					<X>50</X><Y>520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[traceln(red, "model " + model);
+traceln(red, "type " + type);
+RailCar copyCar = main.data.railCarsCollection.stream().filter(p->p.model.equals(model) && p.type.equals(type)).findFirst().orElse(null);
+weightSelf = copyCar.weightSelf;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1707990059543</Id>
+					<Name><![CDATA[setLengthBySpr]]></Name>
+					<X>50</X><Y>560</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[RailCar copyCar = main.data.railCarsCollection.stream().filter(p->p.model.equals(model) && p.type.equals(type)).findFirst().orElse(null);
+weightSelf = copyCar.length;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -14585,6 +14659,9 @@ cnt++;]]></Code>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[train.getCars().stream().forEach(p-> traceln(violet, "Размер вагона " + p.length));]]></Code>
+							</Value>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -15812,8 +15889,8 @@ String list = "Расстановка";
 file.readFile();
 
 while(file.cellExists(list, row, 1)){
-	String numberVagon = ((int)file.getCellNumericValue(list, row, 1))+"";
-	String track = ((int)file.getCellNumericValue(list, row, 2))+"";
+	String numberVagon = file.getCellStringValue(list, row, 1);
+	String track = file.getCellStringValue(list, row, 2);
 	int queueOnTrack = (int)file.getCellNumericValue(list, row, 3);
 	String numConf = file.getCellStringValue(list, row, 4);
 	
@@ -15896,7 +15973,8 @@ while(file.cellExists(list, row, 1)){
 	Date changeStatus = file.cellExists(list, row, 12) ? file.getCellDateValue(list, row, 12) : null;
 	String typeOwner = file.getCellStringValue(list, row, 13);
 	String model = file.getCellStringValue(list, row, 14);
-	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight, status, changeStatus, typeOwner, model);
+	RailCar car = main.data.railCarsCollection.stream().filter(p->p.model.equals(model) && p.type.equals(typeVagon)).findFirst().orElse(null);
+	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight, status, changeStatus, typeOwner, model, car);
 	requestsCollection.add(req);
 	row++;
 }
@@ -15973,12 +16051,10 @@ railCars.close();]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[front]]></Name>
-						<Type><![CDATA[Front]]></Type>
+						<Name><![CDATA[frontName]]></Name>
+						<Type><![CDATA[String]]></Type>
 					</Parameter>
-					<Body><![CDATA[//traceln("По фронту " + front.getName() + " возвращаю смещение " + frontsFinishOffsets.get(front));
-//traceln("А есть ли там фронт " + front.getName() + " " + frontsFinishOffsets.containsKey(front.getName()));
-return frontsFinishOffsets.get(front.getName());]]></Body>
+					<Body><![CDATA[return frontsFinishOffsets.get(frontName);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -16847,12 +16923,12 @@ public String toString(){
 					<ReturnType><![CDATA[List<Task>]]></ReturnType>
 					<Id>1703152630122</Id>
 					<Name><![CDATA[makeTasks]]></Name>
-					<X>470</X><Y>200</Y>
+					<X>470</X><Y>190</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[//traceln(purple, "Тип задачи " + type);
+					<Body><![CDATA[traceln(purple, "Тип задачи " + type);
 TaskAction task = main.data.taskCollection.stream()
 .filter(p->p.type.equals(this.type))
 .findFirst()
@@ -16867,11 +16943,11 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 	Task previousTask = i == 0 ? null : task.listTask.get(i - 1);
 	Task nextTask = i+1 >= task.listTask.size() ? null : task.listTask.get(i+1);
 	
-	RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(simpleTask, nextTask, i, cntCouple, cntDecouple, task.listTask);// конечный путь для задачи
+	/*RailwayTrack curEndTrack = newListTasks.isEmpty() ? startTrack : getNextEndTrack(simpleTask, nextTask, i, cntCouple, cntDecouple, task.listTask);// конечный путь для задачи
 	RailwayTrack curStartTrack = newListTasks.isEmpty() ? null : getNextStartTrack(previousTask, nextTask); // начальный путь для задачи
-	RailwayTrack trackForOffst = curEndTrack == null ? null : curEndTrack;
+	RailwayTrack trackForOffst = curEndTrack == null ? null : curEndTrack;*/
 	//traceln("Выбрал конечный путь для задачи " + curEndTrack.getName());
-	Double offset = curEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
+	
 	switch (simpleTask.getType()){
 		case "Создание" :
 			newListTasks.add(getTaskCreate());
@@ -16901,7 +16977,7 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			newListTasks.add(getTaskDelay());
 			break;
 		case "Терминирование" :
-			newListTasks.add(new Task(simpleTask.getType(),	curStartTrack, curEndTrack,	offset));
+			newListTasks.add(getTaskTermination(simpleTask, nextTask)/*new Task(simpleTask.getType(),	curStartTrack, curEndTrack,	offset)*/);
 			break;
 	}
 }
@@ -17094,15 +17170,16 @@ return nextTrack;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[double offset = 0;
+String frontName = front == null ? "" : front.getName();
 //traceln("Захожу");
-if(main.data.frontsFinishOffsets.containsKey(targetTrack) || main.data.frontsDelayOffset.containsKey(targetTrack)){
+if(main.data.frontsFinishOffsets.containsKey(frontName) || main.data.frontsDelayOffset.containsKey(targetTrack)){
 	if (typeTask.equals("Движение в цех")){
 		offset = main.data.getOffsetForDelay(targetTrack);
 	}
 	else{
 		//traceln("Фронт в таске");
 		//traceln(front);
-		offset = main.data.getFinitshFrontOffset(front);
+		offset = main.data.getFinitshFrontOffset(front.getName());
 	}
 }
 else{
@@ -17366,6 +17443,30 @@ if (type.contains("Отправка") && main.queueTasksAction.size() < 1){
 	//traceln(yellow, "Задача, начальный путь " + task.getStartTrack().getName());
 	//traceln("А смещение " + task.getOffset());
 }
+return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Task]]></ReturnType>
+					<Id>1708088485819</Id>
+					<Name><![CDATA[getTaskTermination]]></Name>
+					<X>820</X><Y>580</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[currTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[nextTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
+					<Body><![CDATA[RailwayTrack copyStartTrack = startTrack;
+RailwayTrack copyEndTrack = main.track6;;
+Double offset = copyEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
+Task task = new Task(currTask.getType(), copyStartTrack, copyEndTrack, offset);
 return task;]]></Body>
 				</Function>
 			</Functions>
@@ -22593,12 +22694,13 @@ else if (currentTask.getType().equals("Сцепка")){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[boolean isCreate = ((superTask.type.equals("Прибытие состава на станцию solo") 
-	|| superTask.type.equals("Прибытие состава на станцию") 
-		//|| superTask.type.equals("Расстановка")
-		)
-    	&& currentTask.getType().equals("Создание") );
+	|| superTask.type.equals("Прибытие состава на станцию")) 
+		&& currentTask.getType().equals("Создание"));
 double koef = isCreate ? 60 : 40;
 double offset = ((currentTask.getStartTrack().length(METER) - koef) - currentTask.getTrainLength());
+if (main.data.frontsFinishOffsets.containsKey(currentTask.getCars().get(0).track)){
+	offset = main.data.getFinitshFrontOffset(currentTask.getCars().get(0).track);
+}
 return  offset;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -22718,11 +22820,11 @@ if ((superTask.listTask.size() - 1) >= cntTask+1){
 	nextTask = superTask.listTask.get(cntTask+1);
 }
 if (nextTask != null && nextTask.getType().equals("Расцепка") && !endTrack.isEmpty() && train.size() > 1){
-	traceln(red, "==============================================================");
+	/*traceln(red, "==============================================================");
 	traceln("Отправляюсь на путь " + nextTask.getEndTrack().getName());
 	traceln("Свободного места на пути с краю " + nextTask.getEndTrack().getFreeSpace(true));
 	traceln("Длина перемещаемого состава " + (train.size() - nextTask.getCntVagons()));
-	traceln(red, "==============================================================");
+	traceln(red, "==============================================================");*/
 	int sizeLiftTrain = train.size() - nextTask.getCntVagons();
 	List<RailCar> cars = new ArrayList();
 	for (int i = sizeLiftTrain; i > -1; i--){
@@ -24655,13 +24757,13 @@ cntTask++;]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[traceln(red, "==============================================================");
+								<Code><![CDATA[/*traceln(red, "==============================================================");
 traceln("Отправляюсь на путь " + agent.getTrack(true).getName());
 traceln("Свободного места на пути с краю " + agent.getTrack(true).getFreeSpace(true));
 traceln("Длина перемещаемого состава " + (Tools.getLengthTrain(agent.getCars()) - 15));
 traceln("Состав состоит из " + agent.size() + " вагонов");
 traceln("Смещение состовляет " + distancePush);
-traceln(red, "==============================================================");]]></Code>
+traceln(red, "==============================================================");*/]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -38977,6 +39079,9 @@ public class TrackEdge implements Serializable {
     public boolean isEnoughPlace(List<RailCar> carsForFront) {
     	double fillTrackLength = Tools.getLengthTrain(getRailCarsOnTrack());
     	double usableTrackLength = getUsableLength();
+    	traceln("На пути " + getName() + " свободного места " + (usableTrackLength - fillTrackLength));
+    	traceln("На пути занято места " + Tools.getLengthTrain(getRailCarsOnTrack()));
+    	traceln("Нужно места на пути под " + carsForFront.size() + " вагонов " + Tools.getLengthTrain(carsForFront));
     	return usableTrackLength - fillTrackLength  >= Tools.getLengthTrain(carsForFront);
     }
 
@@ -39580,10 +39685,11 @@ public class Request {
     private Date changeStatus;
     private String typeOwner;
     private String model;
+    private RailCar statCar;
 
     public Request(String numRequest, String numVagon, String numInvoice, String typeVagon,
                    String typeProduct, String numFront, String nameOwner, Date dateRequest,
-                   int change, double weight, String status, Date changeStatus, String typeOwner, String model) {
+                   int change, double weight, String status, Date changeStatus, String typeOwner, String model, RailCar statCar) {
         this.numRequest = numRequest;
         this.numVagon = numVagon;
         this.numInvoice = numInvoice;
@@ -39599,6 +39705,7 @@ public class Request {
         this.changeStatus = changeStatus;
         this.typeOwner = typeOwner;
         this.model = model;
+        this.statCar = statCar;
     }
     
     public RailCar getCar() {
@@ -39613,6 +39720,8 @@ public class Request {
     	car.changeStatus = changeStatus;
     	car.typeOwner = typeOwner;
     	car.model = model;
+    	car.length = statCar.length;
+    	car.weightSelf = statCar.weightSelf;
     	return car;
     }
 
@@ -39634,6 +39743,15 @@ public class Request {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    
+    public RailCar getStatCar() {
+        return statCar;
+    }
+
+    public void setStatCar(RailCar statCar) {
+        this.statCar = statCar;
     }
     
     
@@ -39791,7 +39909,7 @@ public class FormationOptimizer {
     private Date currDate;
     private double weightTrain = 2680.0;
     private double lengthTrain = 630;
-    public static boolean isTrace = false;
+    public static boolean isTrace = true;
 
     public FormationOptimizer(Front front, List<TrackEdge> pops, List<Integer> hashCars, Date currDate) {
         this.front = front;
@@ -39807,7 +39925,7 @@ public class FormationOptimizer {
     	Map<RailCar, Double> carsPriority = new HashMap();
     	List<RailCar> cars = new ArrayList();
     	Tools.trace("Перед приоритетом, размер вагонов на отправку " + hashCars.size(), isTrace);
-    	Tools.trace(hashCars.toString(), isTrace);
+    	//Tools.trace(hashCars.toString(), isTrace);
     	for (Integer hashCar : hashCars) {
     		RailCar car = getCarsOnPopTracks().stream().filter(p-> p.hashCode() == hashCar).findFirst().orElse(null);
     		double priority = getPriorityByCar(car);
@@ -40275,6 +40393,7 @@ public class TrainArrival {
     private Date date;
     private List<RailCar> train;
     private TrackEdge targetTrack;
+    public static boolean isTrace = true;
 
     public TrainArrival(Date date, List<RailCar> train, TrackEdge targetTrack) {
         this.date = date;
@@ -40333,38 +40452,50 @@ public class TrainArrival {
     }
     
     
-    public static List<RailCar> getCarsOfTrain(List<Request> requests, List<Request> contactRequests, RailCar locomotive){
+    public static List<RailCar> getCarsOfTrain(List<Request> requests, List<Request> contactRequests, RailCar locomotive, TrackEdge trackArrive){
     	List<RailCar> cars = new ArrayList();
     	Set<Request> usedRequests = new HashSet();
     	double sumWeight = 0;
-    	double maxSum = (locomotive.maxWeightForArrive - locomotive.weightSelf);
-    	/*traceln("Локомотив может везти " + locomotive.maxWeightForArrive);
-    	traceln("Масса локомотива " + locomotive.weightSelf);
-    	traceln("Размер списка текущих заявок " + requests.size());
-    	traceln("Размер списка контактных заявок " + contactRequests.size());*/
+    	double sumLength = 0;
+    	double maxSumWeight = (locomotive.maxWeightForArrive - locomotive.weightSelf);
+    	double maxSumLength = trackArrive.getUsableLength();
+    	Tools.trace("Локомотив может везти " + maxSumWeight, isTrace);
+    	Tools.trace("Путь имеет полезную длину " + maxSumLength, isTrace);
+    	//Tools.trace("Размер списка текущих заявок " + requests.size(), isTrace);
+    	//Tools.trace("Размер списка контактных заявок " + contactRequests.size(), isTrace);
     	// Сначала необходимо включить в состав вагоны местного парка, вес которых больше 0 (чтобы выгрузить продукцию)
     	for (Request req : contactRequests) {
-    		if (sumWeight + req.getWeight() <= maxSum && !usedRequests.contains(req)) {
-    			RailCar car = req.getCar();
+    		RailCar car = req.getCar();
+    		if (sumWeight + car.getWeight() <= maxSumWeight // если сумма состава не превышает 
+    					&&  sumLength + car.length <= maxSumLength
+    						&& !usedRequests.contains(req)) {
     			cars.add(car);
-    			sumWeight += req.getWeight();
+    			sumWeight += car.getWeight();
+    			sumLength += car.length;
     			usedRequests.add(req);
     		}
     	}
     	for (Request req : requests) {
-    		/*traceln(black, "Рассматриваю заявку " + req);
-    		traceln(black, "maxSum " + maxSum);
-    		traceln(black, "req.getWeight() " + req.getWeight());
-    		traceln(black, "usedRequests.contains(req) " + usedRequests.contains(req));*/
-    		if ((sumWeight + req.getWeight()) <= maxSum && !usedRequests.contains(req)) {
-    			//traceln(green, "Подходит ");
-    			RailCar car = req.getCar();
+    		/*Tools.trace(black, "Рассматриваю заявку " + req, isTrace);
+    		Tools.trace(black, "maxSum " + maxSum, isTrace);
+    		Tools.trace(black, "req.getWeight() " + req.getWeight(), isTrace);
+    		Tools.trace(black, "usedRequests.contains(req) " + usedRequests.contains(req), isTrace);*/
+    		RailCar car = req.getCar();
+    		if ((sumWeight + car.getWeight()) <= maxSumWeight
+    				&&  sumLength + car.length <= maxSumLength
+    					&& !usedRequests.contains(req)) {
+    			Tools.trace(black, "Вагон имеет размер " + car.length, isTrace);
+        		Tools.trace(black, "Вагон имеет вес " + car.getWeight(), isTrace);
     			cars.add(car);
-    			sumWeight += req.getWeight();
+    			sumWeight += car.getWeight();
+    			sumLength += car.length;
     			usedRequests.add(req);
+    			Tools.trace(green, "Подходит ", isTrace);
+    			Tools.trace(black, "Вес состава " + sumWeight, isTrace);
+    			Tools.trace(black, "Длина состава " + sumLength, isTrace);
     		}
     		else {
-    			//traceln(red, "Не подходит ");
+    			//Tools.trace(red, "Не подходит ", isTrace);
     		}
     	}
     	return cars;

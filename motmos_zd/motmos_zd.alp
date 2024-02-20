@@ -1031,7 +1031,7 @@ keyIndicators.updateStats();]]></Action>
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[pauseSimulation();]]></Action>
+					<Action><![CDATA[//pauseSimulation();]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -2318,11 +2318,14 @@ for (TrainSend ts1 : data.sendsCollection){
 			startTrack = ts.getReadyTracks().size() > 0 ? ts.getReadyTracks().get(0) : null;
 		}
 		else{
+			traceln("АГААААА");
 			startTrack = ts.getTrackForSend();
 		}
-		
+		traceln("Пути с вагонами под отправку");
+		ts.getReadyTracks().stream().forEach(p-> traceln(black, "Путь " + p.getName()));
 		data.sendsDone.add(ts1);
 		if (startTrack != null){
+			traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
 			ts.setRecTrack(startTrack);
 			task.startTrack = startTrack.getSelf();
 			//task.cntVagon = ts.getCntVagonsForDecouple(startTrack);
@@ -2333,7 +2336,7 @@ for (TrainSend ts1 : data.sendsCollection){
 		}
 	}
 }
-/*for (TrackEdge edge : ts.getReadyTracks()){
+for (TrackEdge edge : ts.getReadyTracks()){
 	// 1 Если на пути состав приближен к границе пути и может отправиться c пути целиком или состав имеет вес, который приближен к отправке со станции
 	if ((ts.checkAvailableLength(edge) && ts.isAvailableWeight(edge)) || ts.isAvailableWeightLim(edge)){
 		startTrack = edge;
@@ -2345,13 +2348,14 @@ for (TrainSend ts1 : data.sendsCollection){
 }
 
 if (startTrack != null){
+	traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
 	ts.setRecTrack(startTrack);
 	task.startTrack = startTrack.getSelf();
 	//task.cntVagon = ts.getCntVagonsForDecouple(startTrack);
 	task.trainSend = ts;
 	addTaskSuper(task);
 	traceln(violet, "Сработал я 2");
-}*/]]></Body>
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -13728,9 +13732,9 @@ if (conditionSimpleRoute(train)){
 else{
 	RailwaySwitch startSwitch = isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	RailwaySwitch endSwitch = endTrack.getStartSwitch()==null ? endTrack.getEndSwitch() : endTrack.getStartSwitch();
-	traceln("Начальный путь " + startTrack.getName());
+	/*traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -23487,7 +23491,6 @@ return direction;]]></Body>
 					<Body><![CDATA[RailwayTrack startTrain = train.getTrack(true);
 RailwayTrack endTrain = train.getTrack(false);
 RailwayTrack track = startTrain.getTrains().size() > 1 ? startTrain : endTrain;
-
 return (Train)track.getTrains().stream().filter(p-> !p.equals(train)).collect(Collectors.toList()).get(0);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -41449,7 +41452,11 @@ public class TrainCleaner implements Serializable {
 	 */
 	public TrackEdge getCorrectTrackByLength(TrackEdge trackToClean, Set<TrackEdge> usedEdges) {
 		double length = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack());
-		TrackEdge edge = getFilledTracks().stream().filter(p-> p.getFreeSpace() >= length && !p.getSelf().getName().equals(trackToClean.getSelf().getName()) &&  !usedEdges.contains(p)).findFirst().orElse(null);// ищется путь, на котором поместиться весь состав с пути
+		TrackEdge edge = getFilledTracks()
+								.stream()
+								.filter(p-> p.getFreeSpace() >= length && !p.getSelf().getName().equals(trackToClean.getSelf().getName()) && !usedEdges.contains(p))// ищется путь, на котором поместиться весь состав с пути
+								.findFirst()
+								.orElse(null);
 		if (edge == null) {
 			edge = getFilledTracks().stream().filter(p-> !usedEdges.contains(p)).max((p1, p2) -> Double.compare(p1.getFreeSpace(), p2.getFreeSpace())).get(); // если состав не может польностью разместиться на пути, будет выбран путь с максимальной вместимостью
 		}
@@ -41461,9 +41468,16 @@ public class TrainCleaner implements Serializable {
 	 * @return - возвращает список путей с вагонами, отсортированный по количеству свободного места
 	 */
 	public List<TrackEdge> getFilledTracks(){
-		List<TrackEdge> fullTracks = pops.stream().filter(p-> !p.getSelf().isEmpty()).sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).
-                compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack())))).
-                collect(Collectors.toList());
+		List<TrackEdge> fullTracks = pops
+									.stream()
+									.filter(p-> !p.getSelf().isEmpty() && !p.getRailCarsOnTrack().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции")))
+									.sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack()))))
+									.collect(Collectors.toList());
+		if (fullTracks.isEmpty()) {
+			fullTracks = pops.stream().filter(p-> !p.getSelf().isEmpty()).sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).
+	                compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack())))).
+	                collect(Collectors.toList());
+		}
 		return fullTracks;
 	}
 	
@@ -41561,7 +41575,7 @@ public class TrainSend{
     public TrackEdge getTrackForSend() {
     	List<TrackEdge> convTracks = pops
     			.stream()
-    			.filter( p-> isAvailableWeight(p) && p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции")) ).collect(Collectors.toList()); // все вагоны под отправку
+    			.filter( p-> isAvailableWeight(p) && !p.getSelf().isEmpty() && p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции")) ).collect(Collectors.toList()); // все вагоны под отправку
     	TrackEdge edge = null;
     	if (convTracks.size() > 0) {
     		edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку
@@ -41602,7 +41616,7 @@ public class TrainSend{
     }
     
     public List<TrackEdge> getReadyTracks(){
-    	List<TrackEdge> readyEdges = pops.stream().filter( p-> p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
+    	List<TrackEdge> readyEdges = pops.stream().filter( p-> !p.getSelf().isEmpty() && p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
     	return readyEdges;
     }
     /**
@@ -41680,8 +41694,8 @@ public class TrainSend{
     
     public static String getTypeTask(boolean useStationLoco, RailwayTrack startTrack, int cntVagons) {
     	String type = null;
-    	traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
-    	traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
+    	//traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
+    	//traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
     	if (useStationLoco) {
     		if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
     			type = "Отправка состава со станции solo";
@@ -41703,10 +41717,10 @@ public class TrainSend{
 
     @Override
     public String toString() {
-        return "TrainSend{" +
+        return dateSend == null ? " " : dateSend.toString();/*"TrainSend{" +
                 "dateSend=" + dateSend +
                 ", pops=" + pops +
-                '}';
+                '}';*/
     }
 }]]></Text>
 		</JavaClass>

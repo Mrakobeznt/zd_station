@@ -1613,7 +1613,7 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[avoidTracks.add(trackNp1);]]></Body>
+					<Body><![CDATA[avoidTracks.add(track4a);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2372,7 +2372,15 @@ if (!data.useStationLocoForArrive){
 	train.add(data.locosService.get(0));
 }
 traceln("task.startTrack " + task.startTrack  + " кол во вагонов " + task.cntVagon + " trainSend " + task.trainSend);
-String type = TrainSend.getTypeTask(data.useStationLocoForArrive, task.startTrack, train.size());
+String type = TrainSend.getTypeTask(data.useStationLocoForArrive, task.startTrack, task.trainSend.getCntVagonsForDecouple(getTrackEdgeByTrack(task.startTrack)));
+if (task.startTrack.getCars().stream().anyMatch(p-> ((RailCar)p).type.equals("Локомотив"))){ // если на пути стоит локомотив
+	TrackEdge finalEmptyTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+	TrackEdge startTr = getTrackEdgeByTrack(task.startTrack);
+	TrackEdge finalEndTrack = getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && !p.getName().equals(startTr.getName())).findFirst().orElse(finalEmptyTrack);
+	traceln(purple, "Перемещаю на путь " + finalEndTrack.getName());
+	RailCar car = startTr.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null);
+	addTask("Перемещение", task.startTrack, finalEndTrack.getSelf(), car);
+}
 addTask(type, track6, task.startTrack, train, false, task.trainSend);
 activeSuperTasks++;]]></Body>
 				</Function>
@@ -2419,6 +2427,41 @@ task.cntVagon = train.size();
 task.trainSend = trainSend;
 task.withLoco = withLoco;
 task.cars = train;
+task.listTask = task.makeTasks();
+enterTasks.take(task);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1708429089382</Id>
+					<Name><![CDATA[addTask]]></Name>
+					<X>1100</X><Y>2520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[type]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[startTrack]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[endTrack]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[car]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Body><![CDATA[TaskAction task = add_taskAction();
+task.type = type;
+task.startTrack = startTrack;
+task.endTrack = endTrack;
+//task.priority = 100;
+task.car = car;
 task.listTask = task.makeTasks();
 enterTasks.take(task);]]></Body>
 				</Function>
@@ -3278,6 +3321,9 @@ switch (typeTask){
 		break;
 	case "Расцепка" :
 		logic1.enterDecouple.take(agent);
+		break;
+	case "Терминирование" :
+		logic1.enterSink.take(agent);
 		break;
 }]]></Code>
 							</Value>
@@ -13682,9 +13728,9 @@ if (conditionSimpleRoute(train)){
 else{
 	RailwaySwitch startSwitch = isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	RailwaySwitch endSwitch = endTrack.getStartSwitch()==null ? endTrack.getEndSwitch() : endTrack.getStartSwitch();
-	//traceln("Начальный путь " + startTrack.getName());
-	//traceln("Конечный путь " + endTrack.getName());
-	//traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
+	traceln("Начальный путь " + startTrack.getName());
+	traceln("Конечный путь " + endTrack.getName());
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -17476,6 +17522,18 @@ public String toString(){
 						<Type><![CDATA[TrainSend]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1708429126077</Id>
+					<Name><![CDATA[car]]></Name>
+					<X>190</X><Y>220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[RailCar]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1703139102821</Id>
 					<Name><![CDATA[startTrack]]></Name>
@@ -17591,10 +17649,10 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			break;
 	}
 }
-/*traceln(orange, "Для задачи " + type);
+traceln(orange, "Для задачи " + type);
 newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
 + " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()+ " смещение " + p.getOffset()));
-*/
+
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -17867,7 +17925,7 @@ return task;]]></Body>
 					<Body><![CDATA[Task task = null;
 RailwayTrack curEndTrack = null;
 RailwayTrack curStartTrack = null;
-if (!type.equals("Прибытие состава на станцию") && !type.contains("со станции") ){
+if (!type.equals("Прибытие состава на станцию") && !type.contains("со станции") && ! type.equals("Перемещение")){
 	if (!useStartTrack){
 	curEndTrack = startTrack;
 	}
@@ -18051,7 +18109,7 @@ return task;]]></Body>
 TrackEdge finalEmptyTrack = main.getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 //traceln("finalEmptyTrack " + finalEmptyTrack);
 TrackEdge finalEndTrack = main.getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty()).findFirst().orElse(finalEmptyTrack);
-if (type.contains("Отправка") && main.queueTasksAction.size() < 1){
+if (type.contains("Отправка") && main.queueTasksAction.size() < 1 && main.queueTasksSuper.size() < 1){
 	//traceln(yellow, "Добавляю задачу движение кон, начальный путь " + endTrack.getName());
 	task = new Task("Движение", endTrack, finalEndTrack.getSelf(), -1.0);
 	//traceln(yellow, "Задача, начальный путь " + task.getStartTrack().getName());
@@ -22655,39 +22713,6 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1702736992565</Id>
-					<Name><![CDATA[connector40]]></Name>
-					<X>1320</X><Y>610</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[sink]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Sink]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[enterSink]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Enter]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-120</X><Y>0</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
 					<Id>1702737000546</Id>
 					<Name><![CDATA[connector26]]></Name>
 					<X>20</X><Y>720</Y>
@@ -23250,6 +23275,72 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 						<Point><X>80</X><Y>10</Y></Point>
 					</Points>
 				</Connector>
+				<Connector>
+					<Id>1708432922054</Id>
+					<Name><![CDATA[connector23]]></Name>
+					<X>1320</X><Y>610</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[trainDispose]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
+						<ClassName><![CDATA[TrainDispose]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[delay9]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>-40</X><Y>0</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1708432922056</Id>
+					<Name><![CDATA[connector40]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[delay9]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Delay]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[enterSink]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Enter]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>1240</X><Y>610</Y></Point>
+						<Point><X>1200</X><Y>610</Y></Point>
+					</Points>
+				</Connector>
 			</Connectors>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -23267,6 +23358,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
 					<Body><![CDATA[if (train.size() > 1){
+	traceln(black, "Отправляю состав на ожидание составов");
 	enterTrains.take(train);
 }else if (train.getCars().get(0).type.equals("Локомотив")){
 	enterLoco.take(train);
@@ -23308,7 +23400,7 @@ else if (currentTask.getType().equals("Сцепка")){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[boolean isCreate = ((superTask.type.equals("Прибытие состава на станцию solo") 
-	|| superTask.type.equals("Прибытие состава на станцию")) 
+	|| superTask.type.equals("Прибытие состава на станцию") || superTask.type.contains("со станции")) 
 		&& currentTask.getType().equals("Создание"));
 double koef = isCreate ? 60 : 40;
 double offset = ((currentTask.getStartTrack().length(METER) - koef) - currentTask.getTrainLength());
@@ -23362,9 +23454,14 @@ if (cntTask > 2){
 	//traceln("Предыдущая задача " + previousTask.getType());
 }
 
-if (superTask.type.equals("Прибытие состава на станцию") || (previousTask != null && previousTask.getType().equals("Ожидание") /*&& previousTask.getEndTrack().equals(main.track10p1)*/)){
+if (superTask.type.equals("Прибытие состава на станцию") || superTask.type.contains("со станции") || (previousTask != null && previousTask.getType().equals("Ожидание") /*&& previousTask.getEndTrack().equals(main.track10p1)*/)){
 	//traceln("Сработало направление");
-	direction = false;
+	if (superTask.type.contains("со станции") && currentTask.getEndTrack().equals(main.track6)){
+		direction = true;
+	}
+	else{
+		direction = false;
+	}
 }
 else{
 	//traceln("Не сработал направление ");
@@ -27059,6 +27156,9 @@ delay.stopDelayForAll();]]></Code>
 							<ClassName><![CDATA[Enter]]></ClassName>
 							<ItemName><![CDATA[1412336242933]]></ItemName>
 						</GenericParameterSubstituteReference>
+						<GenericParameterSubstituteValue Class="CodeValue">
+							<Code><![CDATA[Train]]></Code>
+						</GenericParameterSubstituteValue>
 					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
@@ -31001,9 +31101,9 @@ traceln(yellow, "=========================");]]></Code>
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1703666309924</Id>
-					<Name><![CDATA[sink]]></Name>
-					<X>1320</X><Y>600</Y>
+					<Id>1703666321151</Id>
+					<Name><![CDATA[sink1]]></Name>
+					<X>70</X><Y>690</Y>
 					<Label><X>-10</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -31022,9 +31122,6 @@ traceln(yellow, "=========================");]]></Code>
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[delay.stopDelayForAll();]]></Code>
-							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[destroyEntity]]></Name>
@@ -31070,30 +31167,126 @@ traceln(yellow, "=========================");]]></Code>
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1703666321151</Id>
-					<Name><![CDATA[sink1]]></Name>
-					<X>70</X><Y>690</Y>
-					<Label><X>-10</X><Y>-20</Y></Label>
+					<Id>1708432920329</Id>
+					<Name><![CDATA[delay9]]></Name>
+					<X>1240</X><Y>590</Y>
+					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Sink]]></ClassName>
+						<ClassName><![CDATA[Delay]]></ClassName>
 					</ActiveObjectClass>
 					<GenericParameterSubstitute>
 						<GenericParameterSubstituteReference>
 							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-							<ClassName><![CDATA[Sink]]></ClassName>
-							<ItemName><![CDATA[1412336242929]]></ItemName>
+							<ClassName><![CDATA[Delay]]></ClassName>
+							<ItemName><![CDATA[1412336242930]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[delayTime]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maximumCapacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[entityLocation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[pushProtocol]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onEnter]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onAtExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onExit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRemove]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1708433713143</Id>
+					<Name><![CDATA[trainDispose]]></Name>
+					<X>1320</X><Y>610</Y>
+					<Label><X>-40</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
+						<ClassName><![CDATA[TrainDispose]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
+							<ClassName><![CDATA[TrainDispose]]></ClassName>
+							<ItemName><![CDATA[1412464642030]]></ItemName>
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[destroyEntity]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[delay.stopDelayForAll();]]></Code>
+							</Value>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -41462,7 +41655,7 @@ public class TrainSend{
     	int cntVagons = 0;
     	double maxWeight = locomotive.maxWeightForSend - locomotive.getWeight();
     	double weightTrain = 0;
-    	for (RailCar car : edge.getRailCarsOnTrack()) {
+    	for (RailCar car : edge.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())) {
     		if (weightTrain + car.getWeight() <= maxWeight) {
     			cntVagons++;
     			weightTrain += car.getWeight();
@@ -41487,8 +41680,10 @@ public class TrainSend{
     
     public static String getTypeTask(boolean useStationLoco, RailwayTrack startTrack, int cntVagons) {
     	String type = null;
+    	traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
+    	traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
     	if (useStationLoco) {
-    		if (startTrack.getCars().size() == cntVagons) {
+    		if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
     			type = "Отправка состава со станции solo";
     		}
     		else {
@@ -41496,7 +41691,7 @@ public class TrainSend{
     		}
     	}
     	else {
-    		if (startTrack.getCars().size() == cntVagons) {
+    		if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
     			type = "Отправка состава со станции";
     		}
     		else {

@@ -1423,7 +1423,7 @@ return edges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705655857748</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1000</X><Y>2555</Y>
+					<X>1000</X><Y>2620</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1464,7 +1464,7 @@ enterTasks.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705666815983</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1000</X><Y>2585</Y>
+					<X>1000</X><Y>2650</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1878,7 +1878,7 @@ return isMatch;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706788764300</Id>
 					<Name><![CDATA[addTaskSuper]]></Name>
-					<X>1000</X><Y>2615</Y>
+					<X>1000</X><Y>2680</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2314,47 +2314,24 @@ for (TrainSend ts1 : data.sendsCollection){
 	if (!data.sendsDone.contains(ts1) // если дата по расписанию не была
 			&& getModelTime().getTime() <= ts1.getDateSend().getTime() + offsetTime // если дата прибытия через 2 часа от текущей даты
 				&& ts1.getDateSend().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 2 часа от текущей даты
-		if (ts.getTrackForSend() == null){
-			startTrack = ts.getReadyTracks().size() > 0 ? ts.getReadyTracks().get(0) : null;
-		}
-		else{
-			traceln("АГААААА");
-			startTrack = ts.getTrackForSend();
-		}
-		traceln("Пути с вагонами под отправку");
-		ts.getReadyTracks().stream().forEach(p-> traceln(black, "Путь " + p.getName()));
+		startTrack = getTrackForSend(ts, true);
 		data.sendsDone.add(ts1);
 		if (startTrack != null){
-			traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
-			ts.setRecTrack(startTrack);
-			task.startTrack = startTrack.getSelf();
-			//task.cntVagon = ts.getCntVagonsForDecouple(startTrack);
-			task.trainSend = ts;
-			traceln(violet, "Сработал я 1 " + ts);
-			addTaskSuper(task);
-			return;
+			ts.setIsSchedule(true);
+			break;
 		}
 	}
 }
-for (TrackEdge edge : ts.getReadyTracks()){
-	// 1 Если на пути состав приближен к границе пути и может отправиться c пути целиком или состав имеет вес, который приближен к отправке со станции
-	if ((ts.checkAvailableLength(edge) && ts.isAvailableWeight(edge)) || ts.isAvailableWeightLim(edge)){
-		startTrack = edge;
-		break;
-	}
-	else {
-		startTrack = edge;
-	}
+if (startTrack == null){
+	startTrack = getTrackForSend(ts, false);
+	ts.setIsSchedule(false);
 }
-
 if (startTrack != null){
 	traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
 	ts.setRecTrack(startTrack);
 	task.startTrack = startTrack.getSelf();
-	//task.cntVagon = ts.getCntVagonsForDecouple(startTrack);
 	task.trainSend = ts;
 	addTaskSuper(task);
-	traceln(violet, "Сработал я 2");
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2371,29 +2348,34 @@ if (startTrack != null){
 						<Name><![CDATA[task]]></Name>
 						<Type><![CDATA[TaskAction]]></Type>
 					</Parameter>
-					<Body><![CDATA[List<RailCar> train = new ArrayList();
-if (!data.useStationLocoForArrive){
-	train.add(data.locosService.get(0));
-}
-traceln("task.startTrack " + task.startTrack  + " кол во вагонов " + task.cntVagon + " trainSend " + task.trainSend);
-String type = TrainSend.getTypeTask(data.useStationLocoForArrive, task.startTrack, task.trainSend.getCntVagonsForDecouple(getTrackEdgeByTrack(task.startTrack)));
-if (task.startTrack.getCars().stream().anyMatch(p-> ((RailCar)p).type.equals("Локомотив"))){ // если на пути стоит локомотив
-	TrackEdge finalEmptyTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
-	TrackEdge startTr = getTrackEdgeByTrack(task.startTrack);
-	TrackEdge finalEndTrack = getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && !p.getName().equals(startTr.getName())).findFirst().orElse(finalEmptyTrack);
-	traceln(purple, "Перемещаю на путь " + finalEndTrack.getName());
-	RailCar car = startTr.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null);
-	addTask("Перемещение", task.startTrack, finalEndTrack.getSelf(), car);
-}
-addTask(type, track6, task.startTrack, train, false, task.trainSend);
-activeSuperTasks++;]]></Body>
+					<Body><![CDATA[TrackEdge startTrack = getTrackForSend(task.trainSend, task.trainSend.getIsSchedule());
+if (startTrack != null){ // если путь, с которого можно забирать вагоны существует
+	List<RailCar> train = new ArrayList();
+	if (!data.useStationLocoForArrive){ // если станционный локомотив не используется для отправки вагонов со станции 
+		train.add(data.locosService.get(0));
+	}
+	else{
+		train.add(((Train)locoDelay.get(0)).getCars().get(0));
+	}
+	traceln("task.startTrack " + task.startTrack  + " кол во вагонов " + task.cntVagon + " trainSend " + task.trainSend);
+	String type = TrainSend.getTypeTask(data.useStationLocoForArrive, task.startTrack, task.trainSend.getCntVagonsForDecouple(getTrackEdgeByTrack(task.startTrack)));
+	if (startTrack.getRailCarsOnTrack().stream().anyMatch(p-> p.type.equals("Локомотив"))){ // если на пути стоит локомотив
+		TrackEdge finalEmptyTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+		TrackEdge finalEndTrack = getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && !p.getName().equals(startTrack.getName())).findFirst().orElse(finalEmptyTrack);
+		traceln(purple, "Перемещаю на путь " + finalEndTrack.getName());
+		RailCar car = startTrack.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null);
+		addTask("Перемещение", startTrack.getSelf(), finalEndTrack.getSelf(), car);
+	}
+	addTask(type, track6, startTrack.getSelf(), train, false, task.trainSend);
+	activeSuperTasks++;
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708357725115</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1000</X><Y>2525</Y>
+					<X>1000</X><Y>2590</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2439,7 +2421,7 @@ enterTasks.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708429089382</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1100</X><Y>2520</Y>
+					<X>1100</X><Y>2585</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2468,6 +2450,50 @@ task.endTrack = endTrack;
 task.car = car;
 task.listTask = task.makeTasks();
 enterTasks.take(task);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[TrackEdge]]></ReturnType>
+					<Id>1708504460561</Id>
+					<Name><![CDATA[getTrackForSend]]></Name>
+					<Description><![CDATA[Возвращает путь для отправки вагонов со станции по расписанию или по требованию]]></Description>
+					<X>1010</X><Y>2530</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[trainSend]]></Name>
+						<Type><![CDATA[TrainSend]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[isRasp]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[TrackEdge startTrack = null;
+if (isRasp){
+	if (trainSend.getTrackForSend() == null){
+		startTrack = trainSend.getReadyTracks().size() > 0 ? trainSend.getReadyTracks().get(0) : null;
+	}
+	else{
+		startTrack = trainSend.getTrackForSend();
+	}
+}
+else{
+	for (TrackEdge edge : trainSend.getReadyTracks()){
+		// 1 Если на пути состав приближен к границе пути и может отправиться c пути целиком или состав имеет вес, который приближен к отправке со станции
+		if ((trainSend.checkAvailableLength(edge) && trainSend.isAvailableWeight(edge)) || trainSend.isAvailableWeightLim(edge)){
+			startTrack = edge;
+			break;
+		}
+		//2 Если на пути состав по весу превышает количество вагонов, которое может перевезти локомотив
+		else if(trainSend.isBiggerThenMaxWeight(edge)){
+			startTrack = edge;
+			break;
+		}
+	}
+}
+return startTrack;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -13732,9 +13758,9 @@ if (conditionSimpleRoute(train)){
 else{
 	RailwaySwitch startSwitch = isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	RailwaySwitch endSwitch = endTrack.getStartSwitch()==null ? endTrack.getEndSwitch() : endTrack.getStartSwitch();
-	/*traceln("Начальный путь " + startTrack.getName());
+	traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -15253,7 +15279,7 @@ cnt++;]]></Code>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[train.getCars().stream().forEach(p-> traceln(violet, "Размер вагона " + p.length));]]></Code>
+								<Code><![CDATA[//train.getCars().stream().forEach(p-> traceln(violet, "Размер вагона " + p.length));]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -17600,12 +17626,12 @@ public String toString(){
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[traceln(purple, "Тип задачи " + type);
+					<Body><![CDATA[//traceln(purple, "Тип задачи " + type);
 TaskAction task = main.data.taskCollection.stream()
 .filter(p->p.type.equals(this.type))
 .findFirst()
 .orElse(null);// определяем задачу, список операций которой мы рассматриваем
-traceln(purple, "Конечный путь  " + (endTrack == null ? null : endTrack.getName()));
+//traceln(purple, "Конечный путь  " + (endTrack == null ? null : endTrack.getName()));
 List<Task> newListTasks = new ArrayList();
 int cntCouple = 0;
 int cntDecouple = 0;
@@ -17653,10 +17679,10 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			break;
 	}
 }
-traceln(orange, "Для задачи " + type);
+/*traceln(orange, "Для задачи " + type);
 newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
 + " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()+ " смещение " + p.getOffset()));
-
+*/
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -23362,7 +23388,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
 					<Body><![CDATA[if (train.size() > 1){
-	traceln(black, "Отправляю состав на ожидание составов");
+	//traceln(black, "Отправляю состав на ожидание составов");
 	enterTrains.take(train);
 }else if (train.getCars().get(0).type.equals("Локомотив")){
 	enterLoco.take(train);
@@ -25201,7 +25227,7 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 			train = (Train)currentTask.getEndTrack().getTrains().get(0);
 		}
 		else{
-			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
+			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
 			train = (Train)currentTask.getStartTrack().getTrains().get(0);
 		}
 	}
@@ -39891,9 +39917,9 @@ public class TrackEdge implements Serializable {
     public boolean isEnoughPlace(List<RailCar> carsForFront) {
     	double fillTrackLength = Tools.getLengthTrain(getRailCarsOnTrack());
     	double usableTrackLength = getUsableLength();
-    	traceln("На пути " + getName() + " свободного места " + (usableTrackLength - fillTrackLength));
-    	traceln("На пути занято места " + Tools.getLengthTrain(getRailCarsOnTrack()));
-    	traceln("Нужно места на пути под " + carsForFront.size() + " вагонов " + Tools.getLengthTrain(carsForFront));
+    	//traceln("На пути " + getName() + " свободного места " + (usableTrackLength - fillTrackLength));
+    	//traceln("На пути занято места " + Tools.getLengthTrain(getRailCarsOnTrack()));
+    	//traceln("Нужно места на пути под " + carsForFront.size() + " вагонов " + Tools.getLengthTrain(carsForFront));
     	return usableTrackLength - fillTrackLength  >= Tools.getLengthTrain(carsForFront);
     }
 
@@ -40732,7 +40758,7 @@ public class FormationOptimizer {
     private Date currDate;
     private double weightTrain = 2680.0;
     private double lengthTrain = 630;
-    public static boolean isTrace = true;
+    public static boolean isTrace = false;
 
     public FormationOptimizer(Front front, List<TrackEdge> pops, List<Integer> hashCars, Date currDate) {
         this.front = front;
@@ -41228,7 +41254,7 @@ public class TrainArrival {
     private Date date;
     private List<RailCar> train;
     private TrackEdge targetTrack;
-    public static boolean isTrace = true;
+    public static boolean isTrace = false;
 
     public TrainArrival(Date date, List<RailCar> train, TrackEdge targetTrack) {
         this.date = date;
@@ -41512,6 +41538,7 @@ public class TrainSend{
     private List<TrackEdge> pops;
     private RailCar locomotive;
     private TrackEdge recTrack;
+    private boolean isSchedule;
 
     public TrainSend() {
     }
@@ -41559,6 +41586,14 @@ public class TrainSend{
 
     public void setRecTrack(TrackEdge recTrack) {
         this.recTrack = recTrack;
+    }
+    
+    public boolean getIsSchedule() {
+        return isSchedule;
+    }
+
+    public void setIsSchedule(boolean isSchedule) {
+        this.isSchedule = isSchedule;
     }
     
     public RailCar getLocomotive() {
@@ -41681,7 +41716,7 @@ public class TrainSend{
     /**
      * 
      * @param edge
-     * @return - во
+     * @return - возвращает результат true, если на пути находится больше вагонов, чем может перевезти локомотив
      */
     public boolean isBiggerThenMaxWeight(TrackEdge edge) {
     	boolean isBigger = false;

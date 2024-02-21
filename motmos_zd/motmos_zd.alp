@@ -1022,7 +1022,7 @@ keyIndicators.updateStats();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[15]]></Code>
+							<Code><![CDATA[16]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1031,7 +1031,7 @@ keyIndicators.updateStats();]]></Action>
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[//pauseSimulation();]]></Action>
+					<Action><![CDATA[pauseSimulation();]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -1563,7 +1563,8 @@ enterTasks.take(task);]]></Body>
 22. Отработать ситуацию, когда локомотив мешает забрать вагоны
 23. Добавлять заявки по контактному графику в массив со всеми заявками
 24. Добавить цветовую легенду по статусам вагонов
-25. Разобраться с ошибкой при увеличении скорости]]></Body>
+25. Разобраться с ошибкой при увеличении скорости
+26. Собирать вагоны для отправки на фронт сначала либо на пустых путях, либо на путях с вагонами на отправку на фронт, если там нет нужных вагонов, если нет, то потом с вагонами под отправку]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -23571,7 +23572,7 @@ if (nextTask != null && nextTask.getType().equals("Расцепка") && !endTra
 		cars.add((RailCar)train.getCar(i));
 	}
 	if ((endTrack.getFreeSpace(true) - 40) < Tools.getLengthTrain(cars)){// Если расстояние с начальной стороны пути меньше состава, и состав меньше 1 TODO Проверка сейчас только с одной стороны
-		distancePush = Tools.getLengthTrain(cars) - (endTrack.getFreeSpace(true) - 40);
+		distancePush = Tools.getLengthTrain(cars) - (endTrack.getFreeSpace(true)-15); // Убрал -40 из скобки
 	}
 	if (distancePush > 0){
 		needPush = true;

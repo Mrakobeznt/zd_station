@@ -1022,7 +1022,7 @@ keyIndicators.updateStats();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[16]]></Code>
+							<Code><![CDATA[27]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1423,7 +1423,7 @@ return edges;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705655857748</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1000</X><Y>2620</Y>
+					<X>1000</X><Y>2690</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1464,7 +1464,7 @@ enterTasks.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1705666815983</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1000</X><Y>2650</Y>
+					<X>1000</X><Y>2720</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1621,7 +1621,7 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706284017341</Id>
 					<Name><![CDATA[makeTasksPickUpToFront]]></Name>
-					<X>1000</X><Y>2350</Y>
+					<X>1000</X><Y>2380</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1704,7 +1704,8 @@ TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> !trackWithTarg
 //RailwayTrack startTrack = null;
 List<TaskAction> tasks = fo.getTasks(targetTrack);
 if (tasks.size() == 1){ // если всего один фрагмент
-	String type = tasks.get(0).startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == fo.getCarsForSendtoFront().size() ? "Отправка всех вагонов на пустой грузовой фронт" : "Отправка вагонов на пустой грузовой фронт";
+	traceln(red, "Сработало исключение");
+	String type = getTypeSendForFront(fo, getTrackEdgeByTrack(tasks.get(0).startTrack));
 	addTask(type, tasks.get(0).startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
 }
 else{
@@ -1717,7 +1718,7 @@ else{
 	}
 	
 	if (tasks.size() > 0 && targetTrack != null){
-		String type = targetTrack.getRailCarsOnTrack().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == fo.getCarsForSendtoFront().size() ? "Отправка всех вагонов на пустой грузовой фронт" : "Отправка вагонов на пустой грузовой фронт";
+		String type = getTypeSendForFront(fo, targetTrack);
 		addTask(type, targetTrack.getSelf(), front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
 	}
 }
@@ -1879,7 +1880,7 @@ return isMatch;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706788764300</Id>
 					<Name><![CDATA[addTaskSuper]]></Name>
-					<X>1000</X><Y>2680</Y>
+					<X>1000</X><Y>2750</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1922,7 +1923,7 @@ else{
 					<Id>1706874741711</Id>
 					<Name><![CDATA[getTasksForPickUpToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>1010</X><Y>2330</Y>
+					<X>1010</X><Y>2360</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1942,7 +1943,7 @@ return tasks;]]></Body>
 					<Id>1706874741713</Id>
 					<Name><![CDATA[setTasksForPickUpToFront]]></Name>
 					<Description><![CDATA[Возвращает список глобальных задач для создания ]]></Description>
-					<X>1000</X><Y>2310</Y>
+					<X>1000</X><Y>2340</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2112,7 +2113,7 @@ return requests;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1707315679325</Id>
 					<Name><![CDATA[setTaskForArrive]]></Name>
-					<X>1000</X><Y>2390</Y>
+					<X>1000</X><Y>2460</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2141,7 +2142,7 @@ for (TrainArrival arrival : data.arrivalsCollection){
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1707320181132</Id>
 					<Name><![CDATA[makeTaskForArrive]]></Name>
-					<X>1010</X><Y>2410</Y>
+					<X>1010</X><Y>2480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2176,7 +2177,7 @@ return arrivalDone;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1707488302845</Id>
 					<Name><![CDATA[setTaskForClean]]></Name>
-					<X>1025</X><Y>2430</Y>
+					<X>1025</X><Y>2500</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2192,7 +2193,7 @@ addTaskSuper(task);
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1707488629094</Id>
 					<Name><![CDATA[makeTaskForClean]]></Name>
-					<X>1035</X><Y>2450</Y>
+					<X>1035</X><Y>2520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2299,7 +2300,7 @@ return targetTrack;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708096555973</Id>
 					<Name><![CDATA[setTaskForSend]]></Name>
-					<X>1000</X><Y>2475</Y>
+					<X>1000</X><Y>2545</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2340,7 +2341,7 @@ if (startTrack != null){
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1708096555975</Id>
 					<Name><![CDATA[makeTaskForSend]]></Name>
-					<X>1010</X><Y>2495</Y>
+					<X>1010</X><Y>2565</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2376,7 +2377,7 @@ if (startTrack != null){ // если путь, с которого можно з
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708357725115</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1000</X><Y>2590</Y>
+					<X>1000</X><Y>2660</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2422,7 +2423,7 @@ enterTasks.take(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708429089382</Id>
 					<Name><![CDATA[addTask]]></Name>
-					<X>1100</X><Y>2585</Y>
+					<X>1100</X><Y>2655</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2458,7 +2459,7 @@ enterTasks.take(task);]]></Body>
 					<Id>1708504460561</Id>
 					<Name><![CDATA[getTrackForSend]]></Name>
 					<Description><![CDATA[Возвращает путь для отправки вагонов со станции по расписанию или по требованию]]></Description>
-					<X>1010</X><Y>2530</Y>
+					<X>1010</X><Y>2600</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2495,6 +2496,44 @@ else{
 	}
 }
 return startTrack;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1708512770970</Id>
+					<Name><![CDATA[getTypeSendForFront]]></Name>
+					<X>1000</X><Y>2290</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[formationOptimizer]]></Name>
+						<Type><![CDATA[FormationOptimizer]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[targetTrack]]></Name>
+						<Type><![CDATA[TrackEdge]]></Type>
+					</Parameter>
+					<Body><![CDATA[String type = "";
+int cntVagonsOnTrack = (int)targetTrack.getRailCarsOnTrack().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count();
+int cntTaskVagons = formationOptimizer.getCarsForSendtoFront().size();
+int sizeTasks = formationOptimizer.getTasks(targetTrack).size();
+traceln("Количество вагонов в задаче " + cntTaskVagons);
+traceln("Количество вагонов на пути " + cntVagonsOnTrack);
+traceln("Размер задач " + sizeTasks);
+if (/*cntVagonsOnTrack == cntTaskVagons || */cntVagonsOnTrack == 0){// на пути 1 локомотив
+	type = "Отправка всех вагонов на пустой грузовой фронт";
+}
+else{
+	if (sizeTasks == 1 && cntVagonsOnTrack == cntTaskVagons){
+		type = "Отправка всех вагонов на пустой грузовой фронт";
+	}
+	else{
+		type = "Отправка вагонов на пустой грузовой фронт";
+	}
+}
+return type;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -9090,7 +9129,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>520</Height>
+					<Height>600</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>

@@ -13510,6 +13510,18 @@ return cars;]]></Body>
 						<Type><![CDATA[Train]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1708608123655</Id>
+					<Name><![CDATA[isMulty]]></Name>
+					<X>1050</X><Y>40</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1701247080547</Id>
 					<Name><![CDATA[railNetwork]]></Name>
@@ -14154,7 +14166,7 @@ for (SwitchNode node : switchList){
 }
 
 switchList.stream().forEach(p-> p.getSelf().setColor(green));
-RailwayTrack startTrack = train.getTrack(false);//logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
+RailwayTrack startTrack = /*train.getTrack(false);*/logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
 if (!routeTracks.contains(startTrack)){
 	routeTracks.add(0, startTrack);
 }
@@ -14702,7 +14714,7 @@ RailwayTrack currTrack = route.getUsedTracks().get(cntRoute);
 traceln("Следующий путь " + nextTrack.getName());
 traceln("Все пути состава: ");
 train.getAllOccupiedTracks().stream().forEach(p-> traceln("Путь " + p.getName()));
-if (train.getAllOccupiedTracks().stream().anyMatch(p-> p.getName().equals(nextTrack.getName())) &&  cntRoute != 0
+if (train.getAllOccupiedTracks().stream().anyMatch(p-> p.getName().equals(nextTrack.getName())) && !train.getTrack(false).getName().equals(nextTrack.getName()) && !endTrack().getName().equals(nextTrack.getName())
 	/*&& nextTrack2 != null 
 		&& train.getAllOccupiedTracks().stream().anyMatch(p-> p.getName().equals(nextTrack2.getName()))*/
 		){
@@ -14742,7 +14754,13 @@ boolean dir = direction();
 boolean alreadyUseMulty = false;
 LinkedHashMap<RailwayTrack, Boolean> sideTracks = new LinkedHashMap();
 LinkedHashMap<RailwayTrack, Boolean> moveDirection = new LinkedHashMap();
-
+isMulty = multyTrackCondition(train, routeTracks);
+/*if (!alreadyUseMulty && multyTrackCondition(train, routeTracks)){
+	traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
+	//isMoveBack = !isMoveBack;
+	dir = !dir;
+	alreadyUseMulty = true;
+}*/
 for(RailwayTrack track : routeTracks){
 	traceln(orange, "Направление на пути " + (isMoveBack ? "По направлению пути" : "Против направления пути"));
 	traceln(orange, "Направление движения " + (dir ? "Вперед" : "Назад"));
@@ -14754,7 +14772,7 @@ for(RailwayTrack track : routeTracks){
 			previousTargetSwitch = !isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
 			traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
 		} 
-		if (!previousTargetSwitch.getAvailableTracks(previousTrack).contains(track)){// если с предыдущего пути нельзя попасть на следующий путь 
+		if (main.railSettings.getShortestPath(previousTrack, track, dir, 0, new RailwayTrack[0]) == null){// если с предыдущего пути нельзя попасть на следующий путь 
 			RailwayTrack nextTrack = previousTargetSwitch.getAvailableTracks(previousTrack).get(0);// смотрим следующий доступный путь
 			traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
 			traceln(red, "Добавляю путь " + nextTrack.getName());
@@ -14775,7 +14793,9 @@ for(RailwayTrack track : routeTracks){
 				//traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
 				while ((train.getLength(METER) + 15) >= haveLengthWay){
 					//traceln(purple, "Есть длина уже " + haveLengthWay);
-					RailwaySwitch switchNext = isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch();
+					////////////RailwaySwitch switchNext = isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch();
+					RailwaySwitch switchNext = (isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch());
+					switchNext = switchNext == null ? (!isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch()) : switchNext;
 					RailwayTrack nextTreckLong = switchNext.getAvailableTracks(nextTrack).get(0);
 					nextTrack = nextTreckLong;
 					//traceln(purple, "Длина до добавления " + haveLengthWay);
@@ -14806,12 +14826,12 @@ for(RailwayTrack track : routeTracks){
 	sideTracks.put(track,  isMoveBack);
 	traceln("Для пути " + track.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
 	moveDirection.put(track, dir);
-	if (!alreadyUseMulty && multyTrackCondition(train, routeTracks)){
+	/*if (!alreadyUseMulty && multyTrackCondition(train, routeTracks)){
 		traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
 		isMoveBack = !isMoveBack;
 		dir = !dir;
 		alreadyUseMulty = true;
-	}
+	}*/
 	//traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
 	
 }

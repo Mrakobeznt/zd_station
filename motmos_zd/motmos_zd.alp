@@ -14774,7 +14774,7 @@ for(RailwayTrack track : routeTracks){
 			previousTargetSwitch = !isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
 			traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
 		} 
-		if (main.railSettings.getShortestPath(previousTrack, track, dir, 0, new RailwayTrack[0]) == null){// если с предыдущего пути нельзя попасть на следующий путь 
+		if (isNotHaveRoute(previousTrack, track, dir)){// если с предыдущего пути нельзя попасть на следующий путь 
 			RailwayTrack nextTrack = previousTargetSwitch.getAvailableTracks(previousTrack).get(0);// смотрим следующий доступный путь
 			traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
 			traceln(red, "Добавляю путь " + nextTrack.getName());
@@ -14790,7 +14790,7 @@ for(RailwayTrack track : routeTracks){
 			traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
 			if (nextTrack.length(METER) < train.getLength(METER) + 15){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
 				traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
-				double haveLengthWay =+ nextTrack.length(METER);
+				double haveLengthWay =+ (!isNotHaveRoute(track, nextTrack, dir) ? nextTrack.length(METER) : 0);
 				traceln(purple, "Первый путь с длиной " + haveLengthWay);
 				traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
 				while ((train.getLength(METER) + 15) >= haveLengthWay){
@@ -14849,7 +14849,7 @@ return route;]]></Body>
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1708950725311</Id>
-					<Name><![CDATA[isHaveRoute]]></Name>
+					<Name><![CDATA[isNotHaveRoute]]></Name>
 					<X>1120</X><Y>140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>

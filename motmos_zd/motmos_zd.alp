@@ -1598,7 +1598,8 @@ enterTasks.take(task);]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<RailCar> locoTrain = new ArrayList();
-locoTrain.add(data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null));
+//locoTrain.add(data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null));
+locoTrain.addAll(data.locosInStation);
 addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2970,6 +2971,9 @@ enterTasks.take(newTask);]]></Body>
 							<ClassName><![CDATA[Enter]]></ClassName>
 							<ItemName><![CDATA[1412336242933]]></ItemName>
 						</GenericParameterSubstituteReference>
+						<GenericParameterSubstituteValue Class="CodeValue">
+							<Code><![CDATA[Train]]></Code>
+						</GenericParameterSubstituteValue>
 					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
@@ -3034,6 +3038,11 @@ enterTasks.take(newTask);]]></Body>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[RailCar loco = agent.getCars().get(0);
+loco.endState("Работа");
+loco.setDateBeginState();]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onRemove]]></Name>
@@ -3209,7 +3218,10 @@ enterTasks.take(newTask);]]></Body>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[Logic logic1 = logic.stream().filter(p-> p.hashCode() == agent.codeForLogic).findFirst().orElse(null);
+								<Code><![CDATA[RailCar loco = agent.getCars().get(0);
+loco.endState("Ожидание");
+loco.setDateBeginState();
+Logic logic1 = logic.stream().filter(p-> p.hashCode() == agent.codeForLogic).findFirst().orElse(null);
 String typeTask = agent.currentTask.getType();
 switch (typeTask){
 	case "Движение" :
@@ -3292,6 +3304,9 @@ switch (typeTask){
 							<ClassName><![CDATA[Enter]]></ClassName>
 							<ItemName><![CDATA[1412336242933]]></ItemName>
 						</GenericParameterSubstituteReference>
+						<GenericParameterSubstituteValue Class="CodeValue">
+							<Code><![CDATA[Train]]></Code>
+						</GenericParameterSubstituteValue>
 					</GenericParameterSubstitute>
 					<Parameters>
 						<Parameter>
@@ -11653,7 +11668,7 @@ setDateBeginState();]]></EntryAction>
 				<StatechartElement Class="Transition" ParentState="ROOT_NODE">
 					<Id>1707207290886</Id>
 					<Name><![CDATA[transition8]]></Name>
-					<X>840</X><Y>130</Y>
+					<X>830</X><Y>130</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -12214,7 +12229,10 @@ return random.nextInt(100) <= arg;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[if (type.equals("Локомотив")){return;}
+					<Body><![CDATA[if (type.equals("Локомотив")){
+
+	return;
+}
 //boolean isHaveTrack = edges.stream().anyMatch(p-> p.getNumberTra().equals(track));
 boolean isHaveTrackPops = main.getPopsTracksEdges().stream().anyMatch(p-> p.getNumberTra().equals(track));
 boolean isHaveTrackFronts = main.getFrontsTracksEdges().stream().anyMatch(p-> p.getNumberTra().equals(track));
@@ -34640,7 +34658,9 @@ else{
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[locomotives.addAll(main.data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).collect(Collectors.toList()));
+					<Body><![CDATA[//locomotives.addAll(main.data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).collect(Collectors.toList()));
+///locomotives.addAll(main.railCars.stream().filter(p-> p.type.equals("Локомотив")).collect(Collectors.toList())); locosInStation
+locomotives.addAll(main.data.locosInStation);
 products.addAll(main.data.productsCollection);
 tracks.addAll(main.getTracksEdges());
 switches.addAll(main.railwayNetwork.getSwitches());]]></Body>
@@ -34658,6 +34678,28 @@ switches.addAll(main.railwayNetwork.getSwitches());]]></Body>
 					<Body><![CDATA[List<RailCar> cars = main.railCars.stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList());
 waitSendFromFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидание уборки с грузового фронта")).mapToDouble(Double::doubleValue).sum());
 waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидание отправки на грузовой фронт")).mapToDouble(Double::doubleValue).sum());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1708962318845</Id>
+					<Name><![CDATA[getUtilizationLoco]]></Name>
+					<X>-210</X><Y>370</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[index]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[RailCar car = main.railCars
+.stream()
+.filter(p-> p.type.equals(locomotives.get(index).type) && p.model.equals(locomotives.get(index).model))
+.findFirst().orElse(null);
+double allTime = (date().getTime() - main.startDate.getTime())/3600000;
+traceln("Проработал часов " + car.getDelayByState("Работа") + " прошло времени " + allTime);
+return car == null ? 0 : car.getDelayByState("Работа")/allTime;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -34870,7 +34912,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 					<BeginArrowStyle>0</BeginArrowStyle>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>240</Dx>
+					<Dx>305</Dx>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
@@ -34973,7 +35015,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Утилизация, %]]></Text>
+					<Text><![CDATA[Производительность, %]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -36095,7 +36137,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 				<Line>
 					<Id>1707833327423</Id>
 					<Name><![CDATA[line39]]></Name>
-					<X>310</X><Y>490</Y>
+					<X>375</X><Y>490</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36498,7 +36540,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 				<Text>
 					<Id>1707833327465</Id>
 					<Name><![CDATA[text222]]></Name>
-					<X>306.5</X><Y>510</Y>
+					<X>370</X><Y>510</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36513,6 +36555,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[560]]></Text>
+					<TextCode><![CDATA[getUtilizationLoco(index)]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -36540,7 +36583,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 					<BeginArrowStyle>0</BeginArrowStyle>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>240</Dx>
+					<Dx>305</Dx>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
@@ -36816,7 +36859,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 					<BeginArrowStyle>0</BeginArrowStyle>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>240</Dx>
+					<Dx>305</Dx>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
@@ -36847,7 +36890,7 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 				<Line>
 					<Id>1707833327515</Id>
 					<Name><![CDATA[line42]]></Name>
-					<X>150</X><Y>-10</Y>
+					<X>215</X><Y>-10</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>

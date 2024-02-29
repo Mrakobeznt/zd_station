@@ -1021,7 +1021,6 @@ keyIndicators.updateStats();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1039,8 +1038,8 @@ keyIndicators.updateStats();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[5]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+							<Code><![CDATA[1700]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
@@ -1219,7 +1218,7 @@ double sizeTrain = 0;
 double sizeFront = getFrontByNum(numFront).getHomeTrack().getUsableLength();
 if (!front.isBlockedForSend()){
 	//traceln("Количество заявок по контактному графику на сегодня " + data.getContactRequestForNow().size());
-	for (Request req : data.getContactRequestForNow()){ // сначала ищем вагоны по заявкам контактного графика
+	for (Request req : requsts.stream().filter(p-> data.contactRequests.contains(p)).collect(Collectors.toList())){ // сначала ищем вагоны по заявкам контактного графика
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")
 					&& (sizeTrain + car.length <= sizeFront)
@@ -1235,7 +1234,7 @@ if (!front.isBlockedForSend()){
 		}
 	}
 	//traceln("Количество заявок " + requsts.size());
-	for (Request req : requsts){ // ищем вагоны не контактного графика
+	for (Request req : requsts.stream().filter(p-> !data.contactRequests.contains(p)).collect(Collectors.toList())){ // ищем вагоны не контактного графика
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")
 					&& (sizeTrain + car.length <= sizeFront)
@@ -1754,7 +1753,9 @@ return tracksEdges;]]></Body>
 					</Parameter>
 					<Body><![CDATA[FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
 Set<RailwayTrack> trackWithTargetCars = new HashSet();
-fo.getCarsForSendtoFront().forEach(p-> trackWithTargetCars.add(p.getTrack()));
+fo.getCarsForSendtoFront().forEach(p-> {
+traceln("Моя позиция " + p.getPositionOnTrain(true) + " мой хэш-код " + p.hashCode());
+trackWithTargetCars.add(p.getTrack());});
 //traceln(red, "Выбираю путь для сбора вагонов под отправку");
 TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 if (targetTrack == null){
@@ -2212,7 +2213,7 @@ for (TrainArrival arrival : data.arrivalsCollection){
 TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
 RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
-List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.getContactRequestForNow(), loco, trackArrive);
+List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.contactRequests, loco, trackArrive);
 train.add(0,loco);
 train.forEach(p-> {
 	RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
@@ -18807,16 +18808,23 @@ file.readFile();
 String track = file.getCellStringValue(list, row, 1);
 int cntVagons = (int)file.getCellNumericValue(list, row, 2);
 String typeVagon = file.getCellStringValue(list, row, 3);
-String typeVProduct = file.getCellStringValue(list, row, 4);
+String typeProduct = file.getCellStringValue(list, row, 4);
 int time = (int)file.getCellNumericValue(list, row, 5);
 int change = (int)file.getCellNumericValue(list, row, 6);
-for (Request req : requestsCollection){
-	if (req.getNumFront().equals(track) 
-		&& req.getTypeVagon().equals(typeVagon)
-			&& req.getTypeProduct().equals(typeVProduct)
-				&& req.getWeight() > 0
-					&& req.getChange() == change){
-		contactRequests.add(req);
+Date dateRequest = file.getCellDateValue(list, row, 7);
+int cntDaysHorinzont = (int)Tools.calculateDaysBetween(main.startDate, getEngine().getStopDate());
+for (int i = 0; i < cntDaysHorinzont; i++){
+	for (int j = 0; j < cntVagons; j++){
+		RailCar car = main.data.railCarsCollection.stream().filter(p->p.productType.equals(typeProduct) && p.type.equals(typeVagon)).findFirst().orElse(null);
+		if (car != null){
+			Calendar instance = Calendar.getInstance();
+			instance.setTime(main.startDate);
+			instance.add(Calendar.DAY_OF_MONTH, i);
+			instance.add(Calendar.HOUR_OF_DAY, dateRequest.getHours());
+			Request req = new Request("Номер заявки", "Номер вагона", "Номер накладной", typeVagon, typeProduct, track, "АО \"ВМЗ\"", instance.getTime(), change, car.weightProduct, "Ожидание отправки на грузовой фронт", null, "Местный", car.model, car);
+			contactRequests.add(req);
+			requestsCollection.add(req);
+		}
 	}
 }
 file.close();]]></Body>
@@ -36040,27 +36048,6 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
-					<Id>1707833327303</Id>
-					<Name><![CDATA[text242]]></Name>
-					<X>655</X><Y>615</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[23]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327305</Id>
 					<Name><![CDATA[text196]]></Name>
 					<X>120</X><Y>250</Y>
@@ -36131,27 +36118,6 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
-				<Text>
-					<Id>1707833327311</Id>
-					<Name><![CDATA[text240]]></Name>
-					<X>655</X><Y>590</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[23]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
 				<Text>
 					<Id>1707833327313</Id>
 					<Name><![CDATA[text207]]></Name>
@@ -36787,27 +36753,6 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<Text>
-					<Id>1707833327373</Id>
-					<Name><![CDATA[text241]]></Name>
-					<X>405</X><Y>615</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Выполнение плана загрузки, %:]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327375</Id>
 					<Name><![CDATA[text221]]></Name>
 					<X>70</X><Y>460</Y>
@@ -36901,27 +36846,6 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 						<Style>0</Style>
 					</Font>
 					<Alignment>RIGHT</Alignment>
-				</Text>
-				<Text>
-					<Id>1707833327385</Id>
-					<Name><![CDATA[text239]]></Name>
-					<X>405</X><Y>590</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Выполнение плана выгрузки, %:]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
 				</Text>
 				<Line>
 					<Id>1707833327387</Id>
@@ -43692,7 +43616,7 @@ public class FormationOptimizer {
     private Date currDate;
     private double weightTrain = 2680.0;
     private double lengthTrain = 630;
-    public static boolean isTrace = false;
+    public static boolean isTrace = true;
 
     public FormationOptimizer(Front front, List<TrackEdge> pops, List<Integer> hashCars, Date currDate) {
         this.front = front;
@@ -43886,6 +43810,11 @@ public class FormationOptimizer {
     		Tools.trace(green, "Вагон по порядку функции " + (train.size() - i) + ", по порядку жд сети " + car.getPositionOnTrain(true), isTrace);
     		Tools.trace(green, "Вагон принадлежит к целевым " + allTargetFrontCars.contains(car), isTrace);
     		if (allTargetFrontCars.contains(car)) {
+    			if (i == train.size() - 1) {
+    				fragmentSize++;
+    				fragments.add(sizeTrain);
+    				continue;
+    			}
     			Tools.trace(black, "Вагон принадлежит", isTrace);
     			if (indicator) {
     				Tools.trace(black, "Пред. вагон тоже принадлежал", isTrace);
@@ -43940,6 +43869,7 @@ public class FormationOptimizer {
     		int endTrackSize = targetTrack.getSelf().getCars().size();
 	    	for (TrackEdge track : pops){
 	    		List<RailCar> allTargetFrontCars = getTargetCarsOnTrack(track, carsForFront);
+	    		traceln(red, "Размер состава " + allTargetFrontCars.size());
 	    		if (allTargetFrontCars.size() > 0) {
 		        	int posCar = 0;
 		        	boolean toTargetTrack = true;
@@ -44114,6 +44044,11 @@ public class FormationOptimizer {
  * Tools
  */
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+
+
 public class Tools implements Serializable {
 	public static boolean isTrace = true;
 
@@ -44170,6 +44105,12 @@ public class Tools implements Serializable {
     			traceln(msg);
     		}
     	}
+    }
+    
+    public static long calculateDaysBetween(Date date1, Date date2) {
+        LocalDate localDate1 = date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate2 = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return java.time.temporal.ChronoUnit.DAYS.between(localDate1, localDate2);
     }
 
 	/**
@@ -44262,18 +44203,19 @@ public class TrainArrival {
     	//Tools.trace("Размер списка текущих заявок " + requests.size(), isTrace);
     	//Tools.trace("Размер списка контактных заявок " + contactRequests.size(), isTrace);
     	// Сначала необходимо включить в состав вагоны местного парка, вес которых больше 0 (чтобы выгрузить продукцию)
-    	for (Request req : contactRequests) {
+    	for (Request req : requests.stream().filter(p-> contactRequests.contains(p)).collect(Collectors.toList())) {
     		RailCar car = req.getCar();
     		if (sumWeight + car.getWeight() <= maxSumWeight // если сумма состава не превышает 
     					&&  sumLength + car.length <= maxSumLength
     						&& !usedRequests.contains(req)) {
     			cars.add(car);
+    			traceln(cyan, "Я ДОБАВИЛ ВАГОН ИЗ КОНТАКТНОГО ГРАФИКА В СОСТАВ");
     			sumWeight += car.getWeight();
     			sumLength += car.length;
     			usedRequests.add(req);
     		}
     	}
-    	for (Request req : requests) {
+    	for (Request req : requests.stream().filter(p-> !contactRequests.contains(p)).collect(Collectors.toList())) {
     		/*Tools.trace(black, "Рассматриваю заявку " + req, isTrace);
     		Tools.trace(black, "maxSum " + maxSum, isTrace);
     		Tools.trace(black, "req.getWeight() " + req.getWeight(), isTrace);

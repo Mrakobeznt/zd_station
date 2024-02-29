@@ -1038,7 +1038,7 @@ keyIndicators.updateStats();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[1700]]></Code>
+							<Code><![CDATA[2880]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -15373,58 +15373,64 @@ if (currTrack.equals(endTrack()) // если текущий целевой пу�
 		&& !logic.currentTask.getType().equals("Движение в цех")){ // есди задача не движение в цех
 	if (endTrack().getTrains().size() > 1 && logic.superTask.front == null){// если на конечном пути больше 1 состава
 		offset = 0;
-		//traceln(black, "Смещение выбрано по 1 " + offset);
+		traceln(black, "Смещение выбрано по 1 " + offset);
 	}
 	else if (endTrack().getTrains().size() > 1 && logic.superTask.front != null){
 		if (logic.superTask.front.getCarsOnFront().size() < 1){
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			//traceln(black, "Смещение выбрано по 1.1 " + offset);
+			traceln(black, "Смещение выбрано по 1.1 " + offset);
 		}
 	}
 	else{
 		if (((Train)endTrack().getTrains().get(0)).equals(train)){// если состав на конечном пути соответствует 
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			//traceln(black, "Смещение выбрано по 2 " + offset);
+			traceln(black, "Смещение выбрано по 2 " + offset);
 		}
 		else{
 			offset = 0;
-			//traceln(black, "Смещение выбрано по 3 " + offset);
+			traceln(black, "Смещение выбрано по 3 " + offset);
 		}
 	}
 }
 else if (currTrack.equals(endTrack()) // если текущий целевой путь является конечным путем маршрута b
 			&& endTrack().isEmpty() // если конечный путь ПУСТОЙ
-				&& endTrack().length(METER) > (train.getLength(METER) - koef)){ // если длина конечного пути больше длины состава - коэффициент смещения
+				&& endTrack().length(METER) > (train.getLength(METER) + koef)){ // если длина конечного пути больше длины состава - коэффициент смещения
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Смещение выбрано по 4 " + offset);
+		traceln(black, "Смещение выбрано по 4 " + offset);
 	}
 	else{
-		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		offset = currTrack.length(METER) - (train.getLength(METER) + koef);
+		traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "needOffset() " + needOffset());
 	}
 }
+
 else if(currTrack.equals(endTrack()) && logic.currentTask.getType().equals("Движение в цех")){
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Я вырал тот что нужно " + needOffset());
+		traceln(black, "Я вырал тот что нужно " + needOffset());
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "Смещение выбрано по 5 " + offset);
 	}
+}
+else if (currTrack.equals(endTrack()) && endTrack().isEmpty() && endTrack().length(METER) < (train.getLength(METER) + koef)){
+	offset = koef;
+	traceln(black, "Смещение выбрано по 5.1 " + offset);
 }
 else{
 	RailwayTrack nextTrack = route.getUsedTracks().get(cntRoute + 1);
-	//traceln("На пути " + currTrack.getName() + " cмещение от " + route.getRouteSwitches().get(currTrack));
-	//traceln("На пути " + nextTrack.getName() + " cмещение от " + route.getRouteSwitches().get(nextTrack));
+	traceln("На пути " + currTrack.getName() + " cмещение от " + route.getRouteSwitches().get(currTrack));
+	traceln("На пути " + nextTrack.getName() + " cмещение от " + route.getRouteSwitches().get(nextTrack));
 	if (route.getRouteSwitches().get(currTrack) != route.getRouteSwitches().get(nextTrack) // если стрелка текущего пути не равна стрелке следующего пути 
 		&& currTrack.length(METER) >= (train.getLength(METER) + koef)){ // если длина текущего пути больше длины состава 
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 6 " + offset);
+		traceln(black, "Смещение выбрано по 6 " + offset);
 	}
 }
-//traceln(red, "А я использую офсет " + offset);
+traceln(red, "А я использую офсет " + offset);
 return offset;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -19854,7 +19860,12 @@ return nextTrack;]]></Body>
 						<Name><![CDATA[typeTask]]></Name>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[nextTask]]></Name>
+						<Type><![CDATA[Task]]></Type>
+					</Parameter>
 					<Body><![CDATA[double offset = 0;
+double koef = 15;
 String frontName = front == null ? "" : front.getName();
 //traceln("Захожу");
 if(front != null 
@@ -19869,6 +19880,11 @@ if(front != null
 		//traceln(front);
 		offset = main.data.getFinitshFrontOffset(front.getName());
 	}
+}
+else if (nextTask != null && nextTask.getType().equals("Расцепка") 
+	&& (type.equals("Полурейс формирования всех вагонов с пути на пустой путь") || type.equals("Полурейс формирования на пустой путь"))){
+	int sizeLiftTrain = finalLeftVagons == null ? cntVagon : finalLeftVagons;
+	offset = endTrack.length(METER) - (26 * sizeLiftTrain + koef);
 }
 else{
 	offset = targetTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
@@ -19963,7 +19979,7 @@ if (nextTask != null && nextTask.getType().equals("Терминирование"
 else {
 	curStartTrack = startTrack;
 }
-task = new Task("Движение", curStartTrack, curEndTrack, getOffsetForTask(curEndTrack, currTask.getType()));
+task = new Task("Движение", curStartTrack, curEndTrack, getOffsetForTask(curEndTrack, currTask.getType(), nextTask));
 return task;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -20025,7 +20041,7 @@ else {
 }
 RailwayTrack trackForOffst = curEndTrack == null ? null : curEndTrack;
 
-task = new Task("Движение в цех", curStartTrack, trackForOffst, getOffsetForTask(trackForOffst, currTask.getType()), 5);
+task = new Task("Движение в цех", curStartTrack, trackForOffst, getOffsetForTask(trackForOffst, currTask.getType(), nextTask), 5);
 return task;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -43616,7 +43632,7 @@ public class FormationOptimizer {
     private Date currDate;
     private double weightTrain = 2680.0;
     private double lengthTrain = 630;
-    public static boolean isTrace = true;
+    public static boolean isTrace = false;
 
     public FormationOptimizer(Front front, List<TrackEdge> pops, List<Integer> hashCars, Date currDate) {
         this.front = front;

@@ -1604,8 +1604,8 @@ enterTasks.take(task);]]></Body>
 15. Обработать все ключевые показатели
 16. Сформировать файл отчета
 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
-18. Разобраться со смещениями на пути по прибытию
-19. Добавлять заявки по контактному графику в массив со всеми заявками
+
+
 
 
 
@@ -1613,7 +1613,7 @@ enterTasks.take(task);]]></Body>
 24. Интерфейс сделать более приятным на ключевых показателях
 
 
-27. Определиться с наименованиями показателей
+
 28. Состав должен проталкиваться перед расцепкой до края пути
 
 30. Добавить настройку для допущения длины состава на отправку
@@ -2293,7 +2293,7 @@ TrackEdge emptyTargetTrack = getPopsWithoutAvoid()
 							.findFirst()
 							.orElse(null);
 if (front.getHomeTrack().getRailCarsOnTrack()
-								.stream()
+								.stream().filter(p-> !p.type.equals("Локомотив"))
 								.allMatch(p-> !p.finalStatus.equals("Технологическое ожидание") 
 									&& !p.finalStatus.equals("Не технологическое ожидание"))){ // если все вагоны под отправку с фронта не технологические ожидания
 	//traceln(black, "Все вагоны не технологич ожидание " + targetTrack);
@@ -43245,6 +43245,7 @@ public class TrainGenerator implements Serializable {
 			<Id>1705065054778</Id>
 			<Name><![CDATA[Front]]></Name>
 			<Text><![CDATA[import java.util.List;
+import java.util.stream.Collectors;
 
 public class Front {
     private String name;
@@ -43308,9 +43309,9 @@ public class Front {
      */
     public List<RailCar> getCarsOnFront(){
     	List<RailCar> cars = new ArrayList();
-    	for (Agent car : homeTrack.getSelf().getCars()) {
+    	for (RailCar car : homeTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())) {
 			if (placeFront.contains(car.getX(), car.getY())) { // если зона фронта содержит в себе хотя бы один вагон
-				cars.add((RailCar)car);
+				cars.add(car);
 			}
 		}
     	return cars;
@@ -43324,11 +43325,32 @@ public class Front {
     	if (frontIsEmpty() && homeTrack.getSelf().isEmpty()) { // если фронт пустой и путь фронта пустой, то фронт не заблокирован
     		isBlocked = false;
     	}
+    	else if (frontIsEmpty() // если фронт пуст
+    				&& !homeTrack.getRailCarsOnTrack().stream().allMatch(p-> p.status.equals("Ожидание уборки с грузового фронта")) // на пути еще кто-то стоит и не у всех статус готовый
+    					&& !getName().contains("t")) { // если путь не тупиковый
+    		isBlocked = false;
+    	}
+    	/*else if (frontIsEmpty() && getName().contains("t")) {
+    		
+    	}
     	else { // если фронт не пустой или путь фронта не пуст
-    		if (frontIsEmpty() && name.equals("9")) { // если фронт пустой и имеет название 9, то фронт не заблокирован
+    		if (frontIsEmpty() && name.equals("9") && !homeTrack.getRailCarsOnTrack().stream().allMatch(p-> p.status.equals("Ожидание уборки с грузового фронта"))) { // если фронт пустой и имеет название 9, то фронт не заблокирован
     			isBlocked = false;
     		}
+    	}*/
+    	/*
+    	if (frontIsEmpty() && homeTrack.getSelf().isEmpty()) { // если фронт пустой и путь фронта пустой, то фронт не заблокирован
+    		isBlocked = false;
     	}
+    	else { // если фронт не пустой или путь фронта не пуст
+    		if (frontIsEmpty() && name.equals("9") && !homeTrack.getRailCarsOnTrack().stream().allMatch(p-> p.status.equals("Ожидание уборки с грузового фронта"))) { // если фронт пустой и имеет название 9, то фронт не заблокирован
+    			isBlocked = false;
+    		}
+    	}*/
+    	
+    	
+    	
+    	
     	return isBlocked;
     }
     /**
@@ -43337,14 +43359,27 @@ public class Front {
      */
     public boolean isBlockedForPickUp() {
     	boolean isBlocked = true;
-    	if (!frontIsEmpty() && !homeTrack.getSelf().isEmpty()) { // если фронт пустой и путь фронта пустой, то фронт не заблокирован
+    	if (!frontIsEmpty() && getCarsOnFront().size() == homeTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).count()) {
+    		isBlocked = false;
+    	}
+    	else if (!frontIsEmpty() && getCarsOnFront().size() < homeTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).count()) {
+    		if (!name.contains("t")) {
+    			isBlocked = false;
+    		}
+    	}
+    	else {
+    		isBlocked = true;
+    	}
+    	
+    	
+    	/*if (!frontIsEmpty() && !homeTrack.getSelf().isEmpty()) { // если фронт не пустой и путь фронта пустой, то фронт не заблокирован
     		isBlocked = false;
     	}
     	else { // если фронт не пустой или путь фронта не пуст
     		if (!frontIsEmpty() && name.equals("9")) { // если фронт пустой и имеет название 9, то фронт не заблокирован
     			isBlocked = false;
     		}
-    	}
+    	}*/
     	return isBlocked;
     }
     /**
@@ -43363,12 +43398,13 @@ public class Front {
     
     public boolean needToPickUp() {
     	boolean isNotBlocked = !isBlockedForPickUp();
-    	boolean allCarsReady = (homeTrack.getSelf().getCars().stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта")));
+    	List<RailCar> onlyMyCars = homeTrack.getRailCarsOnTrack().stream().filter(p-> placeFront.contains(p.getX(), p.getY())).collect(Collectors.toList());
+    	boolean allCarsReady = (onlyMyCars.stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта")));
     	/*if (allCarsReady) {
     		homeTrack.getSelf().getCars().stream().forEach(p-> traceln("Вагон на пути " + ((RailCar)p).getTrack().getName() + " имеет статус " + ((RailCar)p).status));
     	}*/
-    	//traceln("Все вагоны готовы к отправке " + allCarsReady);
-    	//traceln("Фронт не заблокирован для забора вагонов " + isNotBlocked);
+    	/*traceln("Все вагоны готовы к отправке " + allCarsReady);
+    	traceln("Фронт не заблокирован для забора вагонов " + isNotBlocked);*/
     	return isNotBlocked && allCarsReady;
     }
     

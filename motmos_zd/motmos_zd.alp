@@ -17,8 +17,7 @@
 			<Id>1700575101545</Id>
 			<Name><![CDATA[Main]]></Name>
 			<Import><![CDATA[import java.util.stream.Collectors;]]></Import>
-			<StartupCode><![CDATA[INITIALIZATION();
-]]></StartupCode>
+			<StartupCode><![CDATA[INITIALIZATION();]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1700575101543</Id>
@@ -296,6 +295,21 @@
 						<CollectionInitializer Class="CodeValue">
 							<Code><![CDATA[{ front10, front9t, front9, front8, front7 }]]></Code>
 						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1709192500172</Id>
+					<Name><![CDATA[switches]]></Name>
+					<X>-170</X><Y>1780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[SwitchNode]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 					</Properties>
 
 				</Variable>
@@ -1631,7 +1645,9 @@ addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[setTime();// Установка времени начала эксперимента
+					<Body><![CDATA[setSwitchNodes();
+
+setTime();// Установка времени начала эксперимента
 
 data.dataInitialization();// Инициализация данных справочников и файла "Исходные данные"
 
@@ -2614,6 +2630,47 @@ newTask.finalLeftVagons = task.finalLeftVagons;
 newTask.front = front;
 newTask.listTask = newTask.makeTasks();
 enterTasks.take(newTask);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1709192564037</Id>
+					<Name><![CDATA[setSwitchNodes]]></Name>
+					<X>480</X><Y>2110</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (RailwaySwitch sw : railwayNetwork.getSwitches()){
+	SwitchNode node = new SwitchNode(sw);
+	switches.add(node);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1709194000091</Id>
+					<Name><![CDATA[setSwitchActive]]></Name>
+					<X>280</X><Y>2340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[node]]></Name>
+						<Type><![CDATA[SwitchNode]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[isStart]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[SwitchNode copyNode = switches.stream().filter(p-> p.getName().equals(node.getName())).findFirst().orElse(null);
+if (isStart){
+	copyNode.startTimeActive(date());
+}
+else{
+	copyNode.endTimeActive(date());
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -9119,7 +9176,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>300</Width>
-					<Height>105</Height>
+					<Height>140</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -11136,7 +11193,8 @@ logic.enterStart.take(agent);]]></Code>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>160</Width>
-					<Height>200</Height>
+					<Height>40</Height>
+					<HeightCode><![CDATA[40 + 20 * (getTracksEdges().size() - 1)]]></HeightCode>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -11449,6 +11507,27 @@ logic.enterStart.take(agent);]]></Code>
 						<Style>0</Style>
 					</Font>
 					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1709190328263</Id>
+					<Name><![CDATA[text58]]></Name>
+					<X>460</X><Y>640</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-1</Color>
+					<Text><![CDATA[Платформа]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
 				</Text>
 			</Presentation>
 
@@ -14512,6 +14591,19 @@ return cars;]]></Body>
 						<Type><![CDATA[boolean]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709195905435</Id>
+					<Name><![CDATA[switchActive]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>360</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[RailwaySwitch]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1701247080547</Id>
 					<Name><![CDATA[railNetwork]]></Name>
@@ -15047,9 +15139,9 @@ else{
 	if (startSwitch == null){
 		startSwitch = !isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	}
-	traceln("Начальный путь " + startTrack.getName());
+	/*traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -15057,7 +15149,7 @@ else{
 	Graph graph = makeGraph();
 	List<RailwayTrack> routeTracks = getRouteWithoutBreak(graph, from, to, train);
 	route = getFullRoute(routeTracks, train);
-	route.getUsedTracks().stream().forEach(p-> traceln(orange, p.getName()));
+	//route.getUsedTracks().stream().forEach(p-> traceln(orange, p.getName()));
 }
 
 return route;]]></Body>
@@ -15076,6 +15168,7 @@ return route;]]></Body>
 
 for (RailwaySwitch switch3 : railNetwork.getSwitches()){
 	switch3.setColor(white);
+	main.setSwitchActive(new SwitchNode(switch3), false);
 	Set<String> tracksNet = new HashSet();
 	for (RailwayTrack track : switch3.getTracks()){
 		if (track.getStartSwitch() != null && !track.getStartSwitch().equals(switch3)){
@@ -15155,13 +15248,13 @@ for (SwitchNode node : switchList){
 	}
 }
 
-//switchList.stream().forEach(p-> p.getSelf().setColor(green));
+switchList.stream().forEach(p-> p.getSelf().setColor(green));
 RailwayTrack startTrack = /*train.getTrack(false);*/logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
 if (!routeTracks.contains(startTrack)){
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -15752,61 +15845,61 @@ isMulty = multyTrackCondition(train, routeTracks);
 	alreadyUseMulty = true;
 }*/
 for(RailwayTrack track : routeTracks){
-	traceln(orange, "Направление на пути " + (isMoveBack ? "По направлению пути" : "Против направления пути"));
-	traceln(orange, "Направление движения " + (dir ? "Вперед" : "Назад"));
+	//traceln(orange, "Направление на пути " + (isMoveBack ? "По направлению пути" : "Против направления пути"));
+	//traceln(orange, "Направление движения " + (dir ? "Вперед" : "Назад"));
 	if (previousTrack != null){
 		RailwaySwitch previousTargetSwitch =  isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
-		traceln(black, "Проверяю путь движение на путь " + track.getName());
+		//traceln(black, "Проверяю путь движение на путь " + track.getName());
 		if (previousTargetSwitch == null){
-			traceln(red, "Я меняю направление у пути " + previousTrack.getName() + " теперь " + (!isMoveBack));
+			//traceln(red, "Я меняю направление у пути " + previousTrack.getName() + " теперь " + (!isMoveBack));
 			previousTargetSwitch = !isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
-			traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
+			//traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
 		} 
 		if (isNotHaveRoute(previousTrack, track, dir)){// если с предыдущего пути нельзя попасть на следующий путь 
 			RailwayTrack nextTrack = previousTargetSwitch.getAvailableTracks(previousTrack).get(0);// смотрим следующий доступный путь
-			traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
-			traceln(red, "Добавляю путь " + nextTrack.getName());
+			//traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
+			//traceln(red, "Добавляю путь " + nextTrack.getName());
 			
 			
 			copyRouteTracks.add(nextTrack);
 			sideTracks.put(nextTrack, isMoveBack);
 			moveDirection.put(nextTrack, dir);
-			traceln(purple, "Для пути " + nextTrack.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
-			traceln("Для пути " + nextTrack.getName() + " задаю движение по 1 варианту");
+			//traceln(purple, "Для пути " + nextTrack.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
+			//traceln("Для пути " + nextTrack.getName() + " задаю движение по 1 варианту");
 			
 			
-			traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
-			traceln("С пути " + track.getName() + " на путь " + nextTrack.getName() + ((!isNotHaveRoute(track, nextTrack, dir) ? "есть маршрут" : "нет маршрута")) );
-			if (nextTrack.length(METER) < train.getLength(METER) + 15 || !isNotHaveRoute(track, nextTrack, dir)){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
-				traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
+			//traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
+			//traceln("С пути " + track.getName() + " на путь " + nextTrack.getName() + ((!isNotHaveRoute(track, nextTrack, dir) ? "есть маршрут" : "нет маршрута")) );
+			if (nextTrack.length(METER) < train.getLength(METER) + 15 || isNotHaveRoute(track, nextTrack, dir)){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
+				//traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
 				double haveLengthWay =+ (!isNotHaveRoute(track, nextTrack, dir) ? nextTrack.length(METER) : 0);
-				traceln(purple, "Первый путь с длиной " + haveLengthWay);
-				traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
+				//traceln(purple, "Первый путь с длиной " + haveLengthWay);
+				//traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
 				while ((train.getLength(METER) + 15) >= haveLengthWay){
-					traceln(purple, "Есть длина уже " + haveLengthWay);
+					//traceln(purple, "Есть длина уже " + haveLengthWay);
 					////////////RailwaySwitch switchNext = isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch();
 					RailwaySwitch switchNext = (isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch());
 					switchNext = switchNext == null ? (!isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch()) : switchNext;
 					RailwayTrack nextTreckLong = switchNext.getAvailableTracks(nextTrack).get(0);
 					nextTrack = nextTreckLong;
-					traceln(purple, "Длина до добавления " + haveLengthWay);
-					traceln(purple, "Длину до добавляем " + nextTreckLong.length(METER));
+					//traceln(purple, "Длина до добавления " + haveLengthWay);
+					//traceln(purple, "Длину до добавляем " + nextTreckLong.length(METER));
 					haveLengthWay = haveLengthWay + nextTreckLong.length(METER);
-					traceln(purple, "Текущая длина после добавления " + haveLengthWay);
+					//traceln(purple, "Текущая длина после добавления " + haveLengthWay);
 					copyRouteTracks.add(nextTreckLong);
-					traceln(purple, "Добавляю путь " + nextTreckLong.getName() + " с длиной " + nextTreckLong.length(METER));
+					//traceln(purple, "Добавляю путь " + nextTreckLong.getName() + " с длиной " + nextTreckLong.length(METER));
 					sideTracks.put(nextTreckLong, isMoveBack);
 					moveDirection.put(nextTreckLong, dir);
-					traceln("Для пути " + nextTrack.getName() + " задаю движение " + (isMoveBack ? "=Вперед=": "=Назад="));
+					//traceln("Для пути " + nextTrack.getName() + " задаю движение " + (isMoveBack ? "=Вперед=": "=Назад="));
 				}
 				
 			}
-			traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
+			//traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
 			isMoveBack = !isMoveBack;
 			dir = !dir;
 		}
 		else{
-			traceln(black, "С предыдущего пути " + previousTrack.getName() + " можно попасть на путь " + track.getName());
+			//traceln(black, "С предыдущего пути " + previousTrack.getName() + " можно попасть на путь " + track.getName());
 		}
 	}
 	/*if (track.getName().equals(endTrack().getName())){
@@ -15815,7 +15908,7 @@ for(RailwayTrack track : routeTracks){
 	previousTrack = track;
 	copyRouteTracks.add(track);
 	sideTracks.put(track,  isMoveBack);
-	traceln("Для пути " + track.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
+	//traceln("Для пути " + track.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
 	moveDirection.put(track, dir);
 	/*if (!alreadyUseMulty && multyTrackCondition(train, routeTracks)){
 		traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
@@ -15823,14 +15916,20 @@ for(RailwayTrack track : routeTracks){
 		dir = !dir;
 		alreadyUseMulty = true;
 	}*/
-	traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
+	//traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
 	
 }
 for (RailwayTrack track : moveDirection.keySet()){
-	traceln(violet, "По пути " + track.getName() + " движемся " + (moveDirection.get(track) ? "=Вперед=": "=Назад="));
+	//traceln(violet, "По пути " + track.getName() + " движемся " + (moveDirection.get(track) ? "=Вперед=": "=Назад="));
 }
 
-
+for (int i = 0; i < copyRouteTracks.size(); i++){
+	RailwayTrack copyStart = copyRouteTracks.get(i);
+	RailwayTrack copyEnd = ((i+1) <= copyRouteTracks.size() - 1) ?  copyRouteTracks.get(i+1) : null;
+	if (copyEnd != null && getSwitchActive(copyStart, copyEnd) != null){
+		main.setSwitchActive(new SwitchNode(getSwitchActive(copyStart, copyEnd)), true);
+	}
+}
 Route route = new Route(copyRouteTracks, sideTracks, moveDirection);
 return route;]]></Body>
 				</Function>
@@ -15861,6 +15960,52 @@ if (main.railSettings.getShortestPath(previousTrack, track, dir, 0, new RailwayT
 	isHave = true;
 }
 return isHave;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[RailwaySwitch]]></ReturnType>
+					<Id>1709194860118</Id>
+					<Name><![CDATA[getSwitchActive]]></Name>
+					<X>410</X><Y>-110</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[startTrack]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[endTrack]]></Name>
+						<Type><![CDATA[RailwayTrack]]></Type>
+					</Parameter>
+					<Body><![CDATA[List<RailwaySwitch> currSwitchStart = new ArrayList();
+List<RailwaySwitch> currSwitchEnd = new ArrayList();
+RailwaySwitch switchActive = null;
+
+RailwaySwitch copySwitch = startTrack.getSwitch(true);
+if (copySwitch != null){
+	currSwitchStart.add(copySwitch);
+}
+copySwitch = startTrack.getSwitch(false);
+if (copySwitch != null){
+	currSwitchStart.add(copySwitch);
+}
+
+copySwitch = endTrack.getSwitch(true);
+if (copySwitch != null){
+	currSwitchEnd.add(copySwitch);
+}
+copySwitch = endTrack.getSwitch(false);
+if (copySwitch != null){
+	currSwitchStart.add(copySwitch);
+}
+for (RailwaySwitch sw : currSwitchStart){
+	if (currSwitchEnd.stream().anyMatch(p-> p.getName().equals(sw.getName()))){
+		switchActive = sw;
+	}
+}
+return switchActive;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -16037,12 +16182,22 @@ return isHave;]]></Body>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[/*if (switchActive != null){
+	main.setSwitchActive(new SwitchNode(switchActive), false);
+	switchActive = null;
+}*/]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExitHit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[cntRoute = 0;
-route = null;]]></Code>
+route = null;
+/*if (switchActive != null){
+	main.setSwitchActive(new SwitchNode(switchActive), false);
+	switchActive = null;
+}*/]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -16150,6 +16305,7 @@ route = null;]]></Code>
 	RailwayTrack startTrack = train.getTrack(false);//logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
 	route = makeRoute(startTrack, endTrack(), train);
 }
+//setSwitchActive(train.getTrack(false), route.getUsedTracks().get(cntRoute));
 //else{
 	boolean isForward = route.getMoveDirection().get(route.getUsedTracks().get(cntRoute));
 	//traceln(orange, "Задаую движение состава на путь " + route.getUsedTracks().get(cntRoute).getName() + " в направлении " + (isForward ? "вперед" : "назад"));
@@ -35466,6 +35622,7 @@ else{
 				<Variable Class="PlainVariable">
 					<Id>1707833327615</Id>
 					<Name><![CDATA[switches]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>-210</X><Y>250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -35630,7 +35787,7 @@ else{
 locomotives.addAll(main.data.locosInStation);
 products.addAll(main.data.productsCollection);
 tracks.addAll(main.getTracksEdges());
-switches.addAll(main.railwayNetwork.getSwitches());
+///switches.addAll(main.railwayNetwork.getSwitches());
 fronts.addAll(main.getFronts());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -35732,10 +35889,31 @@ return proc*100;]]></Body>
 					</Parameter>
 					<Body><![CDATA[double proc = 0;
 proc = isLoad ? 
-	main.data.requestsCollection.stream().filter(p-> p.getIsDone() && p.getNumFront().equals(front.getName()) && p.getWeight() < 1).map(p-> p.getWeight()).mapToDouble(Double::doubleValue).sum() // отгрузка вагоны на фронте
+	main.data.requestsCollection
+			.stream()
+			.filter(p-> p.getIsDone() && p.getNumFront().equals(front.getName()) && p.getWeight() < 1)
+			.map(p-> main.data.railCarsCollection.stream().filter(g-> g.type.equals(p.getTypeVagon()) && g.model.equals(p.getModel())).findFirst().orElse(null).getWeight())
+			.mapToDouble(Double::doubleValue).sum() // отгрузка вагоны на фронте
 	:
 	main.data.requestsCollection.stream().filter(p-> p.getIsDone() && p.getNumFront().equals(front.getName()) && p.getWeight() >= 1).map(p-> p.getWeight()).mapToDouble(Double::doubleValue).sum(); // разгружают вагоны на фронте 
 return proc;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1709196178331</Id>
+					<Name><![CDATA[getUtilizationSwitch]]></Name>
+					<X>-210</X><Y>480</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[sw]]></Name>
+						<Type><![CDATA[SwitchNode]]></Type>
+					</Parameter>
+					<Body><![CDATA[double allTime = (date().getTime() - main.startDate.getTime())/3600000;
+return (sw.getHoursActive()/allTime)*100;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -36593,14 +36771,14 @@ return proc;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[210 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[switches.size()]]></Code>
+						<Code><![CDATA[main.switches.size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[ТЭМ-2]]></Text>
-					<TextCode><![CDATA[switches.get(index).getName()]]></TextCode>
+					<TextCode><![CDATA[main.switches.get(index).getName()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -36652,7 +36830,7 @@ return proc;]]></Body>
 				</Text>
 				<Text>
 					<Id>1707833327377</Id>
-					<Name><![CDATA[text237]]></Name>
+					<Name><![CDATA[utilSwitch]]></Name>
 					<X>665</X><Y>210</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
@@ -36661,13 +36839,14 @@ return proc;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[210 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[tracks.size()]]></Code>
+						<Code><![CDATA[main.switches.size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[560]]></Text>
+					<TextCode><![CDATA[getUtilizationSwitch(main.switches.get(index))]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -38040,7 +38219,7 @@ return proc;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<YCode><![CDATA[220 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[switches.size()]]></Code>
+						<Code><![CDATA[main.switches.size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -42715,6 +42894,25 @@ public class SwitchNode implements Serializable, GraphNode {
 
     private RailwaySwitch self;
     private List<TrackEdge> edges;
+    private Date dateStartActive;
+    private double hoursActive;
+    
+    
+    public Date getDateStartActive() {
+        return dateStartActive;
+    }
+
+    public void setDateStartActive(Date dateStartActive) {
+        this.dateStartActive = dateStartActive;
+    }
+
+    public double getHoursActive() {
+        return hoursActive;
+    }
+
+    public void setHoursActive(double hoursActive) {
+        this.hoursActive = hoursActive;
+    }
 
     public RailwaySwitch getSelf() {
         return self;
@@ -42742,6 +42940,19 @@ public class SwitchNode implements Serializable, GraphNode {
 
     public void setId(String id) {
         this.id = id;
+    }
+    public void startTimeActive(Date startDate) {
+    	dateStartActive = startDate;
+    }
+    
+    public void endTimeActive(Date endDate) {
+    	if (dateStartActive != null) {
+    		//hoursActive += endDate.getTime() - dateStartActive.getTime();
+    		hoursActive += (double)((endDate.getTime() - dateStartActive.getTime())/3600000.0);
+    		traceln("Посчитал сколько мс активна стрелка "+ getName() + " " + hoursActive);
+        	dateStartActive = null;
+    	}
+    	
     }
 
     /*public SwitchNode(RailwaySwitch self, List<TrackEdge> edges, String id) {

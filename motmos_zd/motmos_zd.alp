@@ -43658,7 +43658,7 @@ public class FormationOptimizer {
     private Date currDate;
     private double weightTrain = 2680.0;
     private double lengthTrain = 630;
-    public static boolean isTrace = false;
+    public static boolean isTrace = true;
 
     public FormationOptimizer(Front front, List<TrackEdge> pops, List<Integer> hashCars, Date currDate) {
         this.front = front;
@@ -43908,21 +43908,24 @@ public class FormationOptimizer {
     	List<TaskAction> tasks = new ArrayList();
     	//TrackEdge targetTrack = pops.stream().filter(p-> p.getSelf().isEmpty() || isEnoughPlace(p, carsForFront)).findFirst().orElse(null);
     	if (targetTrack != null) {
-    		int endTrackSize = targetTrack.getSelf().getCars().size();
+    		int endTrackSize = (int)targetTrack.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).count();
 	    	for (TrackEdge track : pops){
 	    		List<RailCar> allTargetFrontCars = getTargetCarsOnTrack(track, carsForFront);
-	    		traceln(red, "Размер состава " + allTargetFrontCars.size());
+	    		Tools.trace(red, "Размер состава " + allTargetFrontCars.size() + " на пути " + track.getName(), isTrace);
 	    		if (allTargetFrontCars.size() > 0) {
 		        	int posCar = 0;
 		        	boolean toTargetTrack = true;
 		        	List<RailCar> trainWithoutLocos = track.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList());
 		        	List<Integer> fragments = getFragmentsTrain(trainWithoutLocos, allTargetFrontCars);
-		        	int startTrackSize = track.getSelf().getCars().size();
+		        	int startTrackSize = (int)track.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).count();
 		        	
         			int targetComprassion = endTrackSize; // переменная целевого сравнения
 		        	for (int i = 0; i < fragments.size();i++) {
+		        			
 		        			RailwayTrack startTrack = toTargetTrack ? track.getSelf() : targetTrack.getSelf();
 		        			RailwayTrack endTrack = toTargetTrack ? targetTrack.getSelf() : track.getSelf();
+		        			
+		        			Tools.trace(red, "Срабатываю перед выборо типа, конечный путь - " + endTrack.getName() + " toTargetTrack - " + toTargetTrack, isTrace);
 		        			targetComprassion = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
 		        			String type = getTypeTask(targetTrack.getSelf(), endTrack, fragments.get(i), startTrackSize, endTrackSize);
 		        			TaskAction task = new TaskAction (type, startTrack, endTrack, fragments.get(i));
@@ -43939,6 +43942,7 @@ public class FormationOptimizer {
 		        				endTrackSize -= fragments.get(i);
 		        				startTrackSize += fragments.get(i);
 		        			}
+		        			Tools.trace(cyan, "ИЗМЕНЯЮ toTargetTrack", isTrace);
 		        			toTargetTrack = !toTargetTrack;
 		        		}
 		        	}
@@ -43964,8 +43968,17 @@ public class FormationOptimizer {
      */
     public String getTypeTask(RailwayTrack targetTrack, RailwayTrack endTrack, int fragment, int startTrackSize, int endTrackSize) {
     	boolean toTargetTrack = endTrack.equals(targetTrack); // движемся ли мы на целевой путь
+    	
+    	
     	int target = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
-    	int start = toTargetTrack ? startTrackSize : endTrackSize; // если движемся до целевого пути, то принимаей размер состава на начальном пути 
+    	int start = toTargetTrack ? startTrackSize : endTrackSize; // если не движемся до целевого пути, то принимаей размер состава на начальном пути
+    	Tools.trace("Текущий путь " + endTrack.getName(), isTrace);
+    	Tools.trace("Конечный путь " + targetTrack.getName(), isTrace);
+    	Tools.trace("Это конечный путь? " + toTargetTrack, isTrace);
+    	Tools.trace("Размер состава на начальном пути " + endTrackSize, isTrace);
+    	Tools.trace("Размер состава на конечном пути " + endTrackSize, isTrace);
+    	Tools.trace("Размер состава на текущем начальном пути " + start, isTrace);
+    	Tools.trace("Размер состава на текущем конечном пути " + target, isTrace);
     	String type = "";
 			if (start == fragment && target == 0) {
 				type = "Полурейс формирования всех вагонов с пути на пустой путь";

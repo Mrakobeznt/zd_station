@@ -27155,8 +27155,16 @@ else{
 	traceln(red, "не сработал");
 }*/
 if (currentTask.getType().equals("Движение") || currentTask.getType().equals("Движение в цех") || currentTask.getType().equals("Движение кон")){
+	
 	if (cntTask == 0){
 		train = (Train)delayLoco.get(0);
+		if (currentTask.getType().equals("Движение в цех") 
+			&& train != null 
+				&& currentTask.getEndTrack().getName().equals(train.getTrack(false).getName())){
+			cntTask++;
+			delay.stopDelayForAll();
+			return;
+		}
 	}
 	else{
 		if (currentTask.getStartTrack().getTrains().size() > 1){
@@ -43386,7 +43394,7 @@ public class Front {
     
     public boolean needToPickUp() {
     	boolean isNotBlocked = !isBlockedForPickUp();
-    	List<RailCar> onlyMyCars = homeTrack.getRailCarsOnTrack().stream().filter(p-> placeFront.contains(p.getX(), p.getY())).collect(Collectors.toList());
+    	List<RailCar> onlyMyCars = homeTrack.getRailCarsOnTrack().stream().filter(p-> placeFront.contains(p.getX(), p.getY()) && !p.type.equals("Локомотив")).collect(Collectors.toList());
     	boolean allCarsReady = (onlyMyCars.stream().allMatch(p-> ((RailCar)p).status.equals("Ожидание уборки с грузового фронта")));
     	/*if (allCarsReady) {
     		homeTrack.getSelf().getCars().stream().forEach(p-> traceln("Вагон на пути " + ((RailCar)p).getTrack().getName() + " имеет статус " + ((RailCar)p).status));
@@ -43908,7 +43916,7 @@ public class FormationOptimizer {
     	List<TaskAction> tasks = new ArrayList();
     	//TrackEdge targetTrack = pops.stream().filter(p-> p.getSelf().isEmpty() || isEnoughPlace(p, carsForFront)).findFirst().orElse(null);
     	if (targetTrack != null) {
-    		int endTrackSize = (int)targetTrack.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).count();
+    		int endTrackSize = (int)targetTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).count();
 	    	for (TrackEdge track : pops){
 	    		List<RailCar> allTargetFrontCars = getTargetCarsOnTrack(track, carsForFront);
 	    		Tools.trace(red, "Размер состава " + allTargetFrontCars.size() + " на пути " + track.getName(), isTrace);
@@ -43917,16 +43925,16 @@ public class FormationOptimizer {
 		        	boolean toTargetTrack = true;
 		        	List<RailCar> trainWithoutLocos = track.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList());
 		        	List<Integer> fragments = getFragmentsTrain(trainWithoutLocos, allTargetFrontCars);
-		        	int startTrackSize = (int)track.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).count();
+		        	int startTrackSize = (int)track.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).count();
 		        	
-        			int targetComprassion = endTrackSize; // переменная целевого сравнения
+        			//int targetComprassion = endTrackSize; // переменная целевого сравнения
 		        	for (int i = 0; i < fragments.size();i++) {
 		        			
 		        			RailwayTrack startTrack = toTargetTrack ? track.getSelf() : targetTrack.getSelf();
 		        			RailwayTrack endTrack = toTargetTrack ? targetTrack.getSelf() : track.getSelf();
 		        			
-		        			Tools.trace(red, "Срабатываю перед выборо типа, конечный путь - " + endTrack.getName() + " toTargetTrack - " + toTargetTrack, isTrace);
-		        			targetComprassion = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
+		        			Tools.trace(red, "Срабатываю перед выборо типа, конечный путь - " + endTrack.getName() + " toTargetTrack - " + toTargetTrack + " начальный путь " + startTrack.getName(), isTrace);
+		        			//targetComprassion = toTargetTrack ? endTrackSize : startTrackSize; // если мы движемся до целевого пути, то определяем сколько вагонов на целевом пути
 		        			String type = getTypeTask(targetTrack.getSelf(), endTrack, fragments.get(i), startTrackSize, endTrackSize);
 		        			TaskAction task = new TaskAction (type, startTrack, endTrack, fragments.get(i));
 		        			if (i+1 <= fragments.size() - 1) {
@@ -44356,7 +44364,7 @@ public class TrainCleaner implements Serializable {
 	public List<TaskAction> getTasks(){
 		List<TaskAction> tasks = new ArrayList();
 		TrackEdge trackToClean = getFilledTracks().get(0); // путь, который необходимо расчистить (на котором находится меньше всего вагонов)
-		double trainLength = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack()); // размер состава, который нужно переставить
+		double trainLength = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())); // размер состава, который нужно переставить
 		//traceln("Размер состава, который нужно переставить " + trainLength);
 		Set<TrackEdge> usedEdges = new HashSet();
 		int prevCnt = 0;
@@ -44379,7 +44387,7 @@ public class TrainCleaner implements Serializable {
 				else {
 					type = "Полурейс формирования всех вагонов с пути";
 					//traceln(black, "Места хватает");
-					cntVagons = endTrack.getRailCarsOnTrack().size();
+					cntVagons = (int)endTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).count();
 					//traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
 					//traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
 					

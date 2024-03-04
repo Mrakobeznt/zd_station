@@ -1827,7 +1827,8 @@ return tasks;]]></Body>
 					<Body><![CDATA[setTasksForSendToFront();
 setTasksForPickUpToFront();
 setTaskForArrive();
-setTaskForSend();]]></Body>
+setTaskForSend();
+setTasksForAssembleTrain();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -2700,23 +2701,41 @@ else{
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[TrackEdge coupleTrack = null;
-List<TrackEdge> onlyReadyToSendTracks = getPopsTracksEdges()
+List<TrackEdge> onlyReadyToSendTracks = getPopsWithoutAvoid()
 											.stream()
-											.filter(p-> p.getRailCarsOnTrack().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции")))
+											.filter(p-> p.getRailCarsOnTrack()
+																	.stream()
+																	.filter(t-> !t.type.equals("Локомотив"))
+																	.allMatch(g-> g.status.equals("Ожидание отправки со станции")) && !p.getSelf().isEmpty())
 											.collect(Collectors.toList());// пути только с вагонами под отправку
-List<TrackEdge> tracksWithReadyCars = getPopsTracksEdges()
+List<TrackEdge> tracksWithReadyCars = getPopsWithoutAvoid()
 											.stream()
-											.filter(p-> p.getRailCarsOnTrack().stream().anyMatch(g-> g.status.equals("Ожидание отправки со станции")))
+											.filter(p-> p.getRailCarsOnTrack()
+																	.stream()
+																	.filter(t-> !t.type.equals("Локомотив"))
+																	.anyMatch(g-> g.status.equals("Ожидание отправки со станции")) && !p.getSelf().isEmpty())
 											.collect(Collectors.toList());// пути только с вагонами под отправку
-List<TrackEdge> emptyTracks = getPopsTracksEdges()
+List<TrackEdge> emptyTracks = getPopsWithoutAvoid()
 											.stream()
-											.filter(p-> p.getSelf().isEmpty())
+											.filter(p-> p.getRailCarsOnTrack()
+																	.stream()
+																	.filter(t-> !t.type.equals("Локомотив")).count() < 1)
 											.collect(Collectors.toList());// пути только с вагонами под отправку
 List<RailCar> readyCars = railCars.stream().filter(p-> p.status.equals("Ожидание отправки со станции")).collect(Collectors.toList());// список вагонов на отправку со станции
+traceln("На станции путей только с готовыми вагонами: " + onlyReadyToSendTracks.size());
+onlyReadyToSendTracks.stream().forEach(p-> traceln("Путь " + p.getName()));
+traceln("На станции путей не только с готовыми вагонами: " + tracksWithReadyCars.size());
+tracksWithReadyCars.stream().forEach(p-> traceln("Путь " + p.getName()));
+traceln("На станции пустых путей: " + emptyTracks.size());
+emptyTracks.stream().forEach(p-> traceln("Путь " + p.getName()));
 // фильтрованный список путей по убыванию длины состава
 if (!onlyReadyToSendTracks.isEmpty()){ // если есть пути только с вагонами под отправку
+	traceln("Зашел 1");
 	for (TrackEdge edge : onlyReadyToSendTracks.stream().sorted((o1, o2) -> ((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack())).compareTo(((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())))).collect(Collectors.toList())){
+		traceln("Путь " + edge.getName() + " свободного места " + edge.getUsableLength());
+		traceln("длина состава + 20 " + (Tools.getLengthTrain(readyCars) + 20));
 		if (edge.getUsableLength() >= Tools.getLengthTrain(readyCars) + 20){// если длина всех готовых на отправку вагонов может уместиться на пути
+			traceln("Выбрал Путь " + edge.getName() + " свободного места " + edge.getUsableLength());
 			coupleTrack = edge;
 			break;
 		}
@@ -2724,6 +2743,7 @@ if (!onlyReadyToSendTracks.isEmpty()){ // если есть пути тольк�
 }
 else{
 	if (!emptyTracks.isEmpty()){// если есть пустые пути
+		traceln("Зашел 2");
 		for (TrackEdge edge : emptyTracks){
 			if (edge.getUsableLength() >= Tools.getLengthTrain(readyCars) + 20){ // если на пустом пути может разместиться состав под отправку
 				coupleTrack = edge;
@@ -2746,14 +2766,14 @@ else{
 		setTaskForClean();
 	}
 }
-if (coupleTrack == null){
+if (coupleTrack != null){
 	List<Integer> list = new ArrayList();
 	for (RailCar car : readyCars){
 		if (!coupleTrack.getRailCarsOnTrack().contains(car)){
 			list.add(car.hashCode());
 		}
 	}
-	FormationOptimizer fo = new FormationOptimizer(getPopsWithoutAvoid(), list);
+	FormationOptimizer fo = new FormationOptimizer(getPopsWithoutAvoid(), list, date());
 	List<TaskAction> tasks = fo.getTasksForSending(coupleTrack);
 	for (TaskAction task : tasks){
 		addTask(task);
@@ -4423,11 +4443,9 @@ switch(agent.type){
 			enterTasksSuper.take(agent);
 		}
 		break;
-	/*case "Сортировка" :
-		if (!makeTaskForArrive((TaskAction)agent)){
-			enterTasksSuper.take(agent);
-		}
-		break;*/
+	case "Сортировка" :
+		makeTasksForAssembleTrain();
+		break;
 	case "Отправка на фронт" :
 		makeTaskFormationToFront(((TaskAction)agent).front);
 		break;
@@ -43709,9 +43727,10 @@ public class FormationOptimizer {
     }
     
     
-    public FormationOptimizer( List<TrackEdge> pops, List<Integer> hashCars) {
+    public FormationOptimizer( List<TrackEdge> pops, List<Integer> hashCars, Date currDate) {
         this.pops = pops;
         this.hashCars = hashCars;
+        this.currDate = currDate;
     }
     
     /**
@@ -43748,6 +43767,43 @@ public class FormationOptimizer {
     	Tools.trace("После приоритета, размер вагонов на отправку " + cars.size(), isTrace);
     	return cars;
     }
+    
+    public List<RailCar> getCarsForSendFinal(TrackEdge targetTrack){
+    	Map<RailCar, Double> carsPriority = new HashMap();
+    	List<RailCar> cars = new ArrayList();
+    	Tools.trace("Перед приоритетом, размер вагонов на отправку " + hashCars.size(), isTrace);
+    	//Tools.trace(hashCars.toString(), isTrace);
+    	for (Integer hashCar : hashCars) {
+    		RailCar car = getCarsOnPopTracks().stream().filter(p-> p.hashCode() == hashCar).findFirst().orElse(null);
+    		double priority = getPriorityByCar(car);
+    		carsPriority.put(car, priority);
+    	}
+    	
+    	Map<RailCar, Double> carsPriority2 = carsPriority.entrySet()
+    			.stream()
+    			.sorted(Map.Entry.<RailCar, Double>comparingByValue().reversed())
+    			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    	List<RailCar> sortedCars = new ArrayList(carsPriority2.keySet());// отсортированный массив вагонов по приоритету на отправку на фронт
+    	double lengthTrain = Tools.getLengthTrain(targetTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList()));
+    	//Tools.trace(black, "Фронт " + front.getName() + " имеет полезную длину " + front.getUsableLength(), isTrace);
+    	for (RailCar car : sortedCars) {
+    		if (lengthTrain + car.length <= targetTrack.getUsableLength() && !targetTrack.getRailCarsOnTrack().contains(car)) {
+    			cars.add(car);
+    			lengthTrain += car.length;
+    		}
+    		else {
+    			Tools.trace(red, "Вагон с типом " + car.type + " на пути " + getTrackEdgeByCar(car).getName() + " не прошел по размеру", isTrace);
+    			Tools.trace(red, "Свободной длины состава осталось " + lengthTrain + ", размер вагона - " + car.length, isTrace);
+    		}
+    	}
+    	Tools.trace("После приоритета, размер вагонов на отправку " + cars.size(), isTrace);
+    	return cars;
+    }
+    
+    
+    
+    
+    
     /**
      * @return - возвращает вагоны, которые нужны отправить со станции
      */
@@ -43886,7 +43942,7 @@ public class FormationOptimizer {
      */
     public List<Integer> getFragmentsTrain(List<RailCar> train, List<RailCar> allTargetFrontCars) {
     	//boolean side = true;
-    	Tools.trace("Размер состава " + allTargetFrontCars.size() + " для отправки на фронт " + front.getName(), isTrace);
+    	//Tools.trace("Размер состава " + allTargetFrontCars.size() + " для отправки на фронт " + front.getName(), isTrace);
     	List<Integer> fragments = new ArrayList();//размеры фрагментов с конца состава
     	int fragmentSize = 0;
     	int sizeTrain = train.size(); 
@@ -44047,7 +44103,7 @@ public class FormationOptimizer {
     
     public List<TaskAction> getTasksForSending(TrackEdge targetTrack){ // 
     	Tools.trace(black, "Целевой путь " + targetTrack.getName(), isTrace);
-    	List<RailCar> carsForFront = getCarsForSendtoFront();
+    	List<RailCar> carsForFront = getCarsForSendFinal(targetTrack);
     	List<TaskAction> tasks = new ArrayList();
     	//TrackEdge targetTrack = pops.stream().filter(p-> p.getSelf().isEmpty() || isEnoughPlace(p, carsForFront)).findFirst().orElse(null);
     	if (targetTrack != null) {

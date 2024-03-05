@@ -2205,28 +2205,28 @@ for (TrainArrival arrival : data.arrivalsCollection){
 						<Type><![CDATA[TaskAction]]></Type>
 					</Parameter>
 					<Body><![CDATA[boolean arrivalDone = false;
-TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
-RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
-List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.contactRequests, loco, trackArrive);
-//TrainArrival tA = data.arrivalsDone.stream().filter(p-> p.hashCode() == taskAction.trainArrival.hashCode()).findFirst().orElse(null);
-/*if (tA != null){
-	tA.setTrain(train);
-}*/
-train.add(0,loco);
-train.forEach(p-> {
-	RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
-	if (copyCar != null){
-		p.length = copyCar.length;
-		p.dateArrive = getModelTime();
-	}
-});
-boolean withLoco = data.useStationLocoForArrive;
 if (cntEmptyTrack < 2){
 	setTaskForClean();
 }
 else{
-	if (!train.isEmpty()){ // если состав под прибытие на пуст
+	TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
+	RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
+	List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.contactRequests, loco, trackArrive);
+	//TrainArrival tA = data.arrivalsDone.stream().filter(p-> p.hashCode() == taskAction.trainArrival.hashCode()).findFirst().orElse(null);
+	/*if (tA != null){
+		tA.setTrain(train);
+	}*/
+	train.add(0,loco);
+	train.forEach(p-> {
+		RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
+		if (copyCar != null){
+			p.length = copyCar.length;
+			p.dateArrive = getModelTime();
+		}
+	});
+	boolean withLoco = data.useStationLocoForArrive;
+	if (train.size() > 1){ // если состав под прибытие на пуст
 		addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
 		train.stream().forEach(p-> {
 									Request req = data.requestsCollection.stream().filter(g-> g.hashCode() == p.hashRequest).findFirst().orElse(null);
@@ -18823,11 +18823,14 @@ while(file.cellExists(list, row, 1)){
 	String typeOwner = file.getCellStringValue(list, row, 13);
 	String model = file.getCellStringValue(list, row, 14);
 	int hours = 7;
-	if (change == 2){
+	if (changeNum == 2){
 		hours = 19;
 	}
+	Calendar instance = Calendar.getInstance();
+	instance.setTime(dateRequest);
+	instance.add(Calendar.HOUR, hours);
 	RailCar car = main.data.railCarsCollection.stream().filter(p->p.model.equals(model) && p.type.equals(typeVagon)).findFirst().orElse(null);
-	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, dateRequest, changeNum, weight, status, changeStatus, typeOwner, model, car);
+	Request req = new Request(numRequest, numberVagon, numInvoice, typeVagon, productType, numFront, nameOwner, instance.getTime(), changeNum, weight, status, changeStatus, typeOwner, model, car);
 	requestsCollection.add(req);
 	row++;
 }

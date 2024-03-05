@@ -1294,8 +1294,12 @@ getEngine().setStopDate(dateFinish);]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> list = new ArrayList();
+int addHours = 12;
+Calendar instance = Calendar.getInstance();
+instance.setTime(getModelTime());
+instance.add(Calendar.HOUR_OF_DAY, addHours);
 for (Request req : data.requestsCollection){
-	if (getModelTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone() && !req.getIsArrive()){
+	if (instance.getTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone() && !req.getIsArrive()){
 		list.add(req);
 	}
 }

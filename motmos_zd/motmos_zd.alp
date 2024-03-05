@@ -1221,7 +1221,7 @@ if (!front.isBlockedForSend()){
 	for (Request req : requsts.stream().filter(p-> data.contactRequests.contains(p)).collect(Collectors.toList())){ // сначала ищем вагоны по заявкам контактного графика
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")
-					&& (sizeTrain + car.length <= sizeFront)
+					//&& (sizeTrain + car.length <= sizeFront)
 						&& !useRequests.contains(req)
 							&& !hashList.contains(car.hashCode())){
 				//car.getRectangle().setVisible(true);
@@ -1237,7 +1237,7 @@ if (!front.isBlockedForSend()){
 	for (Request req : requsts.stream().filter(p-> !data.contactRequests.contains(p)).collect(Collectors.toList())){ // ищем вагоны не контактного графика
 		for (RailCar car : getCarsOnPopsTracks()){
 			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")
-					&& (sizeTrain + car.length <= sizeFront)
+					//&& (sizeTrain + car.length <= sizeFront)
 						&& !useRequests.contains(req) 
 							&& !hashList.contains(car.hashCode())){
 				//car.getRectangle().setVisible(true);
@@ -1294,12 +1294,12 @@ getEngine().setStopDate(dateFinish);]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> list = new ArrayList();
-int addHours = 12;
+int addHours = 0;
 Calendar instance = Calendar.getInstance();
 instance.setTime(getModelTime());
 instance.add(Calendar.HOUR_OF_DAY, addHours);
 for (Request req : data.requestsCollection){
-	if (instance.getTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone() && !req.getIsArrive()){
+	if (instance.getTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone()){
 		list.add(req);
 	}
 }
@@ -1403,7 +1403,11 @@ return listCar;]]></Body>
 22. Исправить ошибку при создании задач по расчистке * 27.02.24
 20. Разобраться с ошибкой при увеличении скорости * 27.02.24
 21. Собирать вагоны для отправки на фронт сначала либо на пустых путях, либо на путях с вагонами на отправку на фронт, если там нет нужных вагонов, если нет, то потом с вагонами под отправку * 28.02.24
-22. Сборка составов на станции * 04.03.2024]]></Body>
+22. Сборка составов на станции * 04.03.2024
+25. Разрешить перетаскивать только готовые составы для расчистки * 04.03.24
+27. Проверить работу отправки с фронта на приемо-отправочные пути (нужно чтобы сразу отправлял на путь с готовыми вагонами) * 05.03.24
+24. Проверить работу приоритета на выбор вагонов * 05.03.24
+19. Состав должен проталкиваться перед расцепкой до края пути (Договорились пока без проталкивания 05.03.24)]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1556,29 +1560,6 @@ enterTasks.take(task);]]></Body>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1706016004692</Id>
-					<Name><![CDATA[fulfillRequests]]></Name>
-					<X>600</X><Y>2350</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[List<Request>]]></ReturnType>
-					<Id>1706023532235</Id>
-					<Name><![CDATA[getRequestsToArrive]]></Name>
-					<Description><![CDATA[Функция возвращает заявки, которые должны войти в следующее прибытие состава]]></Description>
-					<X>600</X><Y>2370</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-				</Function>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1706082730974</Id>
 					<Name><![CDATA[текущие_задачи]]></Name>
 					<ExcludeFromBuild>true</ExcludeFromBuild>
@@ -1607,15 +1588,15 @@ enterTasks.take(task);]]></Body>
 16. Сформировать файл отчета
 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
 18. Интерфейс сделать более приятным на ключевых показателях
-19. Состав должен проталкиваться перед расцепкой до края пути
+
 20. Добавить настройку для допущения длины состава на отправку
 21. Проверить работу вагонов с технологической простоем и не технологическим
 22. Проверить работу отправки и прибытия составов с помощью станционного локомотива
 23. Чтобы не спамились задачи, должно быть не больше 10 расчисток
-24. Проверить работу приоритета на выбор вагонов
-25. Разрешить перетаскивать только готовые составы для расчистки
+
+
 26. Корректно учитывать суммарное время простоя вагона
-27. Проверить работу отправки с фронта на приемо-отправочные пути (нужно чтобы сразу отправлял на путь с готовыми вагонами)
+
 28. Добавить минимальный вес состава на отправку и минимальную длину состава на отправку]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2027,7 +2008,6 @@ List<Request> activeList = getActiveRequests();
 for (Request req : activeList){
 	//traceln("Смотрю заявку " + req);
 	for (RailCar car : getCarsOnPopsTracks()){
-		//traceln("Вагон подходит под отправку на фронт " + conditionForSendVagon(car, req));
 		if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт") && !cars.contains(car)){
 			list.add(req);
 			cars.add(car);
@@ -2216,13 +2196,14 @@ if (cntEmptyTrack < 2){
 else{
 	TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 	RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
-	List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequests(), data.contactRequests, loco, trackArrive);
+	List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequestsForArrive(), data.contactRequests, loco, trackArrive);
 	//TrainArrival tA = data.arrivalsDone.stream().filter(p-> p.hashCode() == taskAction.trainArrival.hashCode()).findFirst().orElse(null);
 	/*if (tA != null){
 		tA.setTrain(train);
 	}*/
 	train.add(0,loco);
 	train.forEach(p-> {
+		traceln(black, "HashRequeset " + p.hashRequest + " есть ли такой среди реквестов " + data.requestsCollection.stream().anyMatch(g-> g.hashCode() == p.hashRequest));
 		RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
 		if (copyCar != null){
 			p.length = copyCar.length;
@@ -2232,12 +2213,9 @@ else{
 	boolean withLoco = data.useStationLocoForArrive;
 	if (train.size() > 1){ // если состав под прибытие на пуст
 		addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
-		train.stream().forEach(p-> {
-									Request req = data.requestsCollection.stream().filter(g-> g.hashCode() == p.hashRequest).findFirst().orElse(null);
-									if (req != null){
-										req.setIsArrive(true);
-									}
-									});
+		train.stream().forEach(p-> data.requestsCollection.stream().filter(g-> g.hashCode() == p.hashRequest).forEach(g-> {
+		traceln("Получилось поменять статус");
+		g.setIsArrive(true);}));
 		arrivalDone = true;
 		activeSuperTasks++;
 	}
@@ -2300,33 +2278,37 @@ if (!tasks.isEmpty()){
 					<Body><![CDATA[TrackEdge targetTrack = null;
 TrackEdge emptyTargetTrack = getPopsWithoutAvoid()
 							.stream()
-							.filter(p-> p.getSelf().isEmpty() && p.isEnoughPlace(front.getTrainOnFront()))
+							.filter(p-> p.getRailCarsOnTrack()
+													.stream()
+													.filter(g-> !g.type.equals("Локомотив"))
+													.count() == 0 
+														&& p.isEnoughPlace(front.getTrainOnFront()))
 							.findFirst()
 							.orElse(null);
 if (front.getHomeTrack().getRailCarsOnTrack()
 								.stream().filter(p-> !p.type.equals("Локомотив"))
 								.allMatch(p-> !p.finalStatus.equals("Технологическое ожидание") 
 									&& !p.finalStatus.equals("Не технологическое ожидание"))){ // если все вагоны под отправку с фронта не технологические ожидания
-	//traceln(black, "Все вагоны не технологич ожидание " + targetTrack);
+	traceln(black, "Все вагоны не технологич ожидание " + targetTrack);
 	/*getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && p.isEnoughPlace(front.getTrainOnFront()) && (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										|| p.getRailCarsOnTrack().size() > 1)).forEach(p-> traceln("kek " + p.getName() + " " + p.getProcentReadyToSend()));*/
 	if (getMaxProcentReadyCarTrack(front) != null && getMaxProcentReadyCarTrack(front).getProcentReadyToSend() >= 0.98){// если есть путь, на котором стоят только вагоны под отправку
 		targetTrack = getMaxProcentReadyCarTrack(front);
-		//traceln(black, "Cработал 1");		
+		traceln(black, "Cработал 1");		
 	}
 	else{// если нет пути только с вагонами под отправку
 		targetTrack = emptyTargetTrack == null ? getMaxProcentReadyCarTrack(front) : emptyTargetTrack; // если пустого пути не нашел, то просто выбери путь с максимальным количеством на отправку
-							//traceln(black, "Cработал 2");
+							traceln(black, "Cработал 2");
 	}
 }
 else{
 	if (getMinProcentReadyCarTrack(front).getProcentReadyToSend() >= 0.98){// если путь с минимальным процентом под отправку полностью состоит из вагонов под отправку, то отправляем на пустой путь
 		targetTrack = emptyTargetTrack == null ? getMinProcentReadyCarTrack(front) : emptyTargetTrack;
-							//traceln(black, "Cработал 3");
+							traceln(black, "Cработал 3");
 	}
 	else{
 		targetTrack = getMinProcentReadyCarTrack(front);
-		//traceln(black, "Cработал 4");
+		traceln(black, "Cработал 4");
 	}
 }
 return targetTrack;]]></Body>
@@ -2349,8 +2331,12 @@ return targetTrack;]]></Body>
 //getPopsWithoutAvoid().stream().forEach(p-> traceln("Путь не пуст " + !p.getSelf().isEmpty() + " места на пути хватает " + p.isEnoughPlace(front.getTrainOnFront()) + " нет одного локомотива на пути " + (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										//|| p.getRailCarsOnTrack().size() > 1)));
 List<TrackEdge> edges = getPopsWithoutAvoid().stream()
-							.filter(p-> !p.getSelf().isEmpty() && p.isEnoughPlace(front.getTrainOnFront()) && (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
-										|| p.getRailCarsOnTrack().size() > 1)).collect(Collectors.toList());
+							.filter(p-> !p.getSelf().isEmpty() 
+													&& p.isEnoughPlace(front.getTrainOnFront()) 
+														&& (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
+										|| p.getRailCarsOnTrack().size() > 1))
+							.collect(Collectors.toList());
+							traceln("Размер состава с фронта " + front.getTrainOnFront().size());
 return edges.isEmpty() ? null : edges.stream().max((p1, p2) -> Double.compare(p1.getProcentReadyToSend(), p2.getProcentReadyToSend())).get();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2905,6 +2891,29 @@ for (int i = 0; i < delaySuper.size(); i++){
 	}
 }
 return isArriving;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1709649914260</Id>
+					<Name><![CDATA[getActiveRequestsForArrive]]></Name>
+					<Description><![CDATA[Функция возвращает все активные заявки до текущей даты, которые не поставлены на грузовой фронт]]></Description>
+					<X>760</X><Y>2250</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Request> list = new ArrayList();
+int addHours = 6;
+Calendar instance = Calendar.getInstance();
+instance.setTime(getModelTime());
+instance.add(Calendar.HOUR_OF_DAY, addHours);
+for (Request req : data.requestsCollection){
+	if (instance.getTime().getTime() >= req.getDateRequest().getTime() && !req.getIsDone() && !req.getIsArrive()){
+		list.add(req);
+	}
+}
+return list;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -11764,6 +11773,29 @@ logic.enterStart.take(agent);]]></Code>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
+				<Rectangle>
+					<Id>1709651164302</Id>
+					<Name><![CDATA[rectangle32]]></Name>
+					<X>-140</X><Y>2290</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[traceln(data.requestsCollection.stream().filter(p-> p.getIsArrive()).count());]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>80</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
 			</Presentation>
 
 				</Level>
@@ -35712,6 +35744,102 @@ else{
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Rectangle>
+					<Id>1709650807599</Id>
+					<Name><![CDATA[rectangle1]]></Name>
+					<X>45</X><Y>201</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<YCode><![CDATA[201+index*20]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>23</Width>
+					<Height>18</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Group>
+					<Id>1709650959369</Id>
+					<Name><![CDATA[isArrive]]></Name>
+					<X>57</X><Y>210</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<YCode><![CDATA[210 + index*20]]></YCode>
+					<VisibleCode><![CDATA[main.data.requestsCollection.get(index).getIsArrive()]]></VisibleCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Line>
+					<Id>1709650922689</Id>
+					<Name><![CDATA[line2]]></Name>
+					<X>-8</X><Y>-4</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>4</LineWidth>
+					<LineColor>-16711936</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>5</Dx>
+					<Dy>7</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1709650922691</Id>
+					<Name><![CDATA[line3]]></Name>
+					<X>-4.366999999999997</X><Y>4.5</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>4</LineWidth>
+					<LineColor>-16711936</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>12</Dx>
+					<Dy>-9</Dy>
+					<Dz>0</Dz>
+				</Line>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Level>
@@ -43586,7 +43714,7 @@ public class Request {
     }
 
     public void setIsArrive(boolean isArrive) {
-        isDone = isArrive;
+    	this.isArrive = isArrive;
     }
 
     public boolean isAcceptedInWork() {
@@ -43783,7 +43911,7 @@ public class FormationOptimizer {
     возвращает вагоны, которые нужны на отпрвку на грузовой фронт
     **/
     public List<RailCar> getCarsForSendtoFront(){
-    	Map<RailCar, Double> carsPriority = new HashMap();
+    	Map<RailCar, Double> carsPriority = new LinkedHashMap();
     	List<RailCar> cars = new ArrayList();
     	Tools.trace("Перед приоритетом, размер вагонов на отправку " + hashCars.size(), isTrace);
     	//Tools.trace(hashCars.toString(), isTrace);
@@ -43797,7 +43925,11 @@ public class FormationOptimizer {
     			.stream()
     			.sorted(Map.Entry.<RailCar, Double>comparingByValue().reversed())
     			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    	for(RailCar car : carsPriority2.keySet()) {
+    		traceln("Вагон " + car.hashCode() + " простоял " + carsPriority2.get(car));
+    	}
     	List<RailCar> sortedCars = new ArrayList(carsPriority2.keySet());// отсортированный массив вагонов по приоритету на отправку на фронт
+    	sortedCars.stream().forEach(p-> traceln("t " + p.hashCode()));
     	double lengthTrain = 0;
     	//Tools.trace(black, "Фронт " + front.getName() + " имеет полезную длину " + front.getUsableLength(), isTrace);
     	for (RailCar car : sortedCars) {
@@ -44397,6 +44529,7 @@ public class TrainArrival {
     	// Сначала необходимо включить в состав вагоны местного парка, вес которых больше 0 (чтобы выгрузить продукцию)
     	for (Request req : requests.stream().filter(p-> contactRequests.contains(p)).collect(Collectors.toList())) {
     		RailCar car = req.getCar();
+    		car.hashRequest = req.hashCode();
     		if (sumWeight + car.getWeight() <= maxSumWeight // если сумма состава не превышает 
     					&&  sumLength + car.length <= maxSumLength
     						&& !usedRequests.contains(req)) {
@@ -44412,6 +44545,7 @@ public class TrainArrival {
     		Tools.trace(black, "req.getWeight() " + req.getWeight(), isTrace);
     		Tools.trace(black, "usedRequests.contains(req) " + usedRequests.contains(req), isTrace);*/
     		RailCar car = req.getCar();
+    		car.hashRequest = req.hashCode();
     		if ((sumWeight + car.getWeight()) <= maxSumWeight
     				&&  sumLength + car.length <= maxSumLength
     					&& !usedRequests.contains(req)) {

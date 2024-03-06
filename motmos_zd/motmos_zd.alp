@@ -2289,26 +2289,26 @@ if (front.getHomeTrack().getRailCarsOnTrack()
 								.stream().filter(p-> !p.type.equals("Локомотив"))
 								.allMatch(p-> !p.finalStatus.equals("Технологическое ожидание") 
 									&& !p.finalStatus.equals("Не технологическое ожидание"))){ // если все вагоны под отправку с фронта не технологические ожидания
-	traceln(black, "Все вагоны не технологич ожидание " + targetTrack);
+	//traceln(black, "Все вагоны не технологич ожидание " + targetTrack);
 	/*getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && p.isEnoughPlace(front.getTrainOnFront()) && (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										|| p.getRailCarsOnTrack().size() > 1)).forEach(p-> traceln("kek " + p.getName() + " " + p.getProcentReadyToSend()));*/
 	if (getMaxProcentReadyCarTrack(front) != null && getMaxProcentReadyCarTrack(front).getProcentReadyToSend() >= 0.98){// если есть путь, на котором стоят только вагоны под отправку
 		targetTrack = getMaxProcentReadyCarTrack(front);
-		traceln(black, "Cработал 1");		
+		//traceln(black, "Cработал 1");		
 	}
 	else{// если нет пути только с вагонами под отправку
 		targetTrack = emptyTargetTrack == null ? getMaxProcentReadyCarTrack(front) : emptyTargetTrack; // если пустого пути не нашел, то просто выбери путь с максимальным количеством на отправку
-							traceln(black, "Cработал 2");
+							//traceln(black, "Cработал 2");
 	}
 }
 else{
 	if (getMinProcentReadyCarTrack(front).getProcentReadyToSend() >= 0.98){// если путь с минимальным процентом под отправку полностью состоит из вагонов под отправку, то отправляем на пустой путь
 		targetTrack = emptyTargetTrack == null ? getMinProcentReadyCarTrack(front) : emptyTargetTrack;
-							traceln(black, "Cработал 3");
+							//traceln(black, "Cработал 3");
 	}
 	else{
 		targetTrack = getMinProcentReadyCarTrack(front);
-		traceln(black, "Cработал 4");
+		//traceln(black, "Cработал 4");
 	}
 }
 return targetTrack;]]></Body>
@@ -2336,7 +2336,7 @@ List<TrackEdge> edges = getPopsWithoutAvoid().stream()
 														&& (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										|| p.getRailCarsOnTrack().size() > 1))
 							.collect(Collectors.toList());
-							traceln("Размер состава с фронта " + front.getTrainOnFront().size());
+							//traceln("Размер состава с фронта " + front.getTrainOnFront().size());
 return edges.isEmpty() ? null : edges.stream().max((p1, p2) -> Double.compare(p1.getProcentReadyToSend(), p2.getProcentReadyToSend())).get();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2374,7 +2374,7 @@ TaskAction task = new TaskAction();
 task.type = "Отправка";
 task.priority = 1000;
 TrackEdge startTrack = null;
-TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco);
+TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
 int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
 for (TrainSend ts1 : data.sendsCollection){
 	if (!data.sendsDone.contains(ts1) // если дата по расписанию не была
@@ -2432,6 +2432,9 @@ if (startTrack != null){ // если путь, с которого можно з
 		RailCar car = startTrack.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null);
 		addTask("Перемещение", startTrack.getSelf(), finalEndTrack.getSelf(), car);
 	}
+	traceln(red, "+++++++++++++++++++++++++++++++++++++");
+	traceln(black, "Отправляю состав весом " + Tools.getWeightTrain(startTrack.getRailCarsWithoutTrain()) + " и длиной " + Tools.getLengthTrain(startTrack.getRailCarsWithoutTrain()));
+	traceln(red, "+++++++++++++++++++++++++++++++++++++");
 	addTask(type, track6, startTrack.getSelf(), train, false, task.trainSend);
 	activeSuperTasks++;
 }]]></Body>
@@ -8185,7 +8188,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP14]]></Text>
+					<Text><![CDATA[ЦСП14]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8206,7 +8209,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP12]]></Text>
+					<Text><![CDATA[ЦСП12]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8255,7 +8258,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP10]]></Text>
+					<Text><![CDATA[ЦСП10]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8276,7 +8279,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP2]]></Text>
+					<Text><![CDATA[ЦСП2]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8297,7 +8300,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP4]]></Text>
+					<Text><![CDATA[ЦСП4]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8318,7 +8321,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP6]]></Text>
+					<Text><![CDATA[ЦСП6]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8339,7 +8342,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP8]]></Text>
+					<Text><![CDATA[ЦСП8]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8360,7 +8363,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP18]]></Text>
+					<Text><![CDATA[ЦСП18]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8381,7 +8384,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP7]]></Text>
+					<Text><![CDATA[ЦСП7]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8402,7 +8405,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP5]]></Text>
+					<Text><![CDATA[ЦСП5]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8423,7 +8426,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP3]]></Text>
+					<Text><![CDATA[ЦСП3]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -8444,7 +8447,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP1]]></Text>
+					<Text><![CDATA[ЦСП1]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -10426,7 +10429,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-1</Color>
-					<Text><![CDATA[switchCSP18]]></Text>
+					<Text><![CDATA[ЦСП18]]></Text>
 					<Font>
 						<Name>SansSerif</Name>
 						<Size>10</Size>
@@ -12048,7 +12051,7 @@ public String toString(){
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
-							<Code><![CDATA[0]]></Code>
+							<Code><![CDATA[1]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -12637,6 +12640,7 @@ setDateBeginState();]]></EntryAction>
 					</Points>
 					<IconOffset>30.0</IconOffset>
 					<Properties Source="1707204644896" Target="1705066762314" Trigger="condition">
+						<Action><![CDATA[cntCargoOperation++;]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -12732,6 +12736,7 @@ setDateBeginState();]]></EntryAction>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1707202444714" Target="1705066762314" Trigger="condition">
+						<Action><![CDATA[cntCargoOperation++;]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -13452,6 +13457,26 @@ else{
 }
 else{
 	main.keyIndicators.turnoverByTypeProduct.put(productType, weightProduct);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1709715268068</Id>
+					<Name><![CDATA[setStatCntOper]]></Name>
+					<X>50</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[if (!type.equals("Локомотив")){
+	if (main.keyIndicators.mapCntOperationsVagon.containsKey(cntCargoOperation)){
+		int newValue = main.keyIndicators.mapCntOperationsVagon.get(cntCargoOperation) + 1;
+		main.keyIndicators.mapCntOperationsVagon.put(cntCargoOperation, newValue);
+	}
+	else{
+		main.keyIndicators.mapCntOperationsVagon.put(cntCargoOperation, 1);
+	}
 }]]></Body>
 				</Function>
 			</Functions>
@@ -18325,6 +18350,36 @@ sourceStation.inject();]]></Code>
 						<Type><![CDATA[boolean]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[true]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709722759877</Id>
+					<Name><![CDATA[minWeightToArrive]]></Name>
+					<X>2240</X><Y>-320</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[1500]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709722791928</Id>
+					<Name><![CDATA[minLengthToArrive]]></Name>
+					<X>2240</X><Y>-290</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[150]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -33537,7 +33592,7 @@ traceln(yellow, "=========================");]]></Code>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[//train.getCars().stream().forEach(p-> p.setStatWeight());
+								<Code><![CDATA[train.getCars().stream().forEach(p-> p.setStatCntOper());
 delay.stopDelayForAll();]]></Code>
 							</Value>
 						</Parameter>
@@ -36153,6 +36208,21 @@ else{
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709714133985</Id>
+					<Name><![CDATA[mapCntOperationsVagon]]></Name>
+					<X>-680</X><Y>140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[Map<Integer, Integer>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new HashMap();]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -36187,7 +36257,7 @@ fronts.addAll(main.getFronts());]]></Body>
 waitSendFromFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидание уборки с грузового фронта")).mapToDouble(Double::doubleValue).sum());
 waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидание отправки на грузовой фронт")).mapToDouble(Double::doubleValue).sum());
 for (RailCar car : locomotives){
-	utilizationByLoco.put(car.model, getUtilizationLoco(car.type, car.model));
+	utilizationByLoco.put(car.model, setUtilizationLoco(car.model));
 }
 for (Front front : fronts){
 	procDoneRequestUpload.put(front, getProcDoneRequest(front, false));
@@ -36200,26 +36270,23 @@ for (Front front : fronts){
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708962318845</Id>
-					<Name><![CDATA[getUtilizationLoco]]></Name>
+					<Name><![CDATA[setUtilizationLoco]]></Name>
 					<X>-210</X><Y>370</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[type]]></Name>
-						<Type><![CDATA[String]]></Type>
-					</Parameter>
-					<Parameter>
 						<Name><![CDATA[model]]></Name>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[RailCar car = main.railCars
 .stream()
-.filter(p-> p.type.equals(type) && p.model.equals(model))
+.filter(p-> p.type.equals("Локомотив") && p.model.equals(model))
 .findFirst().orElse(null);
 double allTime = (date().getTime() - main.startDate.getTime())/3600000;
-return car == null ? 0 : ((car.getDelayByState("Работа")/allTime)*100);]]></Body>
+double res = Tools.getCorrectDouble((car.getDelayByState("Работа")/allTime)*100);
+return car == null ? 0 : res > 100 ? 100.0 : res;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -36299,6 +36366,112 @@ return proc;]]></Body>
 					</Parameter>
 					<Body><![CDATA[double allTime = (date().getTime() - main.startDate.getTime())/3600000;
 return (sw.getHoursActive()/allTime)*100;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[Color]]></ReturnType>
+					<Id>1709667957416</Id>
+					<Name><![CDATA[getColorUtil]]></Name>
+					<X>-440</X><Y>350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[num]]></Name>
+						<Type><![CDATA[double]]></Type>
+					</Parameter>
+					<Body><![CDATA[Color color = green;
+if (num > 60 && num <= 80){
+	color = orange;
+}
+else if (num > 80 && num <= 95){
+	color = orangeRed;
+}
+else if (num > 95){
+	color = red;
+}
+return color;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1709708197947</Id>
+					<Name><![CDATA[getCntVagons]]></Name>
+					<X>-440</X><Y>420</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[type]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[int res = 0;
+if(turnoverByTypeVagons.containsKey(type)){
+	res = turnoverByTypeVagons.get(type);
+}
+return res;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1709709928238</Id>
+					<Name><![CDATA[getWeightProducts]]></Name>
+					<X>-440</X><Y>450</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[product]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[double res = 0;
+if(turnoverByTypeProduct.containsKey(product)){
+	res = turnoverByTypeProduct.get(product);
+}
+return res;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1709711813139</Id>
+					<Name><![CDATA[getLocoUtil]]></Name>
+					<X>-440</X><Y>490</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[model]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[double util = 0;
+if(utilizationByLoco.containsKey(model)){
+	util = utilizationByLoco.get(model);
+}
+return util;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1709714245632</Id>
+					<Name><![CDATA[getCntOper]]></Name>
+					<X>-670</X><Y>340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[cntOper]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[int count = 0;
+if (mapCntOperationsVagon.containsKey(cntOper)){
+	count = mapCntOperationsVagon.get(cntOper);
+}
+return count;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -36401,13 +36574,14 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327301</Id>
 					<Name><![CDATA[text213]]></Name>
-					<X>295</X><Y>385</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>665</X><Y>-100</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[385 + 20*index]]></YCode>
+					<YCode><![CDATA[820 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[products.size()]]></Code>
 					</ReplicationCode>
@@ -36427,7 +36601,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327305</Id>
 					<Name><![CDATA[text196]]></Name>
-					<X>120</X><Y>250</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>240</X><Y>-120</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36448,13 +36623,13 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327307</Id>
 					<Name><![CDATA[text223]]></Name>
-					<X>80</X><Y>510</Y>
+					<X>420</X><Y>890</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[510 + 20*index]]></YCode>
+					<YCode><![CDATA[890 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[locomotives.size()]]></Code>
 					</ReplicationCode>
@@ -36474,7 +36649,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327309</Id>
 					<Name><![CDATA[line37]]></Name>
-					<X>70</X><Y>490</Y>
+					<X>410</X><Y>870</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36498,7 +36673,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327313</Id>
 					<Name><![CDATA[text207]]></Name>
-					<X>405</X><Y>520</Y>
+					<X>1080</X><Y>525</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36520,7 +36695,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327315</Id>
 					<Name><![CDATA[text251]]></Name>
-					<X>405</X><Y>805</Y>
+					<X>1080</X><Y>810</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36542,7 +36717,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327317</Id>
 					<Name><![CDATA[text226]]></Name>
-					<X>140</X><Y>490</Y>
+					<X>480</X><Y>870</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36563,7 +36738,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327319</Id>
 					<Name><![CDATA[text224]]></Name>
-					<X>215</X><Y>490</Y>
+					<X>555</X><Y>870</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36584,7 +36759,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327321</Id>
 					<Name><![CDATA[waitSendFromFront]]></Name>
-					<X>655</X><Y>710</Y>
+					<X>1330</X><Y>715</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36605,7 +36780,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327323</Id>
 					<Name><![CDATA[text208]]></Name>
-					<X>655</X><Y>540</Y>
+					<X>1330</X><Y>545</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36626,7 +36801,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327325</Id>
 					<Name><![CDATA[line46]]></Name>
-					<X>210</X><Y>630</Y>
+					<X>550</X><Y>520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36650,7 +36825,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327327</Id>
 					<Name><![CDATA[line21]]></Name>
-					<X>300</X><Y>365</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>670</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36674,7 +36850,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327329</Id>
 					<Name><![CDATA[line38]]></Name>
-					<X>210</X><Y>490</Y>
+					<X>550</X><Y>870</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36720,36 +36896,16 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Dz>0</Dz>
 				</Line>
 				<Text>
-					<Id>1707833327335</Id>
-					<Name><![CDATA[text192]]></Name>
-					<X>350</X><Y>180</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[52]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>RIGHT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327337</Id>
 					<Name><![CDATA[text212]]></Name>
-					<X>80</X><Y>385</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>450</X><Y>-100</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[385 + 20*index]]></YCode>
+					<YCode><![CDATA[820 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[products.size()]]></Code>
 					</ReplicationCode>
@@ -36769,7 +36925,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327339</Id>
 					<Name><![CDATA[text197]]></Name>
-					<X>173</X><Y>250</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>293</X><Y>-120</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36790,7 +36947,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327341</Id>
 					<Name><![CDATA[text243]]></Name>
-					<X>405</X><Y>645</Y>
+					<X>1080</X><Y>650</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36812,7 +36969,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327343</Id>
 					<Name><![CDATA[text245]]></Name>
-					<X>405</X><Y>690</Y>
+					<X>1080</X><Y>695</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36832,30 +36989,9 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<Text>
-					<Id>1707833327345</Id>
-					<Name><![CDATA[text255]]></Name>
-					<X>725</X><Y>160</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[Стоимость часа локомотива, руб.:]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327347</Id>
 					<Name><![CDATA[waitSendToFront]]></Name>
-					<X>655</X><Y>750</Y>
+					<X>1330</X><Y>755</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36876,7 +37012,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327351</Id>
 					<Name><![CDATA[line19]]></Name>
-					<X>70</X><Y>365</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>440</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36900,7 +37037,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327353</Id>
 					<Name><![CDATA[line6]]></Name>
-					<X>70</X><Y>385</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>440</X><Y>-100</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36922,30 +37060,9 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Dz>0</Dz>
 				</Line>
 				<Text>
-					<Id>1707833327355</Id>
-					<Name><![CDATA[text191]]></Name>
-					<X>90</X><Y>200</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[с двумя грузовыми операциями:]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327357</Id>
 					<Name><![CDATA[text227]]></Name>
-					<X>215</X><Y>630</Y>
+					<X>555</X><Y>520</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36955,7 +37072,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Утилизация, %]]></Text>
+					<Text><![CDATA[Загрузка, %]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -36966,7 +37083,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327359</Id>
 					<Name><![CDATA[line5]]></Name>
-					<X>170</X><Y>250</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>290</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36990,7 +37108,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327361</Id>
 					<Name><![CDATA[text252]]></Name>
-					<X>655</X><Y>825</Y>
+					<X>1330</X><Y>830</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37033,36 +37151,15 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Dz>0</Dz>
 				</Line>
 				<Text>
-					<Id>1707833327365</Id>
-					<Name><![CDATA[text256]]></Name>
-					<X>975</X><Y>160</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[590]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327367</Id>
 					<Name><![CDATA[text233]]></Name>
-					<X>80</X><Y>650</Y>
+					<X>420</X><Y>540</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[650 + 20*index]]></YCode>
+					<YCode><![CDATA[540 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[tracks.size()]]></Code>
 					</ReplicationCode>
@@ -37082,7 +37179,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327369</Id>
 					<Name><![CDATA[line35]]></Name>
-					<X>70</X><Y>490</Y>
+					<X>410</X><Y>870</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37121,7 +37218,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[ТЭМ-2]]></Text>
-					<TextCode><![CDATA[main.switches.get(index).getName()]]></TextCode>
+					<TextCode><![CDATA["ЦСП"+main.switches.get(index).getName().split("CSP")[1]]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -37132,7 +37229,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327375</Id>
 					<Name><![CDATA[text221]]></Name>
-					<X>70</X><Y>460</Y>
+					<X>410</X><Y>840</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37167,8 +37264,9 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
+					<ColorCode><![CDATA[getColorUtil(Tools.getCorrectDouble(getUtilizationSwitch(main.switches.get(index))))]]></ColorCode>
 					<Text><![CDATA[560]]></Text>
-					<TextCode><![CDATA[getUtilizationSwitch(main.switches.get(index))]]></TextCode>
+					<TextCode><![CDATA[Tools.getCorrectDouble(getUtilizationSwitch(main.switches.get(index)))]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -37179,7 +37277,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327381</Id>
 					<Name><![CDATA[text247]]></Name>
-					<X>405</X><Y>730</Y>
+					<X>1080</X><Y>735</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37201,7 +37299,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327383</Id>
 					<Name><![CDATA[platforms]]></Name>
-					<X>245</X><Y>270</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>365</X><Y>-100</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37227,7 +37326,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327387</Id>
 					<Name><![CDATA[line2]]></Name>
-					<X>70</X><Y>270</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>190</X><Y>-100</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37275,7 +37375,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327391</Id>
 					<Name><![CDATA[line22]]></Name>
-					<X>70</X><Y>365</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>440</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37299,7 +37400,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327393</Id>
 					<Name><![CDATA[text206]]></Name>
-					<X>70</X><Y>335</Y>
+					<X>70</X><Y>720</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37320,7 +37421,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327395</Id>
 					<Name><![CDATA[text230]]></Name>
-					<X>140</X><Y>630</Y>
+					<X>480</X><Y>520</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37341,7 +37442,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327397</Id>
 					<Name><![CDATA[line]]></Name>
-					<X>70</X><Y>250</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>190</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37365,7 +37467,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327399</Id>
 					<Name><![CDATA[text249]]></Name>
-					<X>405</X><Y>770</Y>
+					<X>1080</X><Y>775</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37411,7 +37513,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327403</Id>
 					<Name><![CDATA[text209]]></Name>
-					<X>220</X><Y>365</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>590</X><Y>-120</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37432,7 +37535,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327405</Id>
 					<Name><![CDATA[line20]]></Name>
-					<X>210</X><Y>365</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>580</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37456,7 +37560,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327407</Id>
 					<Name><![CDATA[line3]]></Name>
-					<X>70</X><Y>250</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>190</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37480,7 +37585,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327409</Id>
 					<Name><![CDATA[text254]]></Name>
-					<X>655</X><Y>865</Y>
+					<X>1330</X><Y>870</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37501,7 +37606,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327411</Id>
 					<Name><![CDATA[line48]]></Name>
-					<X>70</X><Y>630</Y>
+					<X>410</X><Y>520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37523,30 +37628,9 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Dz>0</Dz>
 				</Line>
 				<Text>
-					<Id>1707833327415</Id>
-					<Name><![CDATA[text193]]></Name>
-					<X>350</X><Y>200</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[12]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>RIGHT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327417</Id>
 					<Name><![CDATA[text232]]></Name>
-					<X>70</X><Y>600</Y>
+					<X>410</X><Y>490</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37567,7 +37651,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327419</Id>
 					<Name><![CDATA[line47]]></Name>
-					<X>70</X><Y>650</Y>
+					<X>410</X><Y>540</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37591,7 +37675,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327421</Id>
 					<Name><![CDATA[text211]]></Name>
-					<X>140</X><Y>365</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>510</X><Y>-120</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37612,7 +37697,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327423</Id>
 					<Name><![CDATA[line39]]></Name>
-					<X>375</X><Y>490</Y>
+					<X>715</X><Y>870</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37634,30 +37719,9 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Dz>0</Dz>
 				</Line>
 				<Text>
-					<Id>1707833327425</Id>
-					<Name><![CDATA[text190]]></Name>
-					<X>90</X><Y>180</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[с одной грузовой операцией:]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
-				<Text>
 					<Id>1707833327429</Id>
 					<Name><![CDATA[text244]]></Name>
-					<X>655</X><Y>665</Y>
+					<X>1330</X><Y>670</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37678,7 +37742,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327431</Id>
 					<Name><![CDATA[line44]]></Name>
-					<X>70</X><Y>630</Y>
+					<X>410</X><Y>520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37702,7 +37766,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327433</Id>
 					<Name><![CDATA[text195]]></Name>
-					<X>70</X><Y>222</Y>
+					<X>70</X><Y>440</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37723,7 +37787,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327435</Id>
 					<Name><![CDATA[line45]]></Name>
-					<X>310</X><Y>630</Y>
+					<X>650</X><Y>520</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37747,13 +37811,13 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327437</Id>
 					<Name><![CDATA[text231]]></Name>
-					<X>306.5</X><Y>650</Y>
+					<X>646.5</X><Y>540</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[650 + 20*index]]></YCode>
+					<YCode><![CDATA[540 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[tracks.size()]]></Code>
 					</ReplicationCode>
@@ -37817,7 +37881,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327443</Id>
 					<Name><![CDATA[platforms2]]></Name>
-					<X>80</X><Y>270</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>200</X><Y>-100</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37843,7 +37908,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Line>
 					<Id>1707833327447</Id>
 					<Name><![CDATA[line4]]></Name>
-					<X>250</X><Y>250</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>370</X><Y>-120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37888,7 +37954,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327451</Id>
 					<Name><![CDATA[text253]]></Name>
-					<X>405</X><Y>845</Y>
+					<X>1080</X><Y>850</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37931,7 +37997,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Text>
 					<Id>1707833327459</Id>
 					<Name><![CDATA[text250]]></Name>
-					<X>655</X><Y>775</Y>
+					<X>1330</X><Y>780</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37983,7 +38049,7 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Утилизация, %]]></Text>
+					<Text><![CDATA[Загрузка, %]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -37991,36 +38057,10 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
-				<Text>
-					<Id>1707833327465</Id>
-					<Name><![CDATA[text222]]></Name>
-					<X>370</X><Y>510</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<YCode><![CDATA[510 + 20*index]]></YCode>
-					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[locomotives.size()]]></Code>
-					</ReplicationCode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[560]]></Text>
-					<TextCode><![CDATA[utilizationByLoco.get(locomotives.get(index).model)]]></TextCode>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>14</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>RIGHT</Alignment>
-				</Text>
 				<Line>
 					<Id>1707833327467</Id>
 					<Name><![CDATA[line36]]></Name>
-					<X>70</X><Y>510</Y>
+					<X>410</X><Y>890</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -38044,7 +38084,8 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Group>
 					<Id>1707833327469</Id>
 					<Name><![CDATA[rowTableObVag]]></Name>
-					<X>160</X><Y>280</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>280</X><Y>-90</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -38161,13 +38202,14 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Group>
 					<Id>1707833327499</Id>
 					<Name><![CDATA[rowTableObVag3]]></Name>
-					<X>160</X><Y>395</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>530</X><Y>-90</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[395 + 20*index]]></YCode>
+					<YCode><![CDATA[830 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[products.size()]]></Code>
 					</ReplicationCode>
@@ -38278,13 +38320,13 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Group>
 					<Id>1707833327509</Id>
 					<Name><![CDATA[rowTableObVag6]]></Name>
-					<X>160</X><Y>520</Y>
+					<X>500</X><Y>900</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[520 + 20*index]]></YCode>
+					<YCode><![CDATA[900 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[locomotives.size()]]></Code>
 					</ReplicationCode>
@@ -38395,13 +38437,13 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 				<Group>
 					<Id>1707833327519</Id>
 					<Name><![CDATA[rowTableObVag7]]></Name>
-					<X>160</X><Y>660</Y>
+					<X>500</X><Y>550</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[660 + 20*index]]></YCode>
+					<YCode><![CDATA[550 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[tracks.size()]]></Code>
 					</ReplicationCode>
@@ -40223,6 +40265,283 @@ return (sw.getHoursActive()/allTime)*100;]]></Body>
 					</Font>
 					<Alignment>RIGHT</Alignment>
 				</Text>
+    			<StackChart>
+					<Id>1709667193026</Id>
+					<Name><![CDATA[chart]]></Name>
+					<X>552</X><Y>891</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1709712000000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Width>120</Width>
+					<Height>17</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<YCode><![CDATA[891 + index*20]]></YCode>
+					<ChartArea>
+						<XOffset>0</XOffset>
+						<YOffset>0</YOffset>
+						<Width>120</Width>
+						<Height>17</Height>
+						<BackgroundColor>-1</BackgroundColor>
+						<BorderColor/>
+						<GridColor/>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>30</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>NONE</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor/>
+					</Labels>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[locomotives.size()]]></Code>
+					</ReplicationCode>
+					<ShowLegend>false</ShowLegend>
+					<DataItem>
+					<Id>1709667193677</Id>
+					<Expression><![CDATA[getLocoUtil(locomotives.get(index).model)]]></Expression>
+					<Color>-9807155</Color>
+						<Title><![CDATA[Title]]></Title>
+					</DataItem>
+					<ScaleToExpression><![CDATA[100]]></ScaleToExpression>
+					<ScaleType>FIXED</ScaleType>
+					<Bars>
+						<Direction>RIGHT</Direction>
+						<RelativeWidth>0.8</RelativeWidth>
+					</Bars>
+    			</StackChart>
+				<Text>
+					<Id>1707833327465</Id>
+					<Name><![CDATA[text222]]></Name>
+					<X>710</X><Y>890</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[890 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[locomotives.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[560]]></Text>
+					<TextCode><![CDATA[getLocoUtil(locomotives.get(index).model)]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+    			<PieChart>
+					<Id>1709707374544</Id>
+					<Name><![CDATA[chart1]]></Name>
+					<X>90</X><Y>460</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1709712000000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Width>260</Width>
+					<Height>240</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>10</YOffset>
+						<Width>140</Width>
+						<Height>140</Height>
+						<BorderColor/>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>70</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<DataItem>
+					<Id>1709707375149</Id>
+					<Expression><![CDATA[getCntVagons("Полувагон")]]></Expression>
+					<Color>-2968436</Color>
+						<Title><![CDATA[Полувагон]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1709707375150</Id>
+					<Expression><![CDATA[getCntVagons("Платформа")]]></Expression>
+					<Color>-5383962</Color>
+						<Title><![CDATA[Платформа]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1709707706549</Id>
+					<Expression><![CDATA[getCntVagons("Трубовоз")]]></Expression>
+					<Color>-989556</Color>
+						<Title><![CDATA[Трубовоз]]></Title>
+					</DataItem>
+    			</PieChart>
+    			<PieChart>
+					<Id>1709709653183</Id>
+					<Name><![CDATA[chart2]]></Name>
+					<X>90</X><Y>740</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1709712000000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Width>260</Width>
+					<Height>240</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>10</YOffset>
+						<Width>140</Width>
+						<Height>140</Height>
+						<BorderColor/>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>70</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<DataItem>
+					<Id>1709709653178</Id>
+					<Expression><![CDATA[getWeightProducts("Трубы")]]></Expression>
+					<Color>-1120086</Color>
+						<Title><![CDATA[Трубы]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1709709653179</Id>
+					<Expression><![CDATA[getWeightProducts("Лом негабаритный")]]></Expression>
+					<Color>-4684277</Color>
+						<Title><![CDATA[Лом негабаритный]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1709709653180</Id>
+					<Expression><![CDATA[getWeightProducts("Сталь рулонная")]]></Expression>
+					<Color>-5247250</Color>
+						<Title><![CDATA[Сталь рулонная]]></Title>
+					</DataItem>
+    			</PieChart>
+    			<PieChart>
+					<Id>1709714352994</Id>
+					<Name><![CDATA[chart3]]></Name>
+					<X>80</X><Y>180</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<AutoUpdate>true</AutoUpdate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1709712000000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Width>260</Width>
+					<Height>240</Height>
+					<BackgroundColor/>
+					<BorderColor/>
+					<ChartArea>
+						<XOffset>50</XOffset>
+						<YOffset>10</YOffset>
+						<Width>140</Width>
+						<Height>140</Height>
+						<BorderColor/>
+						<GridColor>-12566464</GridColor>
+					</ChartArea>
+					<Legend>
+						<Place>SOUTH</Place>
+						<TextColor>-16777216</TextColor>
+						<Size>70</Size>
+					</Legend>
+					<Labels>
+						<HorLabelsPosition>DEFAULT</HorLabelsPosition>
+						<VerLabelsPosition>DEFAULT</VerLabelsPosition>
+						<TextColor>-12566464</TextColor>
+					</Labels>
+					<ShowLegend>true</ShowLegend>
+					<DataItem>
+					<Id>1709714352989</Id>
+					<Expression><![CDATA[getCntOper(1)]]></Expression>
+					<Color>-6632142</Color>
+						<Title><![CDATA[Одна операция]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1709714352990</Id>
+					<Expression><![CDATA[getCntOper(2)]]></Expression>
+					<Color>-23296</Color>
+						<Title><![CDATA[Две операции]]></Title>
+					</DataItem>
+					<DataItem>
+					<Id>1709714352991</Id>
+					<Expression><![CDATA[getCntOper(3)]]></Expression>
+					<Color>-65536</Color>
+						<Title><![CDATA[Три операции]]></Title>
+					</DataItem>
+    			</PieChart>
 			</Presentation>
 
 				</Level>
@@ -42970,6 +43289,18 @@ public class TrackEdge implements Serializable {
     	return carsOnTrack;
     }
     
+    
+    /**
+    Возвращает список вагонов на пути с типом RailCar
+    **/
+    public List<RailCar> getRailCarsWithoutTrain() {
+    	List<RailCar> carsOnTrack = new ArrayList();
+    	for (Agent car : getSelf().getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).collect(Collectors.toList())) {
+    		carsOnTrack.add((RailCar)car);
+    	}
+    	return carsOnTrack;
+    }
+    
     public double getFreeSpace() {
     	return getUsableLength() - Tools.getLengthTrain(getRailCarsOnTrack());
     }
@@ -43925,11 +44256,11 @@ public class FormationOptimizer {
     			.stream()
     			.sorted(Map.Entry.<RailCar, Double>comparingByValue().reversed())
     			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    	for(RailCar car : carsPriority2.keySet()) {
+    	/*for(RailCar car : carsPriority2.keySet()) {
     		traceln("Вагон " + car.hashCode() + " простоял " + carsPriority2.get(car));
-    	}
+    	}*/
     	List<RailCar> sortedCars = new ArrayList(carsPriority2.keySet());// отсортированный массив вагонов по приоритету на отправку на фронт
-    	sortedCars.stream().forEach(p-> traceln("t " + p.hashCode()));
+    	//sortedCars.stream().forEach(p-> traceln("t " + p.hashCode()));
     	double lengthTrain = 0;
     	//Tools.trace(black, "Фронт " + front.getName() + " имеет полезную длину " + front.getUsableLength(), isTrace);
     	for (RailCar car : sortedCars) {
@@ -44436,6 +44767,17 @@ public class Tools implements Serializable {
         LocalDate localDate2 = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return java.time.temporal.ChronoUnit.DAYS.between(localDate1, localDate2);
     }
+    
+    public static Double getCorrectDouble(double num) {
+    	Double copy = num;
+    	if (copy.isInfinite()) {
+    		copy = 0.0;
+    	}
+    	if (copy.isNaN()) {
+    		copy = 0.0;
+    	}
+    	return copy;
+    }
 
 	/**
 	 * Это число используется при сохранении состояния модели<br>
@@ -44760,14 +45102,18 @@ public class TrainSend{
     private RailCar locomotive;
     private TrackEdge recTrack;
     private boolean isSchedule;
+    private double minWeight;
+    private double minLength;
 
     public TrainSend() {
     }
 
-    public TrainSend(Date dateSend, List<TrackEdge> pops, RailCar locomotive) {
+    public TrainSend(Date dateSend, List<TrackEdge> pops, RailCar locomotive, double minWeight, double minLength) {
         this.dateSend = dateSend;
         this.locomotive = locomotive;
         this.pops = pops;
+        this.minWeight = minWeight;
+        this.minLength = minLength;
     }
     
     public TrainSend(Date dateSend, RailCar locomotive) {
@@ -44779,9 +45125,11 @@ public class TrainSend{
         this.dateSend = dateSend;
     }
     
-    public TrainSend(List<TrackEdge> pops, RailCar locomotive) {
+    public TrainSend(List<TrackEdge> pops, RailCar locomotive, double minWeight, double minLength) {
         this.pops = pops;
         this.locomotive = locomotive;
+        this.minWeight = minWeight;
+        this.minLength = minLength;
     }
 
     public List<TrackEdge> getPops() {
@@ -44831,7 +45179,13 @@ public class TrainSend{
     public TrackEdge getTrackForSend() {
     	List<TrackEdge> convTracks = pops
     			.stream()
-    			.filter( p-> isAvailableWeight(p) && !p.getSelf().isEmpty() && p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции")) ).collect(Collectors.toList()); // все вагоны под отправку
+    			.filter( p-> Tools.getLengthTrain(p.getRailCarsWithoutTrain()) >= minLength 
+    				&& Tools.getWeightTrain(p.getRailCarsWithoutTrain()) >= minWeight 
+    					&& isAvailableWeight(p) 
+    						&& !p.getSelf().isEmpty() 
+    							&& p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции")))
+    			.collect(Collectors.toList()); // все вагоны под отправку
+    	traceln("ОТПРАВКА СО СТАНЦИИ ПО РАСПИСАНИЮ, не путей, который удовлетворяют условию на отправку");
     	TrackEdge edge = null;
     	if (convTracks.size() > 0) {
     		edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку

@@ -2203,7 +2203,7 @@ else{
 	}*/
 	train.add(0,loco);
 	train.forEach(p-> {
-		traceln(black, "HashRequeset " + p.hashRequest + " есть ли такой среди реквестов " + data.requestsCollection.stream().anyMatch(g-> g.hashCode() == p.hashRequest));
+		//traceln(black, "HashRequeset " + p.hashRequest + " есть ли такой среди реквестов " + data.requestsCollection.stream().anyMatch(g-> g.hashCode() == p.hashRequest));
 		RailCar copyCar = data.railCarsCollection.stream().filter(g-> g.model.equals(p.model) && g.type.equals(p.type)).findFirst().orElse(null);
 		if (copyCar != null){
 			p.length = copyCar.length;
@@ -2214,7 +2214,7 @@ else{
 	if (train.size() > 1){ // если состав под прибытие на пуст
 		addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
 		train.stream().forEach(p-> data.requestsCollection.stream().filter(g-> g.hashCode() == p.hashRequest).forEach(g-> {
-		traceln("Получилось поменять статус");
+		//traceln("Получилось поменять статус");
 		g.setIsArrive(true);}));
 		arrivalDone = true;
 		activeSuperTasks++;
@@ -2542,7 +2542,7 @@ enterTasks.take(task);]]></Body>
 					<Body><![CDATA[TrackEdge startTrack = null;
 if (isRasp){
 	if (trainSend.getTrackForSend() == null){
-		startTrack = trainSend.getReadyTracks().size() > 0 ? trainSend.getReadyTracks().get(0) : null;
+		//startTrack = trainSend.getReadyTracks().size() > 0 ? trainSend.getReadyTracks().get(0) : null;
 	}
 	else{
 		startTrack = trainSend.getTrackForSend();
@@ -12168,6 +12168,18 @@ public String toString(){
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709758831847</Id>
+					<Name><![CDATA[cntCarPerforms]]></Name>
+					<X>430</X><Y>30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1700596772936</Id>
 					<Name><![CDATA[type]]></Name>
@@ -13477,6 +13489,7 @@ else{
 	else{
 		main.keyIndicators.mapCntOperationsVagon.put(cntCargoOperation, 1);
 	}
+	main.data.removeCars.add(this);
 }]]></Body>
 				</Function>
 			</Functions>
@@ -18380,6 +18393,36 @@ sourceStation.inject();]]></Code>
 						<Type><![CDATA[double]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[150]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709756858527</Id>
+					<Name><![CDATA[removeCars]]></Name>
+					<X>1420</X><Y>280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[List<RailCar>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new ArrayList()]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1709756895662</Id>
+					<Name><![CDATA[removeLocos]]></Name>
+					<X>1540</X><Y>280</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[List<RailCar>]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new ArrayList()]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -36254,8 +36297,11 @@ fronts.addAll(main.getFronts());]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<RailCar> cars = main.railCars.stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList());
+cars.addAll(main.data.removeCars);
 waitSendFromFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидание уборки с грузового фронта")).mapToDouble(Double::doubleValue).sum());
+waitSendFromFrontAv.setText(cars.stream().map(x -> x.getDelayByState("Ожидание уборки с грузового фронта")).mapToDouble(Double::doubleValue).sum()/cars.size());
 waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидание отправки на грузовой фронт")).mapToDouble(Double::doubleValue).sum());
+waitSendToFrontAv.setText(cars.stream().map(x -> x.getDelayByState("Ожидание отправки на грузовой фронт")).mapToDouble(Double::doubleValue).sum()/cars.size());
 for (RailCar car : locomotives){
 	utilizationByLoco.put(car.model, setUtilizationLoco(car.model));
 }
@@ -36759,7 +36805,7 @@ return count;]]></Body>
 				<Text>
 					<Id>1707833327321</Id>
 					<Name><![CDATA[waitSendFromFront]]></Name>
-					<X>1330</X><Y>715</Y>
+					<X>1350</X><Y>715</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -36775,7 +36821,7 @@ return count;]]></Body>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Text>
 					<Id>1707833327323</Id>
@@ -36991,7 +37037,7 @@ return count;]]></Body>
 				<Text>
 					<Id>1707833327347</Id>
 					<Name><![CDATA[waitSendToFront]]></Name>
-					<X>1330</X><Y>755</Y>
+					<X>1350</X><Y>755</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37007,7 +37053,7 @@ return count;]]></Body>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Line>
 					<Id>1707833327351</Id>
@@ -40542,6 +40588,48 @@ return count;]]></Body>
 						<Title><![CDATA[Три операции]]></Title>
 					</DataItem>
     			</PieChart>
+				<Text>
+					<Id>1709758514508</Id>
+					<Name><![CDATA[waitSendFromFrontAv]]></Name>
+					<X>1470</X><Y>715</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[113]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1709758577446</Id>
+					<Name><![CDATA[waitSendToFrontAv]]></Name>
+					<X>1470</X><Y>755</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[231]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -45185,7 +45273,7 @@ public class TrainSend{
     						&& !p.getSelf().isEmpty() 
     							&& p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции")))
     			.collect(Collectors.toList()); // все вагоны под отправку
-    	traceln("ОТПРАВКА СО СТАНЦИИ ПО РАСПИСАНИЮ, не путей, который удовлетворяют условию на отправку");
+    	//traceln("ОТПРАВКА СО СТАНЦИИ ПО РАСПИСАНИЮ, не путей, который удовлетворяют условию на отправку");
     	TrackEdge edge = null;
     	if (convTracks.size() > 0) {
     		edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку

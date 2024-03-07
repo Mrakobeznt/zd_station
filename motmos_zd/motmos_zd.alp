@@ -15468,9 +15468,9 @@ else{
 	if (startSwitch == null){
 		startSwitch = !isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	}
-	/*traceln("Начальный путь " + startTrack.getName());
+	traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -15478,7 +15478,7 @@ else{
 	Graph graph = makeGraph();
 	List<RailwayTrack> routeTracks = getRouteWithoutBreak(graph, from, to, train);
 	route = getFullRoute(routeTracks, train);
-	//route.getUsedTracks().stream().forEach(p-> traceln(orange, p.getName()));
+	route.getUsedTracks().stream().forEach(p-> traceln(orange, p.getName()));
 }
 
 return route;]]></Body>
@@ -15583,7 +15583,7 @@ if (!routeTracks.contains(startTrack)){
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -16204,13 +16204,14 @@ for(RailwayTrack track : routeTracks){
 			
 			
 			//traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
-			//traceln("С пути " + track.getName() + " на путь " + nextTrack.getName() + ((!isNotHaveRoute(track, nextTrack, dir) ? "есть маршрут" : "нет маршрута")) );
-			if (nextTrack.length(METER) < train.getLength(METER) + 15 || isNotHaveRoute(track, nextTrack, dir)){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
+			//traceln("С пути " + nextTrack.getName() + " на путь " + track.getName() + ((!isNotHaveRoute(nextTrack, track, !dir) ? "есть маршрут" : "нет маршрута")) );
+			if (nextTrack.length(METER) < train.getLength(METER) + 15 || isNotHaveRoute(nextTrack, track, !dir)){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
 				//traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
-				double haveLengthWay =+ (!isNotHaveRoute(track, nextTrack, dir) ? nextTrack.length(METER) : 0);
+				double haveLengthWay =+ (!isNotHaveRoute(nextTrack, track, !dir) ? nextTrack.length(METER) : 0);
 				//traceln(purple, "Первый путь с длиной " + haveLengthWay);
 				//traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
-				while ((train.getLength(METER) + 15) >= haveLengthWay){
+				int cntU = 0;
+				while ((train.getLength(METER) + 40) >= haveLengthWay && cntU != 10){
 					//traceln(purple, "Есть длина уже " + haveLengthWay);
 					////////////RailwaySwitch switchNext = isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch();
 					RailwaySwitch switchNext = (isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch());
@@ -16219,13 +16220,14 @@ for(RailwayTrack track : routeTracks){
 					nextTrack = nextTreckLong;
 					//traceln(purple, "Длина до добавления " + haveLengthWay);
 					//traceln(purple, "Длину до добавляем " + nextTreckLong.length(METER));
-					haveLengthWay = haveLengthWay + nextTreckLong.length(METER);
+					haveLengthWay = haveLengthWay + (!isNotHaveRoute(nextTreckLong, track, !dir) ? nextTreckLong.length(METER) : 0);
 					//traceln(purple, "Текущая длина после добавления " + haveLengthWay);
 					copyRouteTracks.add(nextTreckLong);
 					//traceln(purple, "Добавляю путь " + nextTreckLong.getName() + " с длиной " + nextTreckLong.length(METER));
 					sideTracks.put(nextTreckLong, isMoveBack);
 					moveDirection.put(nextTreckLong, dir);
 					//traceln("Для пути " + nextTrack.getName() + " задаю движение " + (isMoveBack ? "=Вперед=": "=Назад="));
+					cntU++;
 				}
 				
 			}

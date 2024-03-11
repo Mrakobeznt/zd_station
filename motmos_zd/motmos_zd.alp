@@ -187,6 +187,18 @@
 						<Type><![CDATA[int]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1710157526785</Id>
+					<Name><![CDATA[hours]]></Name>
+					<X>130</X><Y>2340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1703864725228</Id>
 					<Name><![CDATA[pops]]></Name>
@@ -309,6 +321,21 @@
 					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
 						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
 						<ElementClass><![CDATA[SwitchNode]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+					</Properties>
+
+				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1710154009250</Id>
+					<Name><![CDATA[tracks]]></Name>
+					<X>-170</X><Y>1810</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[TrackEdge]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 					</Properties>
 
@@ -1015,13 +1042,14 @@ if (activeSuperTasks == 0){
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[checkAndMakeGlobalTask();
-keyIndicators.updateStats();]]></Action>
+					<Action><![CDATA[hours++;
+checkAndMakeGlobalTask();
+keyIndicators.updateStats();
+setTracksActive();]]></Action>
 				</Event>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1039,7 +1067,7 @@ keyIndicators.updateStats();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[3520]]></Code>
+							<Code><![CDATA[9400]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1156,11 +1184,11 @@ createLocomotives();]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[List<RailwayTrack> tracks = new ArrayList();
-tracks.addAll(pops);
-tracks.addAll(fronts);
+					<Body><![CDATA[List<RailwayTrack> tracks1 = new ArrayList();
+tracks1.addAll(pops);
+tracks1.addAll(fronts);
 List<TrackEdge> tracksEdges = new ArrayList();
-for (RailwayTrack track : tracks){
+for (RailwayTrack track : tracks1){
 	TrackEdge egde = data.railwayPathsCollection.stream().filter(p-> p.getSelf().equals(track)).findFirst().orElse(null);
 	if (egde != null){
 		tracksEdges.add(egde);
@@ -1642,7 +1670,9 @@ setArrange();
 
 keyIndicators.initSettings();// Настройка интерфейса для работы модели
 
-interfaceSettings.initSettings(); // Настройка интерфейса для работы модели]]></Body>
+interfaceSettings.initSettings(); // Настройка интерфейса для работы модели
+
+setTrackEdges();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2922,7 +2952,7 @@ return isArriving;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> list = new ArrayList();
-int addHours = 6;
+int addHours = 9;
 Calendar instance = Calendar.getInstance();
 instance.setTime(getModelTime());
 instance.add(Calendar.HOUR_OF_DAY, addHours);
@@ -2954,6 +2984,38 @@ if (leftLength >= lengthTwoMinLengthTracks + 20){
 	isEnough = true;
 }
 return isEnough;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710154141937</Id>
+					<Name><![CDATA[setTrackEdges]]></Name>
+					<X>480</X><Y>2140</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[traceln("Работаю ");
+tracks.addAll(getTracksEdges());
+traceln("Размер  " + tracks.size());]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710155529527</Id>
+					<Name><![CDATA[setTracksActive]]></Name>
+					<X>280</X><Y>2370</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (TrackEdge edge : tracks){
+	if (!edge.getRailCarsOnTrack().isEmpty()){
+		double useActivity = Tools.getLengthTrain(edge.getRailCarsOnTrack())/edge.getUsableLength();
+		double oldUse = edge.getUseActivity();
+		edge.setUseActivity(oldUse + (useActivity*100));
+	}
+}]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -15481,9 +15543,9 @@ else{
 	if (startSwitch == null){
 		startSwitch = !isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	}
-	traceln("Начальный путь " + startTrack.getName());
+	/*traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -15491,7 +15553,7 @@ else{
 	Graph graph = makeGraph();
 	List<RailwayTrack> routeTracks = getRouteWithoutBreak(graph, from, to, train);
 	route = getFullRoute(routeTracks, train);
-	route.getUsedTracks().stream().forEach(p-> traceln(orange, p.getName()));
+	//route.getUsedTracks().stream().forEach(p-> traceln(orange, p.getName()));
 }
 
 return route;]]></Body>
@@ -15596,7 +15658,7 @@ if (!routeTracks.contains(startTrack)){
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -36348,6 +36410,8 @@ waitSendToFront.setText(cars.stream().map(x -> x.getDelayByState("Ожидани
 waitSendToFrontAv.setText(cars.stream().map(x -> x.getDelayByState("Ожидание отправки на грузовой фронт")).mapToDouble(Double::doubleValue).sum()/cars.size());
 waitTech.setText(cars.stream().map(x -> x.getDelayByState("Технологическое ожидание")).mapToDouble(Double::doubleValue).sum());
 waitTechAv.setText(cars.stream().map(x -> x.getDelayByState("Технологическое ожидание")).mapToDouble(Double::doubleValue).sum()/cars.size());
+tracks.clear();
+tracks.addAll(main.tracks);
 for (RailCar car : locomotives){
 	utilizationByLoco.put(car.model, setUtilizationLoco(car.model));
 }
@@ -37896,6 +37960,7 @@ return count;]]></Body>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[560]]></Text>
+					<TextCode><![CDATA[tracks.get(index).getUseActivity()/main.hours]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -43387,6 +43452,7 @@ public class TrackEdge implements Serializable {
     private String speedAlt;
     private String numberTra;
     private String id;
+    private double useActivity;
     public String getId() {
         return id;
     }
@@ -43394,6 +43460,7 @@ public class TrackEdge implements Serializable {
     public String getName() {
         return self.getName();
     }
+    
 
     /**
      * Конструктор по умолчанию
@@ -43407,6 +43474,14 @@ public class TrackEdge implements Serializable {
 
     public void setSelf(RailwayTrack self) {
         this.self = self;
+    }
+    
+    public double getUseActivity() {
+        return useActivity;
+    }
+
+    public void setUseActivity(double useActivity) {
+        this.useActivity = useActivity;
     }
 
     public double getUsableLength() {

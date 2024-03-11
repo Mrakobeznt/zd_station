@@ -1470,8 +1470,7 @@ return listCar;]]></Body>
 26. Корректно учитывать суммарное время простоя вагона * 06.03.24
 5. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа
 15. Обработать все ключевые показатели * 11.03.24
-29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути * 11.03.24
-30. Написать функцию для уточнения запуска сортировки * 11.03.24]]></Body>
+29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути * 11.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1654,8 +1653,9 @@ enterTasks.take(task);]]></Body>
 23. Чтобы не спамились задачи, должно быть не больше 10 расчисток
 27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку
 28. Добавить в интерфейс минимальный вес и минимальную длину на отправку со станции
-
-31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли]]></Body>
+30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
+31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
+32. Отказаться от события вагона в пользу в логике при окончании движения для каждого вагона менять статус]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -11576,7 +11576,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Height>40</Height>
 					<HeightCode><![CDATA[40 + 20 * (getTracksEdges().size() - 1)]]></HeightCode>
 					<Rotation>0.0</Rotation>
-					<FillColor>-1</FillColor>
+					<FillColor>-4144960</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Line>
@@ -19374,7 +19374,9 @@ readSends();
 
 setFrontsOffset(main.positionsOnTracks, main.tracksException);
 
-setFinishFrontsOffset(main.finishFronts);]]></Body>
+setFinishFrontsOffset(main.finishFronts);
+
+readSettings();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -19572,6 +19574,39 @@ while(file.cellExists(list, row, 1)){
 }
 file.close();]]></Body>
 				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710175373211</Id>
+					<Name><![CDATA[readSettings]]></Name>
+					<X>320</X><Y>610</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int colmn = 3;
+ExcelFile file = settingsParam;
+String list = "Лист1";
+file.readFile();
+accelerationTrain = file.getCellNumericValue(list, 2, colmn);
+delayShiftChange = file.getCellNumericValue(list, 3, colmn);
+delayEquipTEM9 = file.getCellNumericValue(list, 4, colmn);
+delayEquipTEM2 = file.getCellNumericValue(list, 5, colmn);
+delayEquipTEM18 = file.getCellNumericValue(list, 6, colmn);
+delayEquipTGM4B = file.getCellNumericValue(list, 7, colmn);
+delayFillingLoco = file.getCellNumericValue(list, 8, colmn);
+delayDinner = file.getCellNumericValue(list, 9, colmn);
+delayRest = file.getCellNumericValue(list, 10, colmn);
+delayEntryPermit = file.getCellNumericValue(list, 11, colmn);
+reportDelay = file.getCellNumericValue(list, 12, colmn);
+delayPassOneVagon = file.getCellNumericValue(list, 13, colmn);
+delayReceivingOrder = file.getCellNumericValue(list, 14, colmn);
+delayPlacingStops = file.getCellNumericValue(list, 15, colmn);
+delayExtraCoupDecoup = file.getCellNumericValue(list, 16, colmn);
+delayCheckVagonBrakes = file.getCellNumericValue(list, 17, colmn);
+delayCheckTrainBrakes = file.getCellNumericValue(list, 18, colmn);
+file.close();]]></Body>
+				</Function>
 			</Functions>
 			<Connectivity>
 				<ExcelFile>
@@ -19662,6 +19697,22 @@ file.close();]]></Body>
 					<ResourceReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Справочники/Продукты.xlsx]]></ClassName>
+					</ResourceReference>
+					<SaveInSnapshot>false</SaveInSnapshot>
+					<LoadOnStartup>true</LoadOnStartup>
+					<SaveOnDispose>true</SaveOnDispose>
+				</ExcelFile>
+				<ExcelFile>
+					<Id>1710183504805</Id>
+					<Name><![CDATA[settingsParam]]></Name>
+					<X>320</X><Y>570</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ResourceReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Справочники/Настриваемые параметры.xlsx]]></ClassName>
 					</ResourceReference>
 					<SaveInSnapshot>false</SaveInSnapshot>
 					<LoadOnStartup>true</LoadOnStartup>
@@ -36860,6 +36911,28 @@ return count;]]></Body>
 					<FillMaterial>null</FillMaterial>
 					<ArcRadius>10</ArcRadius>
 				</RoundedRectangle>
+				<Rectangle>
+					<Id>1710174176422</Id>
+					<Name><![CDATA[rectangle]]></Name>
+					<X>940</X><Y>680</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>276</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
 				<Text>
 					<Id>1707833327299</Id>
 					<Name><![CDATA[text188]]></Name>
@@ -37873,7 +37946,7 @@ return count;]]></Body>
 				<Text>
 					<Id>1707833327409</Id>
 					<Name><![CDATA[text254]]></Name>
-					<X>1330</X><Y>870</Y>
+					<X>1210</X><Y>700</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -37890,7 +37963,7 @@ return count;]]></Body>
 						<Size>14</Size>
 						<Style>0</Style>
 					</Font>
-					<Alignment>LEFT</Alignment>
+					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Line>
 					<Id>1707833327411</Id>
@@ -38245,7 +38318,7 @@ return count;]]></Body>
 				<Text>
 					<Id>1707833327451</Id>
 					<Name><![CDATA[text253]]></Name>
-					<X>1080</X><Y>850</Y>
+					<X>945</X><Y>690</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -41539,6 +41612,30 @@ return count;]]></Body>
 					</Font>
 					<Alignment>RIGHT</Alignment>
 				</Text>
+				<Line>
+					<Id>1710174242619</Id>
+					<Name><![CDATA[line32]]></Name>
+					<X>1120</X><Y>740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-60</Dy>
+					<Dz>0</Dz>
+				</Line>
 			</Presentation>
 
 				</Level>
@@ -46455,6 +46552,11 @@ public class TrainSend{
 		</Resource>
 		<Resource>
 			<Path><![CDATA[Анимация с лого.gif]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Справочники/Настриваемые параметры.xlsx]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>

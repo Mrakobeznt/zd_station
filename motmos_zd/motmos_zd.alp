@@ -1468,7 +1468,10 @@ return listCar;]]></Body>
 19. Состав должен проталкиваться перед расцепкой до края пути (Договорились пока без проталкивания 05.03.24)
 28. Добавить минимальный вес состава на отправку и минимальную длину состава на отправку * 06.03.24
 26. Корректно учитывать суммарное время простоя вагона * 06.03.24
-5. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа]]></Body>
+5. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа
+15. Обработать все ключевые показатели * 11.03.24
+29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути * 11.03.24
+30. Написать функцию для уточнения запуска сортировки * 11.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1632,10 +1635,8 @@ enterTasks.take(task);]]></Body>
 					<Body><![CDATA[План
 ////////////1. Уборка вагонов с фронта, когда на фронте находится локомотив//пока не делать, не знаю чем обернется для общей логики
 2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу
-
 3. Распределение задач на несколько локомотивов
 4. Корректно выставить задержку на расцепку и сцепку
-
 6. Разработать экран настройки прибывающих составов
 7. Продумать отображение заявок на экране
 // TODO пока оставить, получается +- 1 час если ставить прибытие заявок + 12 часов 8. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
@@ -1645,21 +1646,16 @@ enterTasks.take(task);]]></Body>
 12. Добавить событие заправка
 13. Добавить событие пересменка
 14. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
-15. Обработать все ключевые показатели
 16. Сформировать файл отчета
 // TODO оставить пока до планировщика 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
 18. Интерфейс сделать более приятным на ключевых показателях
-
 21. Проверить работу вагонов с технологической простоем и не технологическим
 22. Проверить работу отправки и прибытия составов с помощью станционного локомотива
 23. Чтобы не спамились задачи, должно быть не больше 10 расчисток
-
-
-
 27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку
 28. Добавить в интерфейс минимальный вес и минимальную длину на отправку со станции
-29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути
-30. Написать функцию для уточнения запуска сортировки]]></Body>
+
+31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2254,8 +2250,10 @@ for (TrainArrival arrival : data.arrivalsCollection){
 					</Parameter>
 					<Body><![CDATA[boolean arrivalDone = false;
 int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
-if (cntEmptyTrack < 2 && isEnoughPlace()){
-	setTaskForClean();
+if (cntEmptyTrack < 2){
+	if (isEnoughPlace()){
+		setTaskForClean();
+	}
 }
 else{
 	TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
@@ -10953,7 +10951,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Height>15</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
-					<FillColorCode><![CDATA[dodgerBlue]]></FillColorCode>
+					<FillColorCode><![CDATA[orange]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Text>
@@ -11218,7 +11216,7 @@ logic.enterStart.take(agent);]]></Code>
 					<Height>15</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
-					<FillColorCode><![CDATA[cyan]]></FillColorCode>
+					<FillColorCode><![CDATA[dodgerBlue]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Text>
@@ -13462,7 +13460,7 @@ setStatWeight();]]></Body>
 if (!type.equals("Локомотив") && status != null){
 	switch(status){
 		case "Ожидание отправки на грузовой фронт" :
-			color = cyan;
+			color = dodgerBlue;
 			break;
 		case "Ожидание уборки с грузового фронта" :
 			color = yellowGreen;
@@ -13471,10 +13469,10 @@ if (!type.equals("Локомотив") && status != null){
 			color = yellowGreen;
 			break;
 		case "Загрузка" :
-			color = dodgerBlue;
+			color = orange;
 			break;
 		case "Выгрузка" :
-			color = dodgerBlue;
+			color = orange;
 			break;
 		case "Ожидание отправки со станции" :
 			color = springGreen;

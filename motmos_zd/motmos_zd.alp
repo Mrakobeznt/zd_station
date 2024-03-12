@@ -1471,7 +1471,8 @@ return listCar;]]></Body>
 5. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа
 15. Обработать все ключевые показатели * 11.03.24
 29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути * 11.03.24
-2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу * 12.03.24]]></Body>
+2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу * 12.03.24
+33. Запретить собирать расчистку если состав состоит из 0 вагонов * 12.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1658,7 +1659,7 @@ enterTasks.take(task);]]></Body>
 30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
 31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
 32. Отказаться от события вагона в пользу в логике при окончании движения для каждого вагона менять статус
-33. Запретить собирать расчистку если состав состоит из 0 вагонов]]></Body>
+]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2275,14 +2276,16 @@ for (TrainArrival arrival : data.arrivalsCollection){
 					</Parameter>
 					<Body><![CDATA[boolean arrivalDone = false;
 int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
+RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
+List<RailCar> trainTest = TrainArrival.getCarsOfTrain(getActiveRequestsForArrive(), data.contactRequests, loco, getTrackEdgeByTrack(track4p2));
 if (cntEmptyTrack < 2){
-	if (isEnoughPlace()){
+	if (isEnoughPlace() && trainTest.size() > 0){
 		setTaskForClean();
 	}
 }
 else{
 	TrackEdge trackArrive = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
-	RailCar loco = data.useStationLocoForArrive ? ((RailCar)((Train)locoDelay.get(0)).getCar(0)) : data.locosService.get(0);
+	
 	List<RailCar> train = trackArrive == null ? new ArrayList() : TrainArrival.getCarsOfTrain(getActiveRequestsForArrive(), data.contactRequests, loco, trackArrive);
 	//TrainArrival tA = data.arrivalsDone.stream().filter(p-> p.hashCode() == taskAction.trainArrival.hashCode()).findFirst().orElse(null);
 	/*if (tA != null){
@@ -2480,7 +2483,7 @@ if (startTrack == null){
 	ts.setIsSchedule(false);
 }
 if (startTrack != null){
-	traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
+	//traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
 	ts.setRecTrack(startTrack);
 	task.startTrack = startTrack.getSelf();
 	task.trainSend = ts;
@@ -20431,10 +20434,10 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			break;
 	}
 }
-traceln(orange, "Для задачи " + type);
+/*traceln(orange, "Для задачи " + type);
 newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
 + " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()+ " смещение " + p.getOffset()));
-
+*/
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">

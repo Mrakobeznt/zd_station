@@ -1097,8 +1097,8 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[4]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[DAY]]></Unit>
+							<Code><![CDATA[3700]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
@@ -1470,7 +1470,8 @@ return listCar;]]></Body>
 26. Корректно учитывать суммарное время простоя вагона * 06.03.24
 5. Разобратся со срабатыванием события по прибытию, должен срабатывать за пол часа
 15. Обработать все ключевые показатели * 11.03.24
-29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути * 11.03.24]]></Body>
+29. Написать функцию когда прибытие на запускается если нельзя освободить 2 пути * 11.03.24
+2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу * 12.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1633,9 +1634,9 @@ enterTasks.take(task);]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[План
 ////////////1. Уборка вагонов с фронта, когда на фронте находится локомотив//пока не делать, не знаю чем обернется для общей логики
-2. Если путь имеет несколько фронтов, отработать ситуацию забора всех вагонов сразу
+
 3. Распределение задач на несколько локомотивов
-4. Корректно выставить задержку на расцепку и сцепку
+4. Корректно выставить задержку на расцепку и сцепку (убрать часть задержке, обратить внимание на параметр needWait)
 6. Разработать экран настройки прибывающих составов
 7. Разработать экран отправлений составов
 7. Продумать отображение заявок на экране
@@ -1656,7 +1657,8 @@ enterTasks.take(task);]]></Body>
 28. Добавить в интерфейс минимальный вес и минимальную длину на отправку со станции
 30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
 31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
-32. Отказаться от события вагона в пользу в логике при окончании движения для каждого вагона менять статус]]></Body>
+32. Отказаться от события вагона в пользу в логике при окончании движения для каждого вагона менять статус
+33. Запретить собирать расчистку если состав состоит из 0 вагонов]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1728,10 +1730,32 @@ setTrackEdges();]]></Body>
 						<Name><![CDATA[front]]></Name>
 						<Type><![CDATA[Front]]></Type>
 					</Parameter>
-					<Body><![CDATA[TrackEdge targetTrack = getTargetTrackForPickUp(front);
+					<Body><![CDATA[TrackEdge targetTrack = getTargetTrackForPickUp(front.getCarsOnFront());
 if (targetTrack != null && front.needToPickUp()){
+	int sizeCars = front.getCarsOnFront().size();
 	String type = targetTrack.getSelf().isEmpty() ? "Уборка всех вагонов с грузового фронта на пустой путь" : "Уборка всех вагонов с грузового фронта";
-	addTask(type, front.getHomeTrack().getSelf(), targetTrack.getSelf(), front.getTrainOnFront().size(), false, front);
+	Front altFront = getFronts().stream().filter(p-> !p.getName().equals(front.getName()) && p.getHomeTrack().getName().equals(front.getHomeTrack().getName())).findFirst().orElse(null);
+	if (altFront != null){
+		traceln("Альтернативный фронт " + altFront.getName() + " фронт пуст? "+ altFront.getCarsOnFront().isEmpty() + " все вагоны на фронте готовы " + altFront.getCarsOnFront().stream().allMatch(p-> p.status.equals("Ожидание уборки с грузового фронта")));
+	}
+	
+	if (altFront != null && !altFront.getCarsOnFront().isEmpty() && altFront.getCarsOnFront().stream().allMatch(p-> !p.status.equals("Загрузка") && !p.status.equals("Выгрузка"))){
+		List<RailCar> allCars = new ArrayList();
+		allCars.addAll(front.getCarsOnFront());
+		allCars.addAll(altFront.getCarsOnFront());
+		targetTrack = getTargetTrackForPickUp(allCars);
+		if (targetTrack == null){
+			targetTrack = getTargetTrackForPickUp(front.getCarsOnFront());
+			traceln("ЦЕЛЕВОЙ ПУТЬ НЕ НАЙДЕН");
+		}
+		else{
+			sizeCars = allCars.size();
+			type = targetTrack.getSelf().isEmpty() ? "Полная Уборка вагонов с пути на пустой путь" : "Полная Уборка вагонов с пути";
+		}
+		
+	}
+	
+	addTask(type, front.getHomeTrack().getSelf(), targetTrack.getSelf(), sizeCars, false, front);
 	//traceln("Убираем вагоны с фронта " + front.getName());
 	activeSuperTasks++;
 }
@@ -2335,8 +2359,8 @@ if (!tasks.isEmpty()){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[front]]></Name>
-						<Type><![CDATA[Front]]></Type>
+						<Name><![CDATA[carsOnFront]]></Name>
+						<Type><![CDATA[List<RailCar>]]></Type>
 					</Parameter>
 					<Body><![CDATA[TrackEdge targetTrack = null;
 TrackEdge emptyTargetTrack = getPopsWithoutAvoid()
@@ -2345,32 +2369,32 @@ TrackEdge emptyTargetTrack = getPopsWithoutAvoid()
 													.stream()
 													.filter(g-> !g.type.equals("Локомотив"))
 													.count() == 0 
-														&& p.isEnoughPlace(front.getTrainOnFront()))
+														&& p.isEnoughPlace(carsOnFront))
 							.findFirst()
 							.orElse(null);
-if (front.getHomeTrack().getRailCarsOnTrack()
-								.stream().filter(p-> !p.type.equals("Локомотив"))
-								.allMatch(p-> !p.finalStatus.equals("Технологическое ожидание") 
-									&& !p.finalStatus.equals("Не технологическое ожидание"))){ // если все вагоны под отправку с фронта не технологические ожидания
+if (carsOnFront
+			.stream().filter(p-> !p.type.equals("Локомотив"))
+			.allMatch(p-> !p.finalStatus.equals("Технологическое ожидание") 
+				&& !p.finalStatus.equals("Не технологическое ожидание"))){ // если все вагоны под отправку с фронта не технологические ожидания
 	//traceln(black, "Все вагоны не технологич ожидание " + targetTrack);
 	/*getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && p.isEnoughPlace(front.getTrainOnFront()) && (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										|| p.getRailCarsOnTrack().size() > 1)).forEach(p-> traceln("kek " + p.getName() + " " + p.getProcentReadyToSend()));*/
-	if (getMaxProcentReadyCarTrack(front) != null && getMaxProcentReadyCarTrack(front).getProcentReadyToSend() >= 0.98){// если есть путь, на котором стоят только вагоны под отправку
-		targetTrack = getMaxProcentReadyCarTrack(front);
+	if (getMaxProcentReadyCarTrack(carsOnFront) != null && getMaxProcentReadyCarTrack(carsOnFront).getProcentReadyToSend() >= 0.98){// если есть путь, на котором стоят только вагоны под отправку
+		targetTrack = getMaxProcentReadyCarTrack(carsOnFront);
 		//traceln(black, "Cработал 1");		
 	}
 	else{// если нет пути только с вагонами под отправку
-		targetTrack = emptyTargetTrack == null ? getMaxProcentReadyCarTrack(front) : emptyTargetTrack; // если пустого пути не нашел, то просто выбери путь с максимальным количеством на отправку
+		targetTrack = emptyTargetTrack == null ? getMaxProcentReadyCarTrack(carsOnFront) : emptyTargetTrack; // если пустого пути не нашел, то просто выбери путь с максимальным количеством на отправку
 							//traceln(black, "Cработал 2");
 	}
 }
 else{
-	if (getMinProcentReadyCarTrack(front).getProcentReadyToSend() >= 0.98){// если путь с минимальным процентом под отправку полностью состоит из вагонов под отправку, то отправляем на пустой путь
-		targetTrack = emptyTargetTrack == null ? getMinProcentReadyCarTrack(front) : emptyTargetTrack;
+	if (getMinProcentReadyCarTrack(carsOnFront).getProcentReadyToSend() >= 0.98){// если путь с минимальным процентом под отправку полностью состоит из вагонов под отправку, то отправляем на пустой путь
+		targetTrack = emptyTargetTrack == null ? getMinProcentReadyCarTrack(carsOnFront) : emptyTargetTrack;
 							//traceln(black, "Cработал 3");
 	}
 	else{
-		targetTrack = getMinProcentReadyCarTrack(front);
+		targetTrack = getMinProcentReadyCarTrack(carsOnFront);
 		//traceln(black, "Cработал 4");
 	}
 }
@@ -2387,15 +2411,15 @@ return targetTrack;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[front]]></Name>
-						<Type><![CDATA[Front]]></Type>
+						<Name><![CDATA[carsOnFront]]></Name>
+						<Type><![CDATA[List<RailCar>]]></Type>
 					</Parameter>
 					<Body><![CDATA[//traceln("Размер состава с фронта " + front.getTrainOnFront().size());
 //getPopsWithoutAvoid().stream().forEach(p-> traceln("Путь не пуст " + !p.getSelf().isEmpty() + " места на пути хватает " + p.isEnoughPlace(front.getTrainOnFront()) + " нет одного локомотива на пути " + (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										//|| p.getRailCarsOnTrack().size() > 1)));
 List<TrackEdge> edges = getPopsWithoutAvoid().stream()
 							.filter(p-> !p.getSelf().isEmpty() 
-													&& p.isEnoughPlace(front.getTrainOnFront()) 
+													&& p.isEnoughPlace(carsOnFront) 
 														&& (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										|| p.getRailCarsOnTrack().size() > 1))
 							.collect(Collectors.toList());
@@ -2413,11 +2437,11 @@ return edges.isEmpty() ? null : edges.stream().max((p1, p2) -> Double.compare(p1
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
-						<Name><![CDATA[front]]></Name>
-						<Type><![CDATA[Front]]></Type>
+						<Name><![CDATA[carsOnFront]]></Name>
+						<Type><![CDATA[List<RailCar>]]></Type>
 					</Parameter>
 					<Body><![CDATA[return getPopsWithoutAvoid().stream()
-							.filter(p-> !p.getSelf().isEmpty() && p.isEnoughPlace(front.getTrainOnFront()) && (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
+							.filter(p-> !p.getSelf().isEmpty() && p.isEnoughPlace(carsOnFront) && (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
 										|| p.getRailCarsOnTrack().size() > 1))
 							.min((p1, p2) -> Double.compare(p1.getProcentReadyToSend(), p2.getProcentReadyToSend()))
 							.get();]]></Body>
@@ -20361,6 +20385,7 @@ TaskAction task = main.data.taskCollection.stream()
 List<Task> newListTasks = new ArrayList();
 int cntCouple = 0;
 int cntDecouple = 0;
+int cntMoving = 0;
 boolean useStartTrack = false;
 for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с помощью цикла все операции задачи
 	Task simpleTask = task.listTask.get(i);
@@ -20377,8 +20402,9 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			newListTasks.add(getTaskCreate());
 			break;
 		case "Движение" :
-			newListTasks.add(getTaskMoving(i, nextTask, simpleTask, useStartTrack));
+			newListTasks.add(getTaskMoving(cntMoving, nextTask, simpleTask, useStartTrack));
 			useStartTrack = true;
+			cntMoving++;
 			break;
 		case "Движение кон" :
 			Task endTask = getTaskMovingEnd();
@@ -20405,10 +20431,10 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			break;
 	}
 }
-/*traceln(orange, "Для задачи " + type);
+traceln(orange, "Для задачи " + type);
 newListTasks.stream().forEach(p-> traceln(purple, "Подзадача " + p.getType() 
 + " начальный путь " + (p.getStartTrack() != null ? p.getStartTrack().getName() : null) + " конечный путь " + (p.getEndTrack() != null ? p.getEndTrack().getName() : null) +" вагонов переместить " + p.getCntVagons()+ " смещение " + p.getOffset()));
-*/
+
 return newListTasks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -20535,7 +20561,8 @@ else if (currTask.getType().equals("Сцепка")
 		|| type.equals("Полурейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
 				|| type.equals("Отправка вагонов на пустой грузовой фронт")
-					|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
+					|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")
+						|| type.contains("Полная")){
 		nextTrack = startTrack;
 	}
 	else{
@@ -20694,9 +20721,11 @@ return task;]]></Body>
 					<Body><![CDATA[Task task = null;
 RailwayTrack curEndTrack = null;
 RailwayTrack curStartTrack = null;
-if (!type.equals("Прибытие состава на станцию") && !type.contains("со станции") && ! type.equals("Перемещение")){
+if (!type.equals("Прибытие состава на станцию") 
+	&& !type.contains("со станции") 
+		&& ! type.equals("Перемещение")){
 	if (!useStartTrack){
-	curEndTrack = startTrack;
+		curEndTrack = startTrack;
 	}
 	else{
 		curEndTrack = endTrack;
@@ -20709,6 +20738,9 @@ else{
 	else{
 		curEndTrack = endTrack;
 	}
+}
+if (type.contains("Полная") && cnt == 1){
+	curEndTrack = startTrack;
 }
 if (nextTask != null && nextTask.getType().equals("Терминирование")){
 	curStartTrack = endTrack;
@@ -20813,12 +20845,17 @@ if (cntCouple == 0){
 		|| type.equals("Полурейс формирования всех вагонов с пути на пустой путь") 
 			|| type.equals("Отправка всех вагонов на пустой грузовой фронт")
 				|| type.equals("Отправка вагонов на пустой грузовой фронт")
-					|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")){
+					|| type.equals("Уборка всех вагонов с грузового фронта на пустой путь")
+						|| type.contains("Полная")){
 		curEndTrack = startTrack;
 	}
 	else{
 		curEndTrack = endTrack;
 	}
+	
+}
+if (cntCouple == 1 && type.contains("Полная")){
+	curEndTrack = startTrack;
 }
 task = new Task("Сцепка", curStartTrack, curEndTrack, offset);
 return task;]]></Body>
@@ -40185,7 +40222,7 @@ public class Front {
      */
     public List<RailCar> getCarsOnFront(){
     	List<RailCar> cars = new ArrayList();
-    	for (RailCar car : homeTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())) {
+    	for (RailCar car : homeTrack.getRailCarsWithoutTrain()) {
 			if (placeFront.contains(car.getX(), car.getY())) { // если зона фронта содержит в себе хотя бы один вагон
 				cars.add(car);
 			}
@@ -40262,7 +40299,7 @@ public class Front {
      * 
      * @return - возвращает список вагонов, которые стоят на грузовом фронте
      */
-    public List<RailCar> getTrainOnFront(){
+    /*public List<RailCar> getTrainOnFront(){
     	List<RailCar> train = new ArrayList();
     	for (Agent car : homeTrack.getSelf().getCars()) {
     		if (placeFront.contains(car.getX(), car.getY()));{
@@ -40270,7 +40307,7 @@ public class Front {
     		}
     	}
     	return train;
-    }
+    }*/
     
     public boolean needToPickUp() {
     	boolean isNotBlocked = !isBlockedForPickUp();

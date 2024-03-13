@@ -1111,7 +1111,6 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1710320011169</Id>
 					<Name><![CDATA[makeBreak]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>570</X><Y>1690</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1129,7 +1128,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1710403200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[triangular(0, 12, 6)]]></Code>
+							<Code><![CDATA[11]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1138,6 +1137,7 @@ setTracksActive();]]></Action>
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
+					<Action><![CDATA[setDinnerTasks();]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -1704,6 +1704,9 @@ enterTasks.take(task);]]></Body>
 					<Body><![CDATA[List<RailCar> locoTrain = new ArrayList();
 //locoTrain.add(data.railCarsCollection.stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null));
 locoTrain.addAll(data.locosInStation);
+for(RailCar car : locoTrain){
+	car.hashLoco = car.hashCode();
+}
 addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3130,7 +3133,7 @@ addTaskSuper(task);]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1710320568929</Id>
 					<Name><![CDATA[makeBreakTask]]></Name>
-					<X>1000</X><Y>2710</Y>
+					<X>1010</X><Y>2700</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3152,7 +3155,66 @@ else{// если нет свободных путей
 		curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();
 	}
 }
+activeSuperTasks++;
 addTask("Перерыв", loco.getTrack(), curEndTrack);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710344332307</Id>
+					<Name><![CDATA[setDinnerTasks]]></Name>
+					<X>1000</X><Y>2730</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (RailCar car : data.locosInStation){
+	TaskAction task = new TaskAction();
+	task.type = "Обед";
+	task.priority = 1150;
+	task.locoForTask = car;
+	addTaskSuper(task);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1710344332309</Id>
+					<Name><![CDATA[makeDinnerTask]]></Name>
+					<X>1010</X><Y>2750</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[loco]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Body><![CDATA[boolean makeTask = false;
+
+for (Agent train : Tools.getDelayPopulation(locoDelay)){
+	RailCar copyLoco = ((Train)train).getCars().get(0);
+	if (copyLoco.hashLoco == loco.hashCode()){
+		RailwayTrack curEndTrack = null;
+		if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty())){// если есть свободные пути, то движемся на путь 5
+			curEndTrack = track5;
+		}
+		else {// если нет свободных путей
+			if (loco != null // если локомотив стоит на приемо-отправочных путях
+				&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(loco.getTrack().getName()))){
+				curEndTrack = loco.getTrack();
+			}
+			else{// если локомотив остановился не на приемо-отправочных путях
+				curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();
+			}
+		}
+		makeTask = true;
+		addTask("Обед", copyLoco.getTrack(), curEndTrack);
+		activeSuperTasks++;
+		break;
+	}
+}
+return makeTask;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -4735,6 +4797,11 @@ switch(agent.type){
 		break;
 	case "Перерыв" :
 		makeBreakTask(((TaskAction)agent).locoForTask);
+		break;
+	case "Обед" :
+		if (!makeDinnerTask(((TaskAction)agent).locoForTask)){
+			enterTasksSuper.take(agent);
+		}
 		break;
 	case "Отправка на фронт" :
 		makeTaskFormationToFront(((TaskAction)agent).front);
@@ -12449,6 +12516,18 @@ public String toString(){
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1710344614070</Id>
+					<Name><![CDATA[hashLoco]]></Name>
+					<X>390</X><Y>680</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1700596772936</Id>
 					<Name><![CDATA[type]]></Name>
@@ -17869,6 +17948,7 @@ car.typeOwner = copyCar.typeOwner;
 car.changeStatus = copyCar.changeStatus;
 car.setPosition();
 car.setStatus();
+car.hashLoco = copyCar.hashLoco;
 cnt++;
 if (copyCar.weightProduct < 1){
 	main.data.cntEmptyVagons++;
@@ -20900,6 +20980,9 @@ else{
 if (type.equals("Перерыв")){
 	delayTime = main.data.delayRest;
 }
+if (type.equals("Обед")){
+	delayTime = main.data.delayDinner;
+}
 task = new Task("Ожидание", null, curEndTrack, 0, delayTime);
 return task;]]></Body>
 				</Function>
@@ -20950,7 +21033,8 @@ double offset = 0;
 if (!type.equals("Прибытие состава на станцию") 
 	&& !type.contains("со станции") 
 		&& !type.equals("Перемещение")
-			&& !type.equals("Перерыв")){
+			&& !type.equals("Перерыв")
+				&& !type.equals("Обед")){
 	if (!useStartTrack){
 		curEndTrack = startTrack;
 	}
@@ -20976,24 +21060,6 @@ else {
 	curStartTrack = startTrack;
 }
 offset = getOffsetForTask(curEndTrack, currTask.getType(), nextTask);
-/*if (type.equals("Перерыв")){
-	if (main.getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty())){// если есть свободные пути, то движемся на путь 5
-		curEndTrack = main.track5;
-	}
-	else{// если нет свободных путей
-		if (locoForTask != null // если локомотив стоит на приемо-отправочных путях
-			&& main.getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(locoForTask.getTrack().getName()))){
-			curEndTrack = locoForTask.getTrack();
-		}
-		else{// если локомотив остановился не на приемо-отправочных путях
-			curEndTrack = main.getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();
-		}
-	}
-	if (locoForTask != null){
-		curStartTrack = locoForTask.getTrack();
-	}
-	offset = 0;
-}*/
 
 task = new Task("Движение", curStartTrack, curEndTrack, offset);
 return task;]]></Body>

@@ -1080,6 +1080,7 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -3148,7 +3149,7 @@ if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEm
 }
 else{// если нет свободных путей
 	if (loco != null // если локомотив стоит на приемо-отправочных путях
-		&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(loco.getTrack().getName()))){
+		&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(loco.getTrain().getTrack(false).getName()))){
 		curEndTrack = loco.getTrack();
 	}
 	else{// если локомотив остановился не на приемо-отправочных путях
@@ -3201,15 +3202,15 @@ for (Agent train : Tools.getDelayPopulation(locoDelay)){
 		}
 		else {// если нет свободных путей
 			if (loco != null // если локомотив стоит на приемо-отправочных путях
-				&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(loco.getTrack().getName()))){
-				curEndTrack = loco.getTrack();
+				&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(((Train)train).getTrack(false).getName()))){
+				curEndTrack = ((Train)train).getTrack(false);
 			}
 			else{// если локомотив остановился не на приемо-отправочных путях
 				curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();
 			}
 		}
 		makeTask = true;
-		addTask("Обед", copyLoco.getTrack(), curEndTrack);
+		addTask("Обед", ((Train)train).getTrack(false), curEndTrack);
 		activeSuperTasks++;
 		break;
 	}
@@ -39804,14 +39805,18 @@ public class RouteFinder<T extends GraphNode> {
     	      // traceln(black, "Следующая стрелка, которую рассматриваем " + next.getCurrent().getName());
     	      double newScore = next.getRouteScore() + nextNodeScorer.computeCost(next.getCurrent(), connection);
     	     //traceln(purple, "Сравниваем очки newScore:" + newScore + " nextNode.getRouteScore() " + nextNode.getRouteScore());
-    	        if (newScore < nextNode.getRouteScore() 
-    	        		&& !checkAvoid(next.getCurrent(), nextNode.getCurrent(), avoidTracks)
-    	        			&& !getPublicEdge(nextNode.getCurrent(), endTrack, to)) {
-    	            nextNode.setPrevious(next.getCurrent());
-    	            nextNode.setRouteScore(newScore);
-    	            nextNode.setEstimatedScore(newScore + targetScorer.computeCost(connection, to));
-    	            openSet.add(nextNode);
-    	            
+    	        if (newScore < nextNode.getRouteScore() // очки подходят
+    	        		&& !checkAvoid(next.getCurrent(), nextNode.getCurrent(), avoidTracks)) { // следующий путь не исключение
+    	        	if (getPublicTargetEdge(next.getCurrent(), endTrack, to) // стрелка пути относится к целевому пути, но не конечная
+    	        			&& nextNode.getCurrent().getName().equals(to.getName())) { // следующая стрелка конечная
+    	        		
+    	        	}
+    	        	else {
+    	        		nextNode.setPrevious(next.getCurrent());
+        	            nextNode.setRouteScore(newScore);
+        	            nextNode.setEstimatedScore(newScore + targetScorer.computeCost(connection, to));
+        	            openSet.add(nextNode);
+    	        	}
     	        }
     	    });
 
@@ -39822,7 +39827,7 @@ public class RouteFinder<T extends GraphNode> {
     	//return null;
     }
     
-    public boolean getPublicEdge(T nextNode, TrackEdge endTrack, T to) {
+    public boolean getPublicTargetEdge(T nextNode, TrackEdge endTrack, T to) {
     	boolean isPublic = false;
     	traceln("Конечный путь " + endTrack);
     	if (endTrack.getEndSwitch() != null && endTrack.getStartSwitch() != null) {

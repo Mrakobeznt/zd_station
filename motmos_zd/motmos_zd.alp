@@ -1860,27 +1860,30 @@ trackWithTargetCars.add(p.getTrack());});
 TrackEdge targetTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 if (targetTrack == null){
 	targetTrack = getPopsWithoutAvoid().stream().filter(p-> !trackWithTargetCars.contains(p.getSelf()) && p.isEnoughPlace(fo.getCarsForSendtoFront())).findFirst().orElse(null);
+	
 }
-//boolean isTarget = true;
-//RailwayTrack startTrack = null;
-List<TaskAction> tasks = fo.getTasks(targetTrack);
-if (tasks.size() == 1){ // если всего один фрагмент
-	//traceln(red, "Сработало исключение");
-	String type = getTypeSendForFront(fo, getTrackEdgeByTrack(tasks.get(0).startTrack));
-	addTask(type, tasks.get(0).startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+if (targetTrack == null){
+	setTaskForClean();
 }
 else{
-	for (TaskAction task : tasks){
-		addTask(task, front);
+	List<TaskAction> tasks = fo.getTasks(targetTrack);
+	if (tasks.size() == 1){ // если всего один фрагмент
+		String type = getTypeSendForFront(fo, getTrackEdgeByTrack(tasks.get(0).startTrack));
+		addTask(type, tasks.get(0).startTrack, front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
 	}
-	
-	if (tasks.size() > 0 && targetTrack != null){
-		String type = getTypeSendForFront(fo, targetTrack);
-		addTask(type, targetTrack.getSelf(), front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+	else{
+		for (TaskAction task : tasks){
+			addTask(task, front);
+		}
+		
+		if (tasks.size() > 0 && targetTrack != null){
+			String type = getTypeSendForFront(fo, targetTrack);
+			addTask(type, targetTrack.getSelf(), front.getHomeTrack().getSelf(), fo.getCarsForSendtoFront().size(), false, front);
+		}
 	}
-}
-if (tasks.size() > 0){
-	activeSuperTasks++;
+	if (tasks.size() > 0){
+		activeSuperTasks++;
+	}
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -11726,7 +11729,7 @@ logic.enterStart.take(agent);]]></Code>
 					<BeginArrowStyle>0</BeginArrowStyle>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>160</Dx>
+					<Dx>255</Dx>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
@@ -11746,7 +11749,7 @@ logic.enterStart.take(agent);]]></Code>
 					<LineColor>-16777216</LineColor>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>160</Width>
+					<Width>255</Width>
 					<Height>40</Height>
 					<HeightCode><![CDATA[40 + 20 * (getTracksEdges().size() - 1)]]></HeightCode>
 					<Rotation>0.0</Rotation>
@@ -11773,7 +11776,7 @@ logic.enterStart.take(agent);]]></Code>
 					<BeginArrowStyle>0</BeginArrowStyle>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>160</Dx>
+					<Dx>255</Dx>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
@@ -11929,7 +11932,7 @@ logic.enterStart.take(agent);]]></Code>
 					<BeginArrowStyle>0</BeginArrowStyle>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>160</Dx>
+					<Dx>255</Dx>
 					<Dy>0</Dy>
 					<Dz>0</Dz>
 				</Line>
@@ -11985,6 +11988,30 @@ logic.enterStart.take(agent);]]></Code>
 					<Id>1709116316777</Id>
 					<Name><![CDATA[line23]]></Name>
 					<X>0</X><Y>10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Line>
+					<Id>1710405916108</Id>
+					<Name><![CDATA[line25]]></Name>
+					<X>175</X><Y>10</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -12106,6 +12133,78 @@ logic.enterStart.take(agent);]]></Code>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Line>
+					<Id>1710405904332</Id>
+					<Name><![CDATA[line24]]></Name>
+					<X>865</X><Y>670</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>-20</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Text>
+					<Id>1710405932695</Id>
+					<Name><![CDATA[text59]]></Name>
+					<X>776</X><Y>653</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Длина состава]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710405960910</Id>
+					<Name><![CDATA[text60]]></Name>
+					<X>861</X><Y>673</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[673 + 20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[getTracksEdges().size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[300]]></Text>
+					<TextCode><![CDATA[Tools.getLengthTrain(getTracksEdges().stream().sorted((o1, o2)->((String)o1.getNumberTra()).
+                                   compareTo(((String)o2.getNumberTra()))).collect(Collectors.toList()).get(index).getRailCarsOnTrack())]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>12</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -12152,7 +12251,7 @@ public String toString(){
 						", имеет массу " + getWeight();
 }]]></AdditionalClassCode>
 			<Import><![CDATA[import java.util.SplittableRandom;]]></Import>
-			<StartupCode><![CDATA[event.reset();]]></StartupCode>
+			<StartupCode><![CDATA[//event.reset();]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1700596772933</Id>
@@ -12691,7 +12790,7 @@ public String toString(){
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
-						<EntryAction><![CDATA[event.reset();
+						<EntryAction><![CDATA[//event.reset();
 status = "Ожидание отправки на грузовой фронт";
 setDateBeginState();]]></EntryAction>
 						<ExitAction><![CDATA[endState(status);]]></ExitAction>
@@ -12739,8 +12838,9 @@ endState(status);]]></ExitAction>
 					<ShowLabel>true</ShowLabel>
 					<Properties Width="270" Height="30">
 						<EntryAction><![CDATA[status = "Ожидание уборки с грузового фронта";
-event.restart();
-setDateBeginState();]]></EntryAction>
+//event.restart();
+setDateBeginState();
+change();]]></EntryAction>
 						<ExitAction><![CDATA[endState(status);]]></ExitAction>
 						<FillColor/>
 					</Properties>
@@ -13164,7 +13264,7 @@ main.data.cntUnLoaded++;]]></Action>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1707210464390" Target="1707202444714" Trigger="timeout">
-						<Action><![CDATA[event.reset();]]></Action>
+						<Action><![CDATA[//event.reset();]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -13196,7 +13296,7 @@ main.data.cntUnLoaded++;]]></Action>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1707210464390" Target="1707204644896" Trigger="timeout">
-						<Action><![CDATA[event.reset();]]></Action>
+						<Action><![CDATA[//event.reset();]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -13357,7 +13457,7 @@ main.data.cntUnLoaded++;]]></Action>
 					</Points>
 					<IconOffset>20.0</IconOffset>
 					<Properties Source="1707210464390" Target="1707207018447" Trigger="timeout">
-						<Action><![CDATA[event.reset();]]></Action>
+						<Action><![CDATA[//event.reset();]]></Action>
 						<Timeout Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
@@ -13379,6 +13479,7 @@ main.data.cntUnLoaded++;]]></Action>
 				<Event>
 					<Id>1707825449124</Id>
 					<Name><![CDATA[event]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>600</X><Y>-90</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -13918,6 +14019,19 @@ else if (status.equals("Ожидание фронта 9")
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[todayHaveBreak = false;
 todayHaveDinner = false;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710404954607</Id>
+					<Name><![CDATA[change]]></Name>
+					<X>960</X><Y>-160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[onChange();
+setWaitAnotherFront();]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -26625,6 +26739,7 @@ distanceForPush(currentTask.getEndTrack(), agent);]]></Code>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[agent.codeForLogic = 0;
+agent.getCars().stream().filter(p-> !p.type.equals("Локомотив")).forEach(p-> p.change());
 returnsAgents(agent);
 delay.stopDelayForAll();]]></Code>
 							</Value>
@@ -28196,6 +28311,7 @@ traceln(red, "==============================================================");*
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[agent.codeForLogic = 0;
+agent.getCars().stream().filter(p-> !p.type.equals("Локомотив")).forEach(p-> p.change());
 returnsAgents(agent);
 delay.stopDelayForAll();]]></Code>
 							</Value>

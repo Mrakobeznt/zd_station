@@ -3150,7 +3150,7 @@ if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEm
 else{// если нет свободных путей
 	if (loco != null // если локомотив стоит на приемо-отправочных путях
 		&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(loco.getTrain().getTrack(false).getName()))){
-		curEndTrack = loco.getTrack();
+		curEndTrack = loco.getTrain().getTrack(false);
 	}
 	else{// если локомотив остановился не на приемо-отправочных путях
 		curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();

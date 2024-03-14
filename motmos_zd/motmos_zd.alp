@@ -1080,7 +1080,6 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1098,7 +1097,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[3700]]></Code>
+							<Code><![CDATA[18900]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -2521,6 +2520,10 @@ for (TrainSend ts1 : data.sendsCollection){
 }
 if (startTrack == null){
 	startTrack = getTrackForSend(ts, false);
+	ts.setIsSchedule(false);
+}
+if (startTrack == null){
+	startTrack = ts.checkTracksForSends();
 	ts.setIsSchedule(false);
 }
 if (startTrack != null){
@@ -12628,6 +12631,32 @@ public String toString(){
 						<Type><![CDATA[int]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1710407079112</Id>
+					<Name><![CDATA[maxLengthForSend]]></Name>
+					<Description><![CDATA[Параметр для локомотива, максимальная длина состава для отправки со станцию]]></Description>
+					<X>390</X><Y>470</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1710407079114</Id>
+					<Name><![CDATA[maxLengthForArrive]]></Name>
+					<Description><![CDATA[Параметр для локомотива, максимальная длина состава для прибытия на станцию]]></Description>
+					<X>390</X><Y>500</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1700596772936</Id>
 					<Name><![CDATA[type]]></Name>
@@ -15985,9 +16014,9 @@ else{
 	if (startSwitch == null){
 		startSwitch = !isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	}
-	traceln("Начальный путь " + startTrack.getName());
+	/*traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -16070,7 +16099,7 @@ if (getAvoidTracks(train) != null){
 		edges.add(new TrackEdge(track, track.getStartSwitch(), track.getEndSwitch(), track.length(METER)));
 	}
 }
-getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
+//getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
 List<SwitchNode> switchList = rf.findRoute(main.getTrackEdgeByTrack(endTrack()), from, to, edges);
 traceln(purple, switchList);
 List<RailwayTrack> allTracks = new ArrayList();
@@ -16094,13 +16123,13 @@ for (SwitchNode node : switchList){
 	}
 }
 
-switchList.stream().forEach(p-> p.getSelf().setColor(green));
+//switchList.stream().forEach(p-> p.getSelf().setColor(green));
 RailwayTrack startTrack = /*train.getTrack(false);*/logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
 if (!routeTracks.contains(startTrack)){
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -16691,75 +16720,75 @@ LinkedHashMap<RailwayTrack, Boolean> sideTracks = new LinkedHashMap();
 LinkedHashMap<RailwayTrack, Boolean> moveDirection = new LinkedHashMap();
 isMulty = multyTrackCondition(train, routeTracks);
 for(RailwayTrack track : routeTracks){
-	traceln(orange, "Направление на пути " + (isMoveBack ? "По направлению пути" : "Против направления пути"));
-	traceln(orange, "Направление движения " + (dir ? "Вперед" : "Назад"));
+	//traceln(orange, "Направление на пути " + (isMoveBack ? "По направлению пути" : "Против направления пути"));
+	//traceln(orange, "Направление движения " + (dir ? "Вперед" : "Назад"));
 	if (previousTrack != null){
 		RailwaySwitch previousTargetSwitch =  isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
-		traceln(black, "Проверяю путь движение на путь " + track.getName());
+		//traceln(black, "Проверяю путь движение на путь " + track.getName());
 		if (previousTargetSwitch == null){
-			traceln(red, "Я меняю направление у пути " + previousTrack.getName() + " теперь " + (!isMoveBack));
+			//traceln(red, "Я меняю направление у пути " + previousTrack.getName() + " теперь " + (!isMoveBack));
 			previousTargetSwitch = !isMoveBack ? previousTrack.getStartSwitch() : previousTrack.getEndSwitch();
-			traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
+			//traceln(red, "Целевая стрелка теперь " + previousTargetSwitch.getName());
 		} 
 		if (isNotHaveRoute(previousTrack, track, dir)){// если с предыдущего пути нельзя попасть на следующий путь 
 			RailwayTrack nextTrack = previousTargetSwitch.getAvailableTracks(previousTrack).get(0);// смотрим следующий доступный путь
-			traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
-			traceln(red, "Добавляю путь " + nextTrack.getName());
+			//traceln(gray, "С пути " + previousTrack.getName() + " нельзя попасть на путь " + track.getName() + " isMoveBack " + isMoveBack);
+			//traceln(red, "Добавляю путь " + nextTrack.getName());
 			
 			
 			copyRouteTracks.add(nextTrack);
 			sideTracks.put(nextTrack, isMoveBack);
 			moveDirection.put(nextTrack, dir);
-			traceln(purple, "Для пути " + nextTrack.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
-			traceln("Для пути " + nextTrack.getName() + " задаю движение по 1 варианту");
+			//traceln(purple, "Для пути " + nextTrack.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
+			//traceln("Для пути " + nextTrack.getName() + " задаю движение по 1 варианту");
 			
 			
-			traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
-			traceln("С пути " + nextTrack.getName() + " на путь " + track.getName() + ((!isNotHaveRoute(nextTrack, track, !dir) ? "есть маршрут" : "нет маршрута")) );
+			//traceln(red, "На путь " + nextTrack.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
+			//traceln("С пути " + nextTrack.getName() + " на путь " + track.getName() + ((!isNotHaveRoute(nextTrack, track, !dir) ? "есть маршрут" : "нет маршрута")) );
 			if (nextTrack.length(METER) < train.getLength(METER) + 15 || isNotHaveRoute(nextTrack, track, !dir)){// если длина пути для разворота меньше пути состава +40 метров, то ищем следующий
-				traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
+				//traceln(purple, "Длина пути для разворота меньше пути состава +15 метров, ищем следующий");
 				double haveLengthWay =+ (!isNotHaveRoute(nextTrack, track, !dir) ? nextTrack.length(METER) : 0);
-				traceln(purple, "Первый путь с длиной " + haveLengthWay);
-				traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
+				//traceln(purple, "Первый путь с длиной " + haveLengthWay);
+				//traceln(purple, "Нужна длина " + (train.getLength(METER) + 40));
 				int cntU = 0;
 				while ((train.getLength(METER) + 40) >= haveLengthWay && cntU != 10){
-					traceln(purple, "Есть длина уже " + haveLengthWay);
+					//traceln(purple, "Есть длина уже " + haveLengthWay);
 					////////////RailwaySwitch switchNext = isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch();
 					RailwaySwitch switchNext = (isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch());
 					switchNext = switchNext == null ? (!isMoveBack ? nextTrack.getStartSwitch() : nextTrack.getEndSwitch()) : switchNext;
 					RailwayTrack nextTreckLong = switchNext.getAvailableTracks(nextTrack).get(0);
 					nextTrack = nextTreckLong;
-					traceln(purple, "Длина до добавления " + haveLengthWay);
-					traceln(purple, "Длину до добавляем " + nextTreckLong.length(METER));
+					//traceln(purple, "Длина до добавления " + haveLengthWay);
+					//traceln(purple, "Длину до добавляем " + nextTreckLong.length(METER));
 					haveLengthWay = haveLengthWay + (!isNotHaveRoute(nextTreckLong, track, !dir) ? nextTreckLong.length(METER) : 0);
-					traceln(purple, "Текущая длина после добавления " + haveLengthWay);
+					//traceln(purple, "Текущая длина после добавления " + haveLengthWay);
 					copyRouteTracks.add(nextTreckLong);
-					traceln(purple, "Добавляю путь " + nextTreckLong.getName() + " с длиной " + nextTreckLong.length(METER));
+					//traceln(purple, "Добавляю путь " + nextTreckLong.getName() + " с длиной " + nextTreckLong.length(METER));
 					sideTracks.put(nextTreckLong, isMoveBack);
 					moveDirection.put(nextTreckLong, dir);
-					traceln("Для пути " + nextTrack.getName() + " задаю движение " + (isMoveBack ? "=Вперед=": "=Назад="));
+					//traceln("Для пути " + nextTrack.getName() + " задаю движение " + (isMoveBack ? "=Вперед=": "=Назад="));
 					cntU++;
 				}
 				
 			}
-			traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
+			//traceln(cyan, "МЕНЯЮ НАПРАВЛЕНИЕ ДВИЖЕНИЯ " + (!dir ? "ВПЕРЕД" : "НАЗАД"));
 			isMoveBack = !isMoveBack;
 			dir = !dir;
 		}
 		else{
-			traceln(black, "С предыдущего пути " + previousTrack.getName() + " можно попасть на путь " + track.getName());
+			//traceln(black, "С предыдущего пути " + previousTrack.getName() + " можно попасть на путь " + track.getName());
 		}
 	}
 	previousTrack = track;
 	copyRouteTracks.add(track);
 	sideTracks.put(track,  isMoveBack);
-	traceln("Для пути " + track.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
+	//traceln("Для пути " + track.getName() + " задаю движение " + (dir ? "=Вперед=": "=Назад="));
 	moveDirection.put(track, dir);
-	traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
+	//traceln(green, "На путь " + track.getName() + " двигаемся " + (dir ? "с начальной стрелки." : "с конечной стрелки"));
 	
 }
 for (RailwayTrack track : moveDirection.keySet()){
-	traceln(violet, "По пути " + track.getName() + " движемся " + (moveDirection.get(track) ? "=Вперед=": "=Назад="));
+	//traceln(violet, "По пути " + track.getName() + " движемся " + (moveDirection.get(track) ? "=Вперед=": "=Назад="));
 }
 
 for (int i = 0; i < copyRouteTracks.size(); i++){
@@ -18060,6 +18089,12 @@ car.track = copyCar.track;
 car.numInvoice = copyCar.numInvoice;
 car.finalStatus = copyCar.finalStatus;
 car.typeOwner = copyCar.typeOwner;
+
+car.maxWeightForSend = copyCar.maxWeightForSend;
+car.maxWeightForArrive = copyCar.maxWeightForArrive;
+car.maxLengthForSend = copyCar.maxLengthForSend;
+car.maxLengthForArrive = copyCar.maxLengthForArrive;
+
 car.changeStatus = copyCar.changeStatus;
 car.setPosition();
 car.setStatus();
@@ -19390,9 +19425,13 @@ while(railCars.cellExists(list, row, 1)){
 	double maxWeight = railCars.getCellNumericValue(list, row, 6);
 	double maxWeightForSend = railCars.getCellNumericValue(list, row, 7);
 	double maxWeightForArrive = railCars.getCellNumericValue(list, row, 8);
+	double maxLengthForSend = railCars.getCellNumericValue(list, row, 9);
+	double maxLengthForArrive = railCars.getCellNumericValue(list, row, 10);
 	RailCar car = new RailCar(type, model, productType, length, weigthSelf, (maxWeight - weigthSelf));
 	car.maxWeightForSend = maxWeightForSend;
 	car.maxWeightForArrive = maxWeightForArrive;
+	car.maxLengthForSend = maxLengthForSend;
+	car.maxLengthForArrive = maxLengthForArrive;
 	railCarsCollection.add(car);
 	row++;
 }
@@ -41565,6 +41604,15 @@ public class Tools implements Serializable {
     	return trainLength;
     }
     
+    public static List<RailCar> getTrainByCntOnTrack(int begin, int end, TrackEdge edge){
+    	List<RailCar> cars = new ArrayList();
+    	List<RailCar> carsOnTrack = edge.getRailCarsWithoutTrain();
+    	for (int i = begin; i < end; i++) {
+    		cars.add(carsOnTrack.get(i));
+    	}
+    	return cars;
+    }
+    
     
     /**
     Возвращает массу вагонов
@@ -41757,25 +41805,25 @@ public class TrainArrival {
 			<Text><![CDATA[import java.util.stream.Collectors;
 /**
  * TrainCleaner
- */	
+ */
 public class TrainCleaner implements Serializable {
-	
-	private List<TrackEdge> pops;
+
+    private List<TrackEdge> pops;
 
     /**
      * Конструктор по умолчанию
      */
-    
-	public List<TrackEdge> getPops(){
-		return pops;
-	}
-	
-	public void setPops(List<TrackEdge> pops) {
-		this.pops = pops;
-	}
-	
-	public TrainCleaner(List<TrackEdge> pops) {
-		this.pops = pops;
+
+    public List<TrackEdge> getPops(){
+        return pops;
+    }
+
+    public void setPops(List<TrackEdge> pops) {
+        this.pops = pops;
+    }
+
+    public TrainCleaner(List<TrackEdge> pops) {
+        this.pops = pops;
     }
 	
 	/*public List<TaskAction> getTasks(){
@@ -41804,124 +41852,128 @@ public class TrainCleaner implements Serializable {
 		}
 		return tasks;
 	}*/
-	
-	public List<TaskAction> getTasks(){
-		List<TaskAction> tasks = new ArrayList();
-		TrackEdge trackToClean = getFilledTracks().get(0); // путь, который необходимо расчистить (на котором находится меньше всего вагонов)
-		double trainLength = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())); // размер состава, который нужно переставить
-		//traceln("Размер состава, который нужно переставить " + trainLength);
-		Set<TrackEdge> usedEdges = new HashSet();
-		int prevCnt = 0;
-		while(trainLength > 1) { // пока весь состав с пути не будет убран
-			TrackEdge endTrack = getCorrectTrackByLength(trackToClean, usedEdges);
-			if (endTrack != null) {
-				usedEdges.add(endTrack);
-				trainLength = trainLength - endTrack.getFreeSpace();
-				//traceln(green, "Свободного мест на пути " + endTrack.getName() + " - " + endTrack.getFreeSpace());
-				//traceln(gold, "Размер оставшегося состава, который нужно переставить " + trainLength);
-				String type = "";
-				int cntVagons = 0;
-				if (trainLength > 1) {
-					type = "Полурейс формирования";
-					//traceln(purple, "Начинаю с " + prevCnt);
-					cntVagons = getCountVagonsForDecouple(trackToClean, trainLength, prevCnt);
-					prevCnt = cntVagons;
-					traceln(purple, "Выдаю вагонов для задачи отцепки " + cntVagons);
-				}
-				else {
-					type = "Полурейс формирования всех вагонов с пути";
-					//traceln(black, "Места хватает");
-					cntVagons = (int)endTrack.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).count();
-					//traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
-					//traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
-					
-				}
-				TaskAction task = new TaskAction(type, trackToClean.getSelf(), endTrack.getSelf(), cntVagons);
-				tasks.add(task);
-				//public TaskAction (String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon){
-			}
-			else {
-				tasks = new ArrayList();
-				break;
-			}
-		}
-		return tasks;
-	}
-	
-	/**
-	 * 
-	 * @param trackToClean - путь, с которого убираются вагоны
-	 * @param trainLength - длина состава, который остается после шага
-	 * @return - возврвщает количество вагонов, которое необходимо отцепить
-	 */
-	public int getCountVagonsForDecouple(TrackEdge trackToClean, double trainLength, int prevCnt) {
-		int cnt = 0;
-		double targetLength = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack()) - trainLength;
-		double length = 0;
-		List<RailCar> cars = trackToClean.getRailCarsOnTrack();
-		for (int i = prevCnt; i < cars.size(); i++) {
-			if (length + cars.get(i).length <= targetLength) {// если длина получающегося состава меньше длины отцепляемого состава 
-				length += cars.get(i).length;
-				cnt++;
-			}
-		}
-		return cnt;
-	}
-	
-	/**
-	 * 
-	 * @param usedEdges - пути исключения
-	 * @param trackToClean - путь, который необходимо расчистить
-	 * @return - возвращает путь, на котором поместиться весь состав, либо большая его часть
-	 */
-	public TrackEdge getCorrectTrackByLength(TrackEdge trackToClean, Set<TrackEdge> usedEdges) {
-		double length = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack());
-		TrackEdge edge = getFilledTracks()
-								.stream()
-								.filter(p-> p.getFreeSpace() >= length && !p.getSelf().getName().equals(trackToClean.getSelf().getName()) && !usedEdges.contains(p))// ищется путь, на котором поместиться весь состав с пути
-								.findFirst()
-								.orElse(null);
-		if (edge == null) {
-			List<TrackEdge> edges = getFilledTracks().stream().filter(p-> !usedEdges.contains(p) && !p.getSelf().getName().equals(trackToClean.getSelf().getName())).collect(Collectors.toList());
-			if (!edges.isEmpty()) {
-				edge = edges.stream().max((p1, p2) -> Double.compare(p1.getFreeSpace(), p2.getFreeSpace())).get(); // если состав не может польностью разместиться на пути, будет выбран путь с максимальной вместимостью
-			}
-		}
-		return edge;
-		                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-	}
-	/**
-	 * 
-	 * @return - возвращает список путей с вагонами, отсортированный по количеству свободного места
-	 */
-	public List<TrackEdge> getFilledTracks(){
-		List<TrackEdge> fullTracks = pops
-									.stream()
-									.filter(p-> !p.getSelf().isEmpty() /*&& !p.getRailCarsOnTrack().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))*/) // TODO Здесь нужно будет исправить после ошибки
-									.sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack()))))
-									.collect(Collectors.toList());
-		traceln("Треков, с маленьким количеством вагонов " + fullTracks.size());
-		if (fullTracks.isEmpty()) {
-			fullTracks = pops.stream().filter(p-> !p.getSelf().isEmpty()).sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).
-	                compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack())))).
-	                collect(Collectors.toList());
-		}
-		return fullTracks;
-	}
-	
-	public TrainCleaner() {
+
+    public List<TaskAction> getTasks(){
+        List<TaskAction> tasks = new ArrayList();
+        TrackEdge trackToClean = getFilledTracks().get(0); // путь, который необходимо расчистить (на котором находится меньше всего вагонов)
+        //traceln("Путь, который нужно расчистить " + trackToClean.getName() + " на нем вагонов " + trackToClean.getRailCarsWithoutTrain().size());
+        double trainLength = Tools.getLengthTrain(trackToClean.getRailCarsWithoutTrain()); // размер состава, который нужно переставить
+        //traceln("Размер состава, который нужно переставить " + trainLength);
+        Set<TrackEdge> usedEdges = new HashSet();
+        int prevCnt = 0;
+        while(trainLength > 1) { // пока весь состав с пути не будет убран
+            TrackEdge endTrack = getCorrectTrackByLength(trackToClean, usedEdges);
+            if (endTrack != null) {
+                usedEdges.add(endTrack);
+                trainLength = trainLength - endTrack.getFreeSpace();
+                //traceln(green, "Свободного мест на пути " + endTrack.getName() + " - " + endTrack.getFreeSpace());
+                //traceln(gold, "Размер оставшегося состава, который нужно переставить " + trainLength);
+                String type = "";
+                int cntVagons = 0;
+                if (trainLength > 1) {
+                    type = "Полурейс формирования";
+                    //traceln(purple, "Начинаю с " + prevCnt);
+                    cntVagons = getCountVagonsForDecouple(trackToClean, trainLength, prevCnt);
+                    trainLength = trainLength + endTrack.getFreeSpace() - Tools.getLengthTrain(Tools.getTrainByCntOnTrack(prevCnt, cntVagons, trackToClean));
+                    prevCnt = cntVagons;
+                   // traceln(purple, "Выдаю вагонов для задачи отцепки " + cntVagons);
+                    
+                }
+                else {
+                    type = "Полурейс формирования всех вагонов с пути";
+                    //traceln(black, "Места хватает");
+                    cntVagons = 0;//endTrack.getRailCarsWithoutTrain().size();
+                    //traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
+                    //traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
+
+                }
+                TaskAction task = new TaskAction(type, trackToClean.getSelf(), endTrack.getSelf(), cntVagons);
+                tasks.add(task);
+                //public TaskAction (String type, RailwayTrack startTrack, RailwayTrack endTrack, Integer cntVagon){
+            }
+            else {
+                tasks = new ArrayList();
+                break;
+            }
+        }
+        return tasks;
+    }
+    
+
+    /**
+     *
+     * @param trackToClean - путь, с которого убираются вагоны
+     * @param trainLength - длина состава, который остается после шага
+     * @return - возврвщает количество вагонов, которое необходимо отцепить
+     */
+    public int getCountVagonsForDecouple(TrackEdge trackToClean, double trainLength, int prevCnt) {
+        int cnt = 0;
+        double targetLength = Tools.getLengthTrain(trackToClean.getRailCarsWithoutTrain()) - trainLength;
+        double length = 0;
+        List<RailCar> cars = trackToClean.getRailCarsWithoutTrain();
+        for (int i = prevCnt; i < cars.size(); i++) {
+            if (length + cars.get(i).length <= targetLength) {// если длина получающегося состава меньше длины отцепляемого состава
+                length += cars.get(i).length;
+                cnt++;
+            }
+        }
+        return cnt;
     }
 
-	@Override
-	public String toString() {
-		return super.toString();
-	}
+    /**
+     *
+     * @param usedEdges - пути исключения
+     * @param trackToClean - путь, который необходимо расчистить
+     * @return - возвращает путь, на котором поместиться весь состав, либо большая его часть
+     */
+    public TrackEdge getCorrectTrackByLength(TrackEdge trackToClean, Set<TrackEdge> usedEdges) {
+        double length = Tools.getLengthTrain(trackToClean.getRailCarsOnTrack());
+        TrackEdge edge = getFilledTracks()
+                .stream()
+                .filter(p-> p.getFreeSpace() >= length && !p.getSelf().getName().equals(trackToClean.getSelf().getName()) && !usedEdges.contains(p))// ищется путь, на котором поместиться весь состав с пути
+                .findFirst()
+                .orElse(null);
+        if (edge == null) {
+            List<TrackEdge> edges = getFilledTracks().stream().filter(p-> !usedEdges.contains(p) && !p.getSelf().getName().equals(trackToClean.getSelf().getName())).collect(Collectors.toList());
+            if (!edges.isEmpty()) {
+                edge = edges.stream().max((p1, p2) -> Double.compare(p1.getFreeSpace(), p2.getFreeSpace())).get(); // если состав не может польностью разместиться на пути, будет выбран путь с максимальной вместимостью
+            }
+        }
+        return edge;
 
-	/**
-	 * Это число используется при сохранении состояния модели<br>
-	 * Его рекомендуется изменить в случае изменения класса
-	 */ 
-	private static final long serialVersionUID = 1L;
+    }
+    /**
+     *
+     * @return - возвращает список путей с вагонами, отсортированный по количеству свободного места
+     */
+    public List<TrackEdge> getFilledTracks(){
+        List<TrackEdge> fullTracks = pops
+                .stream()
+                .filter(p-> !p.getSelf().isEmpty() /*&& !p.getRailCarsOnTrack().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))*/) // TODO Здесь нужно будет исправить после ошибки
+                .sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack()))))
+                .collect(Collectors.toList());
+        traceln("Треков, с маленьким количеством вагонов " + fullTracks.size());
+        if (fullTracks.isEmpty()) {
+            fullTracks = pops.stream().filter(p-> !p.getSelf().isEmpty()).sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).
+                            compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack())))).
+                    collect(Collectors.toList());
+        }
+        return fullTracks;
+    }
+
+    public TrainCleaner() {
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    /**
+     * Это число используется при сохранении состояния модели<br>
+     * Его рекомендуется изменить в случае изменения класса
+     */
+    private static final long serialVersionUID = 1L;
 
 }]]></Text>
 		</JavaClass>
@@ -42040,14 +42092,54 @@ public class TrainSend{
      * 
      * @return возвращает путь, который может отправиться со станции, если занимает практически весь путь и вес подходит для отправки локомотивом
      */
-    public TrackEdge checkLengthTracksForSends() {
+    public TrackEdge checkTracksForSends() {
     	 TrackEdge needToSend = null;
     	 for (TrackEdge edge : getReadyTracks()) {
-    		 if (checkAvailableLength(edge) && isAvailableWeight(edge)) {
-    			 needToSend = edge;
+    		 if (checkAvailableLength(edge) // осталось 50м свободного места на пути
+    			|| isAvailableWeightLim(edge) // осталось меньше или равно 100т до максимального веса
+    				|| checkAvailableLength(edge)) { // осталось 50м до максимальной длины состава
+    			 if (isAvailableWeight(edge) && isAvailableLengthLim(edge)) {
+    				 needToSend = edge;
+    			 }
     		 }
     	 }
     	 return needToSend;
+    }
+    /*
+    Когда начинаем отправку:
+    По расписанию:
+    	когда состав имеет минимальную длину и минимальный вес для отправки
+    Когда состав приближен к максимальной полезной длине пути
+    Когда состав приближен к максимально-перевозимому весу локомотивом
+    Когда состав приближен к максимальной длине на перевозку локомотивом
+     */
+    
+    /**
+     * 
+     * @param edge - путь, который рассматривается
+     * @return - возвращает результат true, если на пути стоит состав, который может быть отправлен выбранным локомотивом
+     */
+    public boolean isAvailableLengthLim(TrackEdge edge) {
+    	boolean isAvailable = false;
+		if ((Tools.getWeightTrain(edge.getRailCarsWithoutTrain()) + locomotive.getWeight()) <= locomotive.maxLengthForSend) { // если локомотив пути меньше 50
+			isAvailable = true;
+		}
+    	return isAvailable;
+    }
+    
+    
+    
+    /**
+     * 
+     * @param edge - путь, который рассматривается
+     * @return - возвращает результат true, если на пути стоит состав, который приближен к Максимальной длине перевозимой локомотивом
+     */
+    public boolean checkAvailableLengthForLoco(TrackEdge edge) {
+    	boolean isAvailable = false;
+		if (locomotive.maxLengthForSend - (Tools.getWeightTrain(edge.getRailCarsWithoutTrain()) + locomotive.getWeight()) <= 50) { // если локомотив пути меньше 50
+			isAvailable = true;
+		}
+    	return isAvailable;
     }
     
     /**
@@ -42065,7 +42157,7 @@ public class TrainSend{
     }
     
     public List<TrackEdge> getReadyTracks(){
-    	List<TrackEdge> readyEdges = pops.stream().filter( p-> !p.getSelf().isEmpty() && p.getRailCarsOnTrack().stream().filter(t-> !t.type.equals("Локомотив")).allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
+    	List<TrackEdge> readyEdges = pops.stream().filter( p-> !p.getSelf().isEmpty() && p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
     	return readyEdges;
     }
     /**
@@ -42075,7 +42167,7 @@ public class TrainSend{
      */
     public boolean checkAvailableLength(TrackEdge edge) {
     	boolean isAvailable = false;
-		if (edge.getUsableLength() <= 20) { // если вместимость пути меньше 20 
+		if (edge.getFreeSpace() <= 50) { // если вместимость пути меньше 20 
 			isAvailable = true;
 		}
     	return isAvailable;
@@ -42102,7 +42194,7 @@ public class TrainSend{
      */
     public boolean isAvailableWeightLim(TrackEdge edge) {
     	boolean isAvailable = false;
-    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
+    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsWithoutTrain());
 		if (trainWeight <= locomotive.maxWeightForSend
 				&& trainWeight >= locomotive.maxWeightForSend - 100) {
 			isAvailable = true;

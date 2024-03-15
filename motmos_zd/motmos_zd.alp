@@ -1080,6 +1080,7 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1097,7 +1098,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[380]]></Code>
+							<Code><![CDATA[450]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1539,7 +1540,10 @@ return listCar;]]></Body>
 32. Отказаться от события вагона в пользу в логике при окончании движения для каждого вагона менять статус * 14.03.24
 28. Добавить в интерфейс минимальный вес и минимальную длину на отправку со станции * 13.03.24
 11. Добавить событие перерыв * 13.03.24
-9. Добавить событие обед * 13.03.24]]></Body>
+9. Добавить событие обед * 13.03.24
+34. Для задач обед, перерыв необходимо уточнять стоит ли кто-то на пути 5, если стоит, то едем на другой путь * 15.03.24
+35. Для задач обед, перерыва необходимо уточнять, стоит ли како-то локомотив на пути, если да, то не выбираем этот путь как конечный * 15.03.24
+13. Добавить событие пересменка * 15.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1708,7 +1712,7 @@ enterTasks.take(task);]]></Body>
 // TODO пока оставить, получается +- 1 час если ставить прибытие заявок + 12 часов 8. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
 10. Добавить событие экипировка
 12. Добавить событие заправка
-13. Добавить событие пересменка
+
 14. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
 16. Сформировать файл отчета
 // TODO оставить пока до планировщика 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
@@ -1717,7 +1721,10 @@ enterTasks.take(task);]]></Body>
 23. Чтобы не спамились задачи, должно быть не больше 10 расчисток
 27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку
 30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
-31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли]]></Body>
+31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
+32. Delay В logic может держать в delay не тот состав, исправить
+33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать
+]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1943,6 +1950,7 @@ if (listFronts.size() > 1){ // если есть 2 фронта на одном 
 		useFronts.add(frontB);
 		TaskAction task = new TaskAction();
 		task.type = "Отправка на фронт";
+		task.priority = 500;
 		task.front = frontB;
 		tasks.add(task);
 	}
@@ -1952,6 +1960,7 @@ for (Front front : getNotBlockedFronts()){
 	if (getRequestOnStationByFront(front.getName()).size() > 0 && !useFronts.contains(front)){ // если на станции есть вагоны по заявкам на отправку на фронт
 		TaskAction task = new TaskAction();
 		task.type = "Отправка на фронт";
+		task.priority = 500;
 		task.front = front;
 		tasks.add(task);
 	}
@@ -2127,6 +2136,7 @@ else{
 for (Front front : getFrontsNeedToPickUp()){
 	TaskAction task = new TaskAction();
 	task.type = "Уборка";
+	task.priority = 500;
 	task.front = front;
 	tasks.add(task);
 }
@@ -2327,7 +2337,7 @@ for (TrainArrival arrival : data.arrivalsCollection){
 		data.arrivalsDone.add(arrival);
 		TaskAction task = new TaskAction();
 		task.type = "Прибытие";
-		task.priority = 1000;
+		task.priority = 200;
 		task.trainArrival = arrival;
 		addTaskSuper(task);
 		break;
@@ -2536,7 +2546,7 @@ return edges.isEmpty() ? null : edges.stream().max((p1, p2) -> Double.compare(p1
 					<Body><![CDATA[RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
 TaskAction task = new TaskAction();
 task.type = "Отправка";
-task.priority = 1000;
+task.priority = 1050;
 TrackEdge startTrack = null;
 TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
 int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
@@ -2598,7 +2608,7 @@ if (startTrack != null){ // если путь, с которого можно з
 		TrackEdge finalEndTrack = getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && !p.getName().equals(startTrack.getName())).findFirst().orElse(finalEmptyTrack);
 		traceln(purple, "Перемещаю на путь " + finalEndTrack.getName());
 		//RailCar car = startTrack.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null);
-		addTask("Перемещение", startTrack.getSelf(), finalEndTrack.getSelf());
+		addTask("Перемещение", startTrack.getSelf(), finalEndTrack.getSelf(), null);
 	}
 	traceln(red, "+++++++++++++++++++++++++++++++++++++");
 	traceln(black, "Отправляю состав весом " + Tools.getWeightTrain(startTrack.getRailCarsWithoutTrain()) + " и длиной " + Tools.getLengthTrain(startTrack.getRailCarsWithoutTrain()));
@@ -2674,11 +2684,16 @@ enterTasks.take(task);]]></Body>
 						<Name><![CDATA[endTrack]]></Name>
 						<Type><![CDATA[RailwayTrack]]></Type>
 					</Parameter>
+					<Parameter>
+						<Name><![CDATA[loco]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
 					<Body><![CDATA[TaskAction task = add_taskAction();
 task.type = type;
 task.startTrack = startTrack;
 task.endTrack = endTrack;
 //task.car = car;
+task.locoForTask = loco;
 task.listTask = task.makeTasks();
 enterTasks.take(task);]]></Body>
 				</Function>
@@ -2973,6 +2988,7 @@ else{
 					<Body><![CDATA[if (isNeedFormation() && (!isHaveArriving() || !isEnoughPlace())){
 	TaskAction task = new TaskAction();
 	task.type = "Сортировка";
+	task.priority = 300;
 	addTaskSuper(task);
 }]]></Body>
 				</Function>
@@ -3184,7 +3200,8 @@ addTaskSuper(task);]]></Body>
 						<Type><![CDATA[RailCar]]></Type>
 					</Parameter>
 					<Body><![CDATA[RailwayTrack curEndTrack = null;
-if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty())){// если есть свободные пути, то движемся на путь 5
+if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty()) // если есть свободные пути
+	&& track5.getCars().stream().filter(p-> !(((RailCar)p).hashCode() == loco.hashCode())).count() == 0){//и на пути на стоит никто кроме нас
 	curEndTrack = track5;
 }
 else{// если нет свободных путей
@@ -3193,11 +3210,11 @@ else{// если нет свободных путей
 		curEndTrack = loco.getTrain().getTrack(false);
 	}
 	else{// если локомотив остановился не на приемо-отправочных путях
-		curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();
+		curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20 && !p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf();
 	}
 }
 activeSuperTasks++;
-addTask("Перерыв", loco.getTrack(), curEndTrack);]]></Body>
+addTask("Перерыв", loco.getTrack(), curEndTrack, loco);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -3211,9 +3228,10 @@ addTask("Перерыв", loco.getTrack(), curEndTrack);]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[for (RailCar car : data.locosInStation){
 	TaskAction task = new TaskAction();
+	RailCar loco = railCars.stream().filter(p-> p.hashLoco == car.hashCode()).findFirst().orElse(null);
 	task.type = "Обед";
-	task.priority = 1150;
-	task.locoForTask = car;
+	task.priority = 1200;
+	task.locoForTask = loco;
 	addTaskSuper(task);
 }]]></Body>
 				</Function>
@@ -3232,12 +3250,12 @@ addTask("Перерыв", loco.getTrack(), curEndTrack);]]></Body>
 						<Type><![CDATA[RailCar]]></Type>
 					</Parameter>
 					<Body><![CDATA[boolean makeTask = false;
-
 for (Agent train : Tools.getDelayPopulation(locoDelay)){
 	RailCar copyLoco = ((Train)train).getCars().get(0);
-	if (copyLoco.hashLoco == loco.hashCode()){
+	if (copyLoco.hashLoco == loco.hashLoco){
 		RailwayTrack curEndTrack = null;
-		if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty())){// если есть свободные пути, то движемся на путь 5
+		if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty()) 
+			&& track5.getCars().stream().filter(p-> !(((RailCar)p).hashCode() == loco.hashCode())).count() == 0){// если есть свободные пути, то движемся на путь 5
 			curEndTrack = track5;
 		}
 		else {// если нет свободных путей
@@ -3246,11 +3264,11 @@ for (Agent train : Tools.getDelayPopulation(locoDelay)){
 				curEndTrack = ((Train)train).getTrack(false);
 			}
 			else{// если локомотив остановился не на приемо-отправочных путях
-				curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20).findFirst().orElse(null).getSelf();
+				curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20 && !p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf();
 			}
 		}
 		makeTask = true;
-		addTask("Обед", ((Train)train).getTrack(false), curEndTrack);
+		addTask("Обед", ((Train)train).getTrack(false), curEndTrack, loco);
 		activeSuperTasks++;
 		break;
 	}
@@ -3299,7 +3317,7 @@ return res;]]></Body>
 					<Body><![CDATA[for (RailCar car : data.locosInStation){
 	TaskAction task = new TaskAction();
 	task.type = "Пересменка";
-	task.priority = 1150;
+	task.priority = 1200;
 	task.locoForTask = car;
 	addTaskSuper(task);
 }]]></Body>
@@ -4561,6 +4579,9 @@ switch (typeTask){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[queuing]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[self.QUEUING_PRIORITY]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[priority]]></Name>
@@ -4585,9 +4606,6 @@ switch (typeTask){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[forceStatisticsCollection]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[true]]></Code>
-							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
@@ -4953,7 +4971,7 @@ switch(agent.type){
 			enterTasksSuper.take(agent);
 		}
 		else{
-			pauseSimulation();
+			//pauseSimulation();
 		}
 		break;
 	case "Отправка на фронт" :
@@ -5130,7 +5148,7 @@ switch(agent.type){
 						<Parameter>
 							<Name><![CDATA[condition]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[activeSuperTasks == 1]]></Code>
+								<Code><![CDATA[activeSuperTasks == 1 && locoDelay.size() == 0]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -12259,29 +12277,6 @@ logic.enterStart.take(agent);]]></Code>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
-				<Rectangle>
-					<Id>1709651164302</Id>
-					<Name><![CDATA[rectangle32]]></Name>
-					<X>-140</X><Y>2290</Y>
-					<Label><X>10</X><Y>10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<OnClickCode><![CDATA[traceln(data.requestsCollection.stream().filter(p-> p.getIsArrive()).count());]]></OnClickCode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<ZHeight>10</ZHeight>
-					<LineWidth>1</LineWidth>
-					<LineColor>-16777216</LineColor>
-					<LineMaterial>null</LineMaterial>
-					<LineStyle>SOLID</LineStyle>
-					<Width>80</Width>
-					<Height>60</Height>
-					<Rotation>0.0</Rotation>
-					<FillColor>-1</FillColor>
-					<FillMaterial>null</FillMaterial>
-				</Rectangle>
 				<Line>
 					<Id>1710405904332</Id>
 					<Name><![CDATA[line24]]></Name>
@@ -21040,14 +21035,17 @@ for (int i = 0; i < task.listTask.size(); i++){// рассматриваем с 
 			newListTasks.add(getTaskCreate());
 			break;
 		case "Движение" :
-			newListTasks.add(getTaskMoving(cntMoving, nextTask, simpleTask, useStartTrack));
-			useStartTrack = true;
-			cntMoving++;
+			Task endTask = getTaskMoving(cntMoving, nextTask, simpleTask, useStartTrack);
+			if (endTask != null){
+				newListTasks.add(endTask );
+				useStartTrack = true;
+				cntMoving++;
+			}
 			break;
 		case "Движение кон" :
-			Task endTask = getTaskMovingEnd();
-			if (endTask != null){
-				newListTasks.add(endTask);
+			Task endTask1 = getTaskMovingEnd();
+			if (endTask1 != null){
+				newListTasks.add(endTask1);
 			}
 			break;
 		case "Движение в цех" :
@@ -21289,7 +21287,13 @@ else if (nextTask != null && nextTask.getType().equals("Расцепка")
 	offset = endTrack.length(METER) - (26 * sizeLiftTrain + koef);
 }
 else{
-	offset = targetTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
+	traceln("Посчитал по этому");
+	if (type.equals("Обед") || type.equals("Перерыв") || targetTrack.getName().equals(main.track6.getName())){
+		offset = 15;
+	}
+	else{
+		offset = -1.0;
+	}
 }
 //traceln("Возвращаю " + offset);
 return offset;]]></Body>
@@ -21399,8 +21403,12 @@ else {
 	curStartTrack = startTrack;
 }
 offset = getOffsetForTask(curEndTrack, currTask.getType(), nextTask);
-
 task = new Task("Движение", curStartTrack, curEndTrack, offset);
+traceln("loco " + locoForTask);
+if ((type.equals("Обед") || type.equals("Перерыв")) 
+	&& locoForTask.getTrack().getName().equals(main.track5.getName())){
+	task = null;
+}
 return task;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -21572,6 +21580,9 @@ if (type.contains("Отправка") && main.queueTasksAction.size() < 1 && mai
 	task = new Task("Движение кон", endTrack, finalEndTrack.getSelf(), -1.0);
 	//traceln(yellow, "Задача, начальный путь " + task.getStartTrack().getName());
 	//traceln("А смещение " + task.getOffset());
+}
+if (startTrack.equals(main.track6)){
+	task = new Task("Движение кон", startTrack, finalEndTrack.getSelf(), -1.0);
 }
 return task;]]></Body>
 				</Function>
@@ -26474,7 +26485,7 @@ if (nextTask != null && nextTask.getType().equals("Расцепка") && !endTra
 	traceln("Длина состава, который оставляем " + Tools.getLengthTrain(cars));
 	traceln(red, "==============================================================");*/
 	if ((endTrack.getFreeSpace(true) - 40) < Tools.getLengthTrain(cars)){// Если расстояние с начальной стороны пути меньше состава, и состав меньше 1 TODO Проверка сейчас только с одной стороны
-		distancePush = Tools.getLengthTrain(cars) - (endTrack.getFreeSpace(true)-15); // Убрал -40 из скобки
+		distancePush = Tools.getLengthTrain(cars) - (endTrack.getFreeSpace(true)-30); // Убрал -40 из скобки
 	}
 	if (distancePush > 0){
 		needPush = true;
@@ -28150,7 +28161,7 @@ if (currentTask.getType().equals("Движение кон")
 	traceln(red, "не сработал");
 }*/
 if (currentTask.getType().equals("Движение") || currentTask.getType().equals("Движение в цех") || currentTask.getType().equals("Движение кон")){
-	
+	traceln(red, "Зашел в движение");
 	if (cntTask == 0){
 		train = (Train)delayLoco.get(0);
 		if (currentTask.getType().equals("Движение в цех") 
@@ -28163,21 +28174,24 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 	}
 	else{
 		if (currentTask.getStartTrack().getTrains().size() > 1){
-			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
-			//traceln("Количество составов " + currentTask.getStartTrack().getTrains().size());
+			traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
+			traceln("Количество составов " + currentTask.getStartTrack().getTrains().size());
 			for (Agent train1 : currentTask.getStartTrack().getTrains()){
 				if (((Train)train1).getCars().stream().anyMatch(p-> p.type.equals("Локомотив"))){
 					train = ((Train)train1);
 					break;
 				}
 			}
+			traceln(red, "Нашел состав 1 " + train);
 		}
 		else if (agent.listTask.get(cntTask - 1).getType().equals("Ожидание")){
 			train = (Train)currentTask.getEndTrack().getTrains().get(0);
+			traceln(red, "Нашел состав 2 " + train);
 		}
 		else{
 			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
 			train = (Train)currentTask.getStartTrack().getTrains().get(0);
+			traceln(red, "Нашел состав 3 " + train);
 		}
 	}
 }
@@ -28214,12 +28228,13 @@ else if (currentTask.getType().equals("Терминирование")){
 }
 
 if(train != null && !currentTask.getType().equals("Сцепка")){
+	traceln("Вытаскиваю состав из Delay");
 	train.codeForLogic = this.hashCode();
 	train.currentTask = currentTask;
 	getDelay(train);
 }
 else{
-	//traceln("Состав равен null");
+	traceln("Состав равен null");
 }
 cntTask++;]]></Code>
 							</Value>

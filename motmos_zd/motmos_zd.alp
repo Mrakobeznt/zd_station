@@ -1080,7 +1080,6 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1098,7 +1097,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[18900]]></Code>
+							<Code><![CDATA[380]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1129,7 +1128,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1710403200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[11]]></Code>
+							<Code><![CDATA[getHoursUntilDinner()]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1139,6 +1138,37 @@ setTracksActive();]]></Action>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
 					<Action><![CDATA[setDinnerTasks();]]></Action>
+				</Event>
+				<Event>
+					<Id>1710500137041</Id>
+					<Name><![CDATA[makeShift]]></Name>
+					<X>680</X><Y>1690</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties TriggerType="timeout" Mode="cyclic">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1710403200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[getHoursUntilShift()]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[12]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</RecurrenceCode>
+						<Condition><![CDATA[false]]></Condition>
+					</Properties>
+					<Action><![CDATA[setShiftTask();]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -1733,7 +1763,13 @@ keyIndicators.initSettings();// Настройка интерфейса для �
 
 interfaceSettings.initSettings(); // Настройка интерфейса для работы модели
 
-setTrackEdges();]]></Body>
+setTrackEdges();
+
+makeBreak.reset();
+makeBreak.restart(getHoursUntilDinner());
+
+makeShift.reset();
+makeShift.restart(getHoursUntilShift());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -3008,7 +3044,7 @@ enterTasks.take(newTask);]]></Body>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1709578456203</Id>
 					<Name><![CDATA[isHaveArriving]]></Name>
-					<X>1610</X><Y>2540</Y>
+					<X>1300</X><Y>2570</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3220,6 +3256,109 @@ for (Agent train : Tools.getDelayPopulation(locoDelay)){
 	}
 }
 return makeTask;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710499047444</Id>
+					<Name><![CDATA[getHoursUntilShift]]></Name>
+					<X>510</X><Y>1740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double curTime = startDate.getMinutes() + startDate.getHours()*60;
+double morningTime = data.startMorningShift.getMinutes() + data.startMorningShift.getHours()*60;
+double eveningTime = data.startEveningShift.getMinutes() + data.startEveningShift.getHours()*60;
+double res = 0;
+
+if (curTime > morningTime && curTime <= eveningTime){// сейчас 13:00 18 - 13 = 5 6 - 13 = 7 done
+    res = eveningTime - curTime;
+}
+else if (curTime <= morningTime && curTime < eveningTime){ // сейчас 01:00 18 - 1 = 17 6 - 1 = 5 done
+    res = morningTime - curTime;
+}
+else{ // сейчас 19:00 18 - 19 = -1 6 - 19 = 5 done
+    res = morningTime + (1440 - curTime);
+}
+traceln("Начальная дата " + startDate);
+traceln("Дата Утренней пересменки " + data.startMorningShift);
+traceln("Дата Вечерней пересменки " + data.startEveningShift);
+return res;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710500895812</Id>
+					<Name><![CDATA[setShiftTask]]></Name>
+					<X>1000</X><Y>2780</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (RailCar car : data.locosInStation){
+	TaskAction task = new TaskAction();
+	task.type = "Пересменка";
+	task.priority = 1150;
+	task.locoForTask = car;
+	addTaskSuper(task);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1710500895814</Id>
+					<Name><![CDATA[makeShiftTask]]></Name>
+					<X>1010</X><Y>2800</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[loco]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Body><![CDATA[boolean makeTask = false;
+for (Agent train : Tools.getDelayPopulation(locoDelay)){
+	RailCar copyLoco = ((Train)train).getCars().get(0);
+	if (copyLoco.hashLoco == loco.hashCode()){
+		List<RailCar> cars = new ArrayList();
+		cars.add(copyLoco);
+		makeTask = true;
+		addTask("Пересменка", track6, ((Train)train).getTrack(false), cars, false);
+		activeSuperTasks++;
+		
+		break;
+	}
+}
+
+return makeTask;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710501454799</Id>
+					<Name><![CDATA[getHoursUntilDinner]]></Name>
+					<X>690</X><Y>1740</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double curTime = startDate.getMinutes() + startDate.getHours()*60;
+double morningTime = data.startMorningDinner.getMinutes() + data.startMorningDinner.getHours()*60;
+double eveningTime = data.startEveningDinner.getMinutes() + data.startEveningDinner.getHours()*60;
+double res = 0;
+
+if (curTime > morningTime && curTime <= eveningTime){// сейчас 13:00 18 - 13 = 5 6 - 13 = 7 done
+    res = eveningTime - curTime;
+}
+else if (curTime <= morningTime && curTime < eveningTime){ // сейчас 01:00 18 - 1 = 17 6 - 1 = 5 done
+    res = morningTime - curTime;
+}
+else{ // сейчас 19:00 18 - 19 = -1 6 - 19 = 5 done
+    res = morningTime + (1440 - curTime);
+}
+return res;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -4790,6 +4929,7 @@ if (queueTasksAction.size() == 0 && activeTasks == 0 && activeSuperTasks > 0 && 
 }
 traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
 traceln(purple, "Исполнение задачи " + agent.type);
+traceln(purple, "Дата " + date());
 traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
 switch(agent.type){
 	case "Прибытие" :
@@ -4806,6 +4946,14 @@ switch(agent.type){
 	case "Обед" :
 		if (!makeDinnerTask(((TaskAction)agent).locoForTask)){
 			enterTasksSuper.take(agent);
+		}
+		break;
+	case "Пересменка" :
+		if (!makeShiftTask(((TaskAction)agent).locoForTask)){
+			enterTasksSuper.take(agent);
+		}
+		else{
+			pauseSimulation();
 		}
 		break;
 	case "Отправка на фронт" :
@@ -14002,7 +14150,7 @@ else{
 	main.data.removeCars.add(this);
 }
 else{
-	
+	main.data.removeLocos.add(this);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -19070,6 +19218,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Date()]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -19082,6 +19233,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Date()]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -19094,6 +19248,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Date()]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -19106,6 +19263,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Date()]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -19118,6 +19278,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Date()]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="PlainVariable">
@@ -19130,6 +19293,9 @@ sourceStation.inject();]]></Code>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[Date]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new Date()]]></Code>
+						</InitialValue>
 					</Properties>
 				</Variable>
 				<Variable Class="CollectionVariable">
@@ -21152,6 +21318,9 @@ if (type.equals("Перерыв")){
 }
 if (type.equals("Обед")){
 	delayTime = main.data.delayDinner;
+}
+if (type.equals("Пересменка")){
+	delayTime = main.data.delayShiftChange;
 }
 task = new Task("Ожидание", null, curEndTrack, 0, delayTime);
 return task;]]></Body>
@@ -26199,6 +26368,10 @@ else{
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[train]]></Name>
+						<Type><![CDATA[Train]]></Type>
+					</Parameter>
 					<Body><![CDATA[boolean direction = false;
 Task previousTask = null;
 if (cntTask > 2){
@@ -26207,7 +26380,7 @@ if (cntTask > 2){
 }
 
 if (superTask.type.equals("Прибытие состава на станцию") || superTask.type.contains("со станции") || (previousTask != null && previousTask.getType().equals("Ожидание") /*&& previousTask.getEndTrack().equals(main.track10p1)*/)){
-	//traceln("Сработало направление");
+	traceln("Сработало направление");
 	if (superTask.type.contains("со станции") && currentTask.getEndTrack().equals(main.track6)){
 		direction = true;
 	}
@@ -26216,10 +26389,15 @@ if (superTask.type.equals("Прибытие состава на станцию")
 	}
 }
 else{
-	//traceln("Не сработал направление ");
-	direction = true;
+	if (train.getTrack(false).equals(main.track6) && train.getCars().size() < 2){
+		direction = false;
+	}
+	else{
+		traceln("Не сработал направление ");
+		direction = true;
+	}
 }
-//traceln("Вернул направление " + (!direction));
+traceln("Вернул направление " + (direction));
 return direction;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -26874,7 +27052,7 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[isForward]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[getDirection()]]></Code>
+								<Code><![CDATA[getDirection(self.train)]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -26892,7 +27070,7 @@ delay.stopDelayForAll();]]></Code>
 						<Parameter>
 							<Name><![CDATA[direction]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[!getDirection()]]></Code>
+								<Code><![CDATA[!getDirection(self.train)]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>

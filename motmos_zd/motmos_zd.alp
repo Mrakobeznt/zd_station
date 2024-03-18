@@ -1607,7 +1607,10 @@ return listCar;]]></Body>
 35. Для задач обед, перерыва необходимо уточнять, стоит ли како-то локомотив на пути, если да, то не выбираем этот путь как конечный * 15.03.24
 13. Добавить событие пересменка * 15.03.24
 35 Исправить ситуацию с поиском маршрута через путь, на котором стоим  * 18.03.24
-33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать * 18.03.24]]></Body>
+33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать * 18.03.24
+10. Добавить событие экипировка * 18.03.24
+12. Добавить событие заправка * 18.03.24
+37. Добавить повышенный приоритет на составы на отправку на грузовой фронт, если в нем есть вагоны контактного графика * 18.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1774,8 +1777,6 @@ enterTasks.take(task);]]></Body>
 7. Разработать экран отправлений составов
 7. Продумать отображение заявок на экране
 // TODO пока оставить, получается +- 1 час если ставить прибытие заявок + 12 часов 8. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
-10. Добавить событие экипировка
-12. Добавить событие заправка
 14. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
 16. Сформировать файл отчета
 // TODO оставить пока до планировщика 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
@@ -1787,7 +1788,8 @@ enterTasks.take(task);]]></Body>
 31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
 32. Delay В logic может держать в delay не тот состав, исправить
 34. Нужно что-то сделать со временем срабатываения событий
-36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина]]></Body>
+36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина
+]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1955,7 +1957,8 @@ return tracksEdges;]]></Body>
 						<Name><![CDATA[front]]></Name>
 						<Type><![CDATA[Front]]></Type>
 					</Parameter>
-					<Body><![CDATA[FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), getCarsToSendForFront(front.getName()), getEngine().date());
+					<Body><![CDATA[List<Integer> carsForFront = getCarsToSendForFront(front.getName());
+FormationOptimizer fo = new FormationOptimizer(front, getPopsWithoutAvoid(), carsForFront, getEngine().date());
 Set<RailwayTrack> trackWithTargetCars = new HashSet();
 fo.getCarsForSendtoFront().forEach(p-> {
 trackWithTargetCars.add(p.getTrack());});
@@ -2012,8 +2015,13 @@ if (listFronts.size() > 1){ // если есть 2 фронта на одном 
 		//traceln("В условии");
 		useFronts.add(frontB);
 		TaskAction task = new TaskAction();
+		if (isHaveContactCars(frontB.getName())){
+			task.priority = 1110;
+		}
+		else{
+			task.priority = 500;
+		}
 		task.type = "Отправка на фронт";
-		task.priority = 500;
 		task.front = frontB;
 		tasks.add(task);
 	}
@@ -2023,7 +2031,12 @@ for (Front front : getNotBlockedFronts()){
 	if (getRequestOnStationByFront(front.getName()).size() > 0 && !useFronts.contains(front)){ // если на станции есть вагоны по заявкам на отправку на фронт
 		TaskAction task = new TaskAction();
 		task.type = "Отправка на фронт";
-		task.priority = 500;
+		if (isHaveContactCars(front.getName())){
+			task.priority = 1110;
+		}
+		else{
+			task.priority = 500;
+		}
 		task.front = front;
 		tasks.add(task);
 	}
@@ -3579,6 +3592,36 @@ if (loco != null){
 	}
 }
 return makeTask;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1710793696363</Id>
+					<Name><![CDATA[isHaveContactCars]]></Name>
+					<X>1300</X><Y>2470</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[numFront]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Body><![CDATA[Front front = getFrontByNum(numFront);
+boolean isHave = false;
+List<Request> requsts = getRequestOnStationByFront(numFront);
+if (!front.isBlockedForSend()){
+	come:
+	for (Request req : requsts.stream().filter(p-> data.contactRequests.contains(p)).collect(Collectors.toList())){ // сначала ищем вагоны по заявкам контактного графика
+		for (RailCar car : getCarsOnPopsTracks()){
+			if (conditionForSendVagon(car, req, "Ожидание отправки на грузовой фронт")){
+				isHave = true;
+				break come;
+			}
+		}
+	}
+}
+return isHave;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>

@@ -1003,7 +1003,7 @@ getEngine().setRealTimeScale(1000);]]></Action>
 				<Event>
 					<Id>1702909349273</Id>
 					<Name><![CDATA[event]]></Name>
-					<X>760</X><Y>1640</Y>
+					<X>250</X><Y>2745</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1024,7 +1024,7 @@ getEngine().setRealTimeScale(1000);]]></Action>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
-							<Code><![CDATA[0.2]]></Code>
+							<Code><![CDATA[1]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</RecurrenceCode>
 						<Condition><![CDATA[activeTasks != 1
@@ -1040,7 +1040,7 @@ if (activeSuperTasks == 0){
 				<Event>
 					<Id>1706277049766</Id>
 					<Name><![CDATA[addTasks]]></Name>
-					<X>570</X><Y>1640</Y>
+					<X>155</X><Y>2745</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1080,7 +1080,8 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<X>450</X><Y>1640</Y>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
+					<X>390</X><Y>2740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1110,8 +1111,8 @@ setTracksActive();]]></Action>
 				</Event>
 				<Event>
 					<Id>1710320011169</Id>
-					<Name><![CDATA[makeBreak]]></Name>
-					<X>570</X><Y>1690</Y>
+					<Name><![CDATA[makeDinner]]></Name>
+					<X>155</X><Y>2785</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1142,7 +1143,7 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1710500137041</Id>
 					<Name><![CDATA[makeShift]]></Name>
-					<X>680</X><Y>1690</Y>
+					<X>155</X><Y>2810</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1169,6 +1170,37 @@ setTracksActive();]]></Action>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
 					<Action><![CDATA[setShiftTask();]]></Action>
+				</Event>
+				<Event>
+					<Id>1710770060133</Id>
+					<Name><![CDATA[makeRefuel]]></Name>
+					<X>155</X><Y>2835</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties TriggerType="timeout" Mode="cyclic">
+						<Timeout Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+						</Timeout>
+						<Rate Class="CodeUnitValue">
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="RateUnits"><![CDATA[PER_MINUTE]]></Unit>
+						</Rate>
+						<OccurrenceAtTime>true</OccurrenceAtTime>
+						<OccurrenceDate>1710403200000</OccurrenceDate>
+						<OccurrenceTime Class="CodeUnitValue">
+							<Code><![CDATA[randomTime()]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</OccurrenceTime>
+						<RecurrenceCode Class="CodeUnitValue">
+							<Code><![CDATA[24]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
+						</RecurrenceCode>
+						<Condition><![CDATA[false]]></Condition>
+					</Properties>
+					<Action><![CDATA[setRefuelTask();]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -1542,7 +1574,9 @@ return listCar;]]></Body>
 9. Добавить событие обед * 13.03.24
 34. Для задач обед, перерыв необходимо уточнять стоит ли кто-то на пути 5, если стоит, то едем на другой путь * 15.03.24
 35. Для задач обед, перерыва необходимо уточнять, стоит ли како-то локомотив на пути, если да, то не выбираем этот путь как конечный * 15.03.24
-13. Добавить событие пересменка * 15.03.24]]></Body>
+13. Добавить событие пересменка * 15.03.24
+35 Исправить ситуацию с поиском маршрута через путь, на котором стоим  * 18.03.24
+33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать * 18.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1711,7 +1745,6 @@ enterTasks.take(task);]]></Body>
 // TODO пока оставить, получается +- 1 час если ставить прибытие заявок + 12 часов 8. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
 10. Добавить событие экипировка
 12. Добавить событие заправка
-
 14. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
 16. Сформировать файл отчета
 // TODO оставить пока до планировщика 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
@@ -1722,9 +1755,7 @@ enterTasks.take(task);]]></Body>
 30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
 31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
 32. Delay В logic может держать в delay не тот состав, исправить
-33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать
 34. Нужно что-то сделать со временем срабатываения событий
-35 Исправить ситуацию с поиском маршрута через путь, на котором стоим
 36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1773,8 +1804,8 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 
 setTrackEdges();
 
-makeBreak.reset();
-makeBreak.restart(getHoursUntilDinner());
+makeDinner.reset();
+makeDinner.restart(getHoursUntilDinner());
 
 makeShift.reset();
 makeShift.restart(getHoursUntilShift());]]></Body>
@@ -3200,21 +3231,27 @@ addTaskSuper(task);]]></Body>
 						<Type><![CDATA[RailCar]]></Type>
 					</Parameter>
 					<Body><![CDATA[RailwayTrack curEndTrack = null;
-if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty()) // если есть свободные пути
-	&& track5.getCars().stream().filter(p-> !(((RailCar)p).hashCode() == loco.hashCode())).count() == 0){//и на пути на стоит никто кроме нас
-	curEndTrack = track5;
-}
-else{// если нет свободных путей
-	if (loco != null // если локомотив стоит на приемо-отправочных путях
-		&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(loco.getTrain().getTrack(false).getName()))){
-		curEndTrack = loco.getTrain().getTrack(false);
+RailCar copyLoco = railCars.stream().filter(p-> p.hashLoco == loco.hashLoco).findFirst().orElse(null);
+if (copyLoco != null){
+	
+	if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty()) // если есть свободные пути
+		&& track5.getCars().stream().filter(p-> !(((RailCar)p).hashCode() == copyLoco.hashCode())).count() == 0){//и на пути на стоит никто кроме нас
+		curEndTrack = track5;
 	}
-	else{// если локомотив остановился не на приемо-отправочных путях
-		curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20 && !p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf();
+	else{// если нет свободных путей
+		if (loco != null // если локомотив стоит на приемо-отправочных путях
+			&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(copyLoco.getTrain().getTrack(false).getName()))){
+			curEndTrack = copyLoco.getTrain().getTrack(false);
+		}
+		else{// если локомотив остановился не на приемо-отправочных путях
+			curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20 && !p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf();
+		}
 	}
-}
-activeSuperTasks++;
-addTask("Перерыв", loco.getTrack(), curEndTrack, loco);]]></Body>
+	if (curEndTrack != null){
+		activeSuperTasks++;
+		addTask("Перерыв", copyLoco.getTrack(), curEndTrack, copyLoco);
+	}
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -3285,7 +3322,7 @@ return makeTask;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1710499047444</Id>
 					<Name><![CDATA[getHoursUntilShift]]></Name>
-					<X>510</X><Y>1740</Y>
+					<X>155</X><Y>2880</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3342,19 +3379,20 @@ return res;]]></Body>
 						<Type><![CDATA[RailCar]]></Type>
 					</Parameter>
 					<Body><![CDATA[boolean makeTask = false;
-for (Agent train : Tools.getDelayPopulation(locoDelay)){
-	RailCar copyLoco = ((Train)train).getCars().get(0);
-	if (copyLoco.hashLoco == loco.hashCode()){
-		List<RailCar> cars = new ArrayList();
-		cars.add(copyLoco);
-		makeTask = true;
-		addTask("Пересменка", track6, ((Train)train).getTrack(false), cars, false);
-		activeSuperTasks++;
-		
-		break;
+if (loco != null){
+	for (Agent train : Tools.getDelayPopulation(locoDelay)){
+		RailCar copyLoco = ((Train)train).getCars().get(0);
+		if (copyLoco.hashLoco == loco.hashCode()){
+			List<RailCar> cars = new ArrayList();
+			cars.add(copyLoco);
+			makeTask = true;
+			addTask("Пересменка", track6, ((Train)train).getTrack(false), cars, false);
+			activeSuperTasks++;
+			
+			break;
+		}
 	}
 }
-
 return makeTask;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3362,7 +3400,7 @@ return makeTask;]]></Body>
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1710501454799</Id>
 					<Name><![CDATA[getHoursUntilDinner]]></Name>
-					<X>690</X><Y>1740</Y>
+					<X>155</X><Y>2900</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -3382,6 +3420,68 @@ else{ // сейчас 19:00 18 - 19 = -1 6 - 19 = 5 done
     res = morningTime + (1440 - curTime);
 }
 return res;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1710770509265</Id>
+					<Name><![CDATA[randomTime]]></Name>
+					<X>350</X><Y>2875</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[Random rn = new Random();
+int answer = rn.nextInt(24 - 0 + 1) + 0;
+return answer;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710770648647</Id>
+					<Name><![CDATA[setRefuelTask]]></Name>
+					<X>1000</X><Y>2830</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[for (RailCar car : data.locosInStation){
+	TaskAction task = new TaskAction();
+	task.type = "Заправка";
+	task.priority = 1200;
+	task.locoForTask = car;
+	addTaskSuper(task);
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1710770648649</Id>
+					<Name><![CDATA[makeRefuelTask]]></Name>
+					<X>1010</X><Y>2850</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[loco]]></Name>
+						<Type><![CDATA[RailCar]]></Type>
+					</Parameter>
+					<Body><![CDATA[boolean makeTask = false;
+if (loco != null){
+	for (Agent train : Tools.getDelayPopulation(locoDelay)){
+		RailCar copyLoco = ((Train)train).getCars().get(0);
+		if (copyLoco.hashLoco == loco.hashCode()){
+			List<RailCar> cars = new ArrayList();
+			cars.add(copyLoco);
+			makeTask = true;
+			addTask("Заправка", track6, ((Train)train).getTrack(false), cars, false);
+			activeSuperTasks++;
+			break;
+		}
+	}
+}
+return makeTask;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -4975,8 +5075,10 @@ switch(agent.type){
 		if (!makeShiftTask(((TaskAction)agent).locoForTask)){
 			enterTasksSuper.take(agent);
 		}
-		else{
-			//pauseSimulation();
+		break;
+	case "Заправка" :
+		if (!makeRefuelTask(((TaskAction)agent).locoForTask)){
+			enterTasksSuper.take(agent);
 		}
 		break;
 	case "Отправка на фронт" :
@@ -12353,6 +12455,50 @@ logic.enterStart.take(agent);]]></Code>
 						<Style>0</Style>
 					</Font>
 					<Alignment>RIGHT</Alignment>
+				</Text>
+				<RoundedRectangle>
+					<Id>1710770082471</Id>
+					<Name><![CDATA[roundRectangle25]]></Name>
+					<X>120</X><Y>2700</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>350</Width>
+					<Height>245</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>10</ArcRadius>
+				</RoundedRectangle>
+				<Text>
+					<Id>1710770082473</Id>
+					<Name><![CDATA[text61]]></Name>
+					<X>275</X><Y>2710</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Фронты]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
 				</Text>
 			</Presentation>
 
@@ -21334,6 +21480,9 @@ if (type.equals("Обед")){
 if (type.equals("Пересменка")){
 	delayTime = main.data.delayShiftChange;
 }
+if (type.equals("Заправка")){
+	delayTime = main.data.delayFillingLoco;
+}
 task = new Task("Ожидание", null, curEndTrack, 0, delayTime);
 return task;]]></Body>
 				</Function>
@@ -26366,18 +26515,23 @@ return  offset;]]></Body>
 						<Name><![CDATA[train]]></Name>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
-					<Body><![CDATA[if (train.size() > 1){
+					<Body><![CDATA[if ((superTask.type.equals("Пересменка") || superTask.type.equals("Заправка")) && currentTask.getType().equals("Ожидание")){
+	enterDelay.take(train);
+}
+else{
+	if (train.size() > 1){
 	delayTrains.stopDelay(((Agent)train));
 	//traceln("Высбобоил из составов");
 	
-}
-else if (train.getCars().get(0).type.equals("Локомотив")){
-	delayLoco.stopDelay(((Agent)train));
-	//traceln("Высбобоил из локо");
-}
-else{
-	delayTrains.stopDelay(((Agent)train));
-	//traceln("Высбобоил из локо");
+	}
+	else if (train.getCars().get(0).type.equals("Локомотив")){
+		delayLoco.stopDelay(((Agent)train));
+		//traceln("Высбобоил из локо");
+	}
+	else{
+		delayTrains.stopDelay(((Agent)train));
+		//traceln("Высбобоил из локо");
+	}
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -28231,7 +28385,12 @@ else if (currentTask.getType().equals("Сцепка")){
 }
 else if (currentTask.getType().equals("Ожидание")){
 	RailwayTrack trackEnd = currentTask.getEndTrack();
-	train = (Train)trackEnd.getTrains().get(0);
+	if (superTask.type.equals("Пересменка") || superTask.type.equals("Заправка")){
+		train = main.add_trains();
+	}
+	else{
+		train = (Train)trackEnd.getTrains().get(0);
+	}
 }
 
 else if (currentTask.getType().equals("Терминирование")){
@@ -28771,7 +28930,12 @@ delay.stopDelayForAll();]]></Code>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[agent.codeForLogic = 0;
-returnsAgents(agent);
+if (superTask.type.equals("Пересменка") || superTask.type.equals("Заправка")){
+	agent.deleteSelf();
+}
+else{
+	returnsAgents(agent);
+}
 delay.stopDelayForAll();]]></Code>
 							</Value>
 						</Parameter>

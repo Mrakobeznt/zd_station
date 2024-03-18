@@ -1080,7 +1080,6 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>450</X><Y>1640</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1098,7 +1097,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[450]]></Code>
+							<Code><![CDATA[30550]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1724,7 +1723,9 @@ enterTasks.take(task);]]></Body>
 31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
 32. Delay В logic может держать в delay не тот состав, исправить
 33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать
-]]></Body>
+34. Нужно что-то сделать со временем срабатываения событий
+35 Исправить ситуацию с поиском маршрута через путь, на котором стоим
+36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2692,7 +2693,6 @@ enterTasks.take(task);]]></Body>
 task.type = type;
 task.startTrack = startTrack;
 task.endTrack = endTrack;
-//task.car = car;
 task.locoForTask = loco;
 task.listTask = task.makeTasks();
 enterTasks.take(task);]]></Body>
@@ -3226,8 +3226,11 @@ addTask("Перерыв", loco.getTrack(), curEndTrack, loco);]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[for (RailCar car : data.locosInStation){
+					<Body><![CDATA[traceln("Пытаюсь запустить метод");
+for (RailCar car : data.locosInStation){
+	traceln("Вагон и списка " + car + " хеш-код " + car.hashCode());
 	TaskAction task = new TaskAction();
+	railCars.stream().filter(p-> p.type.equals("Локомотив")).forEach(p-> traceln(p + " хэш-код " + p.hashCode()));
 	RailCar loco = railCars.stream().filter(p-> p.hashLoco == car.hashCode()).findFirst().orElse(null);
 	task.type = "Обед";
 	task.priority = 1200;
@@ -3250,27 +3253,29 @@ addTask("Перерыв", loco.getTrack(), curEndTrack, loco);]]></Body>
 						<Type><![CDATA[RailCar]]></Type>
 					</Parameter>
 					<Body><![CDATA[boolean makeTask = false;
-for (Agent train : Tools.getDelayPopulation(locoDelay)){
-	RailCar copyLoco = ((Train)train).getCars().get(0);
-	if (copyLoco.hashLoco == loco.hashLoco){
-		RailwayTrack curEndTrack = null;
-		if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty()) 
-			&& track5.getCars().stream().filter(p-> !(((RailCar)p).hashCode() == loco.hashCode())).count() == 0){// если есть свободные пути, то движемся на путь 5
-			curEndTrack = track5;
-		}
-		else {// если нет свободных путей
-			if (loco != null // если локомотив стоит на приемо-отправочных путях
-				&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(((Train)train).getTrack(false).getName()))){
-				curEndTrack = ((Train)train).getTrack(false);
+if (loco != null){
+	for (Agent train : Tools.getDelayPopulation(locoDelay)){
+		RailCar copyLoco = ((Train)train).getCars().get(0);
+		if (copyLoco.hashLoco == loco.hashLoco){
+			RailwayTrack curEndTrack = null;
+			if (getPopsWithoutAvoid().stream().anyMatch(p-> p.getRailCarsWithoutTrain().isEmpty()) 
+				&& track5.getCars().stream().filter(p-> !(((RailCar)p).hashCode() == loco.hashCode())).count() == 0){// если есть свободные пути, то движемся на путь 5
+				curEndTrack = track5;
 			}
-			else{// если локомотив остановился не на приемо-отправочных путях
-				curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20 && !p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf();
+			else {// если нет свободных путей
+				if (loco != null // если локомотив стоит на приемо-отправочных путях
+					&& getPopsWithoutAvoid().stream().anyMatch(p-> p.getName().equals(((Train)train).getTrack(false).getName()))){
+					curEndTrack = ((Train)train).getTrack(false);
+				}
+				else{// если локомотив остановился не на приемо-отправочных путях
+					curEndTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().getFreeSpace(false) >= 20 && !p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf();
+				}
 			}
+			makeTask = true;
+			addTask("Обед", ((Train)train).getTrack(false), curEndTrack, copyLoco);
+			activeSuperTasks++;
+			break;
 		}
-		makeTask = true;
-		addTask("Обед", ((Train)train).getTrack(false), curEndTrack, loco);
-		activeSuperTasks++;
-		break;
 	}
 }
 return makeTask;]]></Body>
@@ -16258,7 +16263,7 @@ if (getAvoidTracks(train) != null){
 		edges.add(new TrackEdge(track, track.getStartSwitch(), track.getEndSwitch(), track.length(METER)));
 	}
 }
-//getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
+getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
 List<SwitchNode> switchList = rf.findRoute(main.getTrackEdgeByTrack(endTrack()), from, to, edges);
 traceln(purple, switchList);
 List<RailwayTrack> allTracks = new ArrayList();
@@ -16282,13 +16287,13 @@ for (SwitchNode node : switchList){
 	}
 }
 
-//switchList.stream().forEach(p-> p.getSelf().setColor(green));
+switchList.stream().forEach(p-> p.getSelf().setColor(green));
 RailwayTrack startTrack = /*train.getTrack(false);*/logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
 if (!routeTracks.contains(startTrack)){
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -16396,7 +16401,7 @@ return route;]]></Body>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
 					<Body><![CDATA[double offset = 0;
-double koef = 25;
+double koef = 20;
 RailwayTrack currTrack = route.getUsedTracks().get(cntRoute);
 //traceln(black, "logic.currentTask.getType() " + logic.currentTask.getType());
 //traceln(black, "endTrack() " + endTrack().getName());
@@ -16406,22 +16411,22 @@ if (currTrack.equals(endTrack()) // если текущий целевой пу�
 		&& !logic.currentTask.getType().equals("Движение в цех")){ // есди задача не движение в цех
 	if (endTrack().getTrains().size() > 1 && logic.superTask.front == null){// если на конечном пути больше 1 состава
 		offset = 0;
-		//traceln(black, "Смещение выбрано по 1 " + offset);
+		traceln(black, "Смещение выбрано по 1 " + offset);
 	}
 	else if (endTrack().getTrains().size() > 1 && logic.superTask.front != null){
 		if (logic.superTask.front.getCarsOnFront().size() < 1){
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			//traceln(black, "Смещение выбрано по 1.1 " + offset);
+			traceln(black, "Смещение выбрано по 1.1 " + offset);
 		}
 	}
 	else{
 		if (((Train)endTrack().getTrains().get(0)).equals(train)){// если состав на конечном пути соответствует 
 			offset = needOffset() >= 0.0 ? needOffset() : 0;
-			//traceln(black, "Смещение выбрано по 2 " + offset);
+			traceln(black, "Смещение выбрано по 2 " + offset);
 		}
 		else{
 			offset = 0;
-			//traceln(black, "Смещение выбрано по 3 " + offset);
+			traceln(black, "Смещение выбрано по 3 " + offset);
 		}
 	}
 }
@@ -16430,40 +16435,40 @@ else if (currTrack.equals(endTrack()) // если текущий целевой 
 				&& endTrack().length(METER) > (train.getLength(METER) + koef)){ // если длина конечного пути больше длины состава - коэффициент смещения
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Смещение выбрано по 4 " + offset);
+		traceln(black, "Смещение выбрано по 4 " + offset);
 	}
 	else{
-		offset = currTrack.length(METER) - (train.getLength(METER) + koef);
-		//traceln(black, "Смещение выбрано по 5 " + offset);
-		//traceln(black, "needOffset() " + needOffset());
+		offset = currTrack.length(METER) - train.getLength(METER) - koef;
+		traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "needOffset() " + needOffset());
 	}
 }
 
 else if(currTrack.equals(endTrack()) && logic.currentTask.getType().equals("Движение в цех")){
 	if (needOffset() >= 0.0){
 		offset = needOffset();
-		//traceln(black, "Я вырал тот что нужно " + needOffset());
+		traceln(black, "Я вырал тот что нужно " + needOffset());
 	}
 	else{
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 5 " + offset);
+		traceln(black, "Смещение выбрано по 5 " + offset);
 	}
 }
 else if (currTrack.equals(endTrack()) && endTrack().isEmpty() && endTrack().length(METER) < (train.getLength(METER) + koef)){
 	offset = koef;
-	//traceln(black, "Смещение выбрано по 5.1 " + offset);
+	traceln(black, "Смещение выбрано по 5.1 " + offset);
 }
 else{
 	RailwayTrack nextTrack = route.getUsedTracks().get(cntRoute + 1);
-	//traceln("На пути " + currTrack.getName() + " cмещение от " + route.getRouteSwitches().get(currTrack));
-	//traceln("На пути " + nextTrack.getName() + " cмещение от " + route.getRouteSwitches().get(nextTrack));
+	traceln("На пути " + currTrack.getName() + " cмещение от " + route.getRouteSwitches().get(currTrack));
+	traceln("На пути " + nextTrack.getName() + " cмещение от " + route.getRouteSwitches().get(nextTrack));
 	if (route.getRouteSwitches().get(currTrack) != route.getRouteSwitches().get(nextTrack) // если стрелка текущего пути не равна стрелке следующего пути 
 		&& currTrack.length(METER) >= (train.getLength(METER) + koef)){ // если длина текущего пути больше длины состава 
 		offset = currTrack.length(METER) - train.getLength(METER) - koef;
-		//traceln(black, "Смещение выбрано по 6 " + offset);
+		traceln(black, "Смещение выбрано по 6 " + offset);
 	}
 }
-//traceln(red, "А я использую офсет " + offset);
+traceln(red, "А я использую офсет " + offset);
 return offset;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -21265,7 +21270,7 @@ return nextTrack;]]></Body>
 						<Type><![CDATA[Task]]></Type>
 					</Parameter>
 					<Body><![CDATA[double offset = 0;
-double koef = 15;
+double koef = 20;
 String frontName = front == null ? "" : front.getName();
 //traceln("Захожу");
 if(front != null 
@@ -21284,12 +21289,15 @@ if(front != null
 else if (nextTask != null && nextTask.getType().equals("Расцепка") 
 	&& (type.equals("Полурейс формирования всех вагонов с пути на пустой путь") || type.equals("Полурейс формирования на пустой путь"))){
 	int sizeLiftTrain = finalLeftVagons == null ? cntVagon : finalLeftVagons;
-	offset = endTrack.length(METER) - (26 * sizeLiftTrain + koef);
+	traceln("finalLeftVagons " + finalLeftVagons);
+	traceln("sizeLiftTrain " + sizeLiftTrain);
+	offset = endTrack.length(METER) - (26.5 * sizeLiftTrain + koef);
+	traceln("Для " + type + " посчитал оффсет " + offset);
 }
 else{
 	traceln("Посчитал по этому");
 	if (type.equals("Обед") || type.equals("Перерыв") || targetTrack.getName().equals(main.track6.getName())){
-		offset = 15;
+		offset = 5;
 	}
 	else{
 		offset = -1.0;
@@ -21404,7 +21412,10 @@ else {
 }
 offset = getOffsetForTask(curEndTrack, currTask.getType(), nextTask);
 task = new Task("Движение", curStartTrack, curEndTrack, offset);
-traceln("loco " + locoForTask);
+traceln(red, "locoForTask " + locoForTask);
+if (locoForTask != null){
+	traceln(red, "locoForTask.getTrack() " + locoForTask.getTrack());
+}
 if ((type.equals("Обед") || type.equals("Перерыв")) 
 	&& locoForTask.getTrack().getName().equals(main.track5.getName())){
 	task = null;
@@ -40209,7 +40220,7 @@ public class RouteFinder<T extends GraphNode> {
     
     public boolean getPublicTargetEdge(T nextNode, TrackEdge endTrack, T to) {
     	boolean isPublic = false;
-    	traceln("Конечный путь " + endTrack);
+    	//traceln("Конечный путь " + endTrack);
     	if (endTrack.getEndSwitch() != null && endTrack.getStartSwitch() != null) {
     		if (!nextNode.getName().equals(to.getName()) // если следующая вершина не равна целевой
     				&& (endTrack.getEndSwitch().getName().equals(nextNode.getName()) // и равна или начальной или коненчой стрелке стрелке

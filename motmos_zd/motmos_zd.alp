@@ -1610,7 +1610,8 @@ return listCar;]]></Body>
 33. При нахождении локомотива на пути 5 необходимо уточнять, находится ли вагон на пути, если находится, то задачу не нужно создавать * 18.03.24
 10. Добавить событие экипировка * 18.03.24
 12. Добавить событие заправка * 18.03.24
-37. Добавить повышенный приоритет на составы на отправку на грузовой фронт, если в нем есть вагоны контактного графика * 18.03.24]]></Body>
+37. Добавить повышенный приоритет на составы на отправку на грузовой фронт, если в нем есть вагоны контактного графика * 18.03.24
+32. Delay В logic может держать в delay не тот состав, исправить * 19.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1786,11 +1787,10 @@ enterTasks.take(task);]]></Body>
 27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку
 30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
 31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
-32. Delay В logic может держать в delay не тот состав, исправить
+
 34. Нужно что-то сделать со временем срабатываения событий
 36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина
-37. Ожидание 
-]]></Body>
+37. Ожидание ]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2415,14 +2415,16 @@ int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
 offsetTime = cntEmptyTrack > 1800000 ? offsetTime : 3600000;
 //traceln("Временное смещение" +  (offsetTime/3600000) + " час(а)");
 for (TrainArrival arrival : data.arrivalsCollection){
+	
 	if (!data.arrivalsDone.contains(arrival) // если дата по расписанию не была
 		&& getModelTime().getTime() <= arrival.getDate().getTime() + offsetTime // если дата прибытия через 2 часа от текущей даты
 			&& arrival.getDate().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 2 часа от текущей даты
+		traceln("Проверяю прибытие " + arrival);
 		arrival.setHappen(true);
 		data.arrivalsDone.add(arrival);
 		TaskAction task = new TaskAction();
 		task.type = "Прибытие";
-		task.priority = 200;
+		task.priority = 1000;
 		task.trainArrival = arrival;
 		addTaskSuper(task);
 		break;
@@ -2609,10 +2611,7 @@ return targetTrack;]]></Body>
 						<Name><![CDATA[carsOnFront]]></Name>
 						<Type><![CDATA[List<RailCar>]]></Type>
 					</Parameter>
-					<Body><![CDATA[//traceln("Размер состава с фронта " + front.getTrainOnFront().size());
-//getPopsWithoutAvoid().stream().forEach(p-> traceln("Путь не пуст " + !p.getSelf().isEmpty() + " места на пути хватает " + p.isEnoughPlace(front.getTrainOnFront()) + " нет одного локомотива на пути " + (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
-										//|| p.getRailCarsOnTrack().size() > 1)));
-List<TrackEdge> edges = getPopsWithoutAvoid().stream()
+					<Body><![CDATA[List<TrackEdge> edges = getPopsWithoutAvoid().stream()
 							.filter(p-> !p.getSelf().isEmpty() 
 													&& p.isEnoughPlace(carsOnFront) 
 														&& (!p.getRailCarsOnTrack().stream().anyMatch(g-> g.type.equals("Локомотив")) 
@@ -5232,6 +5231,12 @@ traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
 switch(agent.type){
 	case "Прибытие" :
 		if (!makeTaskForArrive((TaskAction)agent)){
+			if (!isEnoughPlace()){
+				agent.priority = 200;
+			}
+			else{
+				agent.priority = 1000;
+			}
 			enterTasksSuper.take(agent);
 		}
 		break;
@@ -42346,6 +42351,19 @@ public class TrainArrival {
             }
         }
         return cars;
+    }
+    
+    @Override
+    public String toString() {
+        return "TrainArrival{" +
+                "date=" + date +
+                ", train=" + train +
+                ", targetTrack=" + targetTrack +
+                ", isArrive=" + isArrive +
+                ", isHappen=" + isHappen +
+                ", dateHappen=" + dateHappen +
+                ", reasonLate='" + reasonLate + '\'' +
+                '}';
     }
 
 }

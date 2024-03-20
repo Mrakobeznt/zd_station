@@ -1080,7 +1080,6 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
-					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>390</X><Y>2740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1098,7 +1097,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[30550]]></Code>
+							<Code><![CDATA[190]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1161,7 +1160,7 @@ setTracksActive();]]></Action>
 						<OccurrenceDate>1710403200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
 							<Code><![CDATA[getHoursUntilShift()]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+							<Unit Class="TimeUnits"><![CDATA[HOUR]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
 							<Code><![CDATA[12]]></Code>
@@ -1790,7 +1789,8 @@ enterTasks.take(task);]]></Body>
 
 34. Нужно что-то сделать со временем срабатываения событий
 36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина
-37. Ожидание ]]></Body>
+37. Ожидание 
+38. Разрешить отправку составов с пути не польностью]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1839,16 +1839,16 @@ interfaceSettings.initSettings(); // Настройка интерфейса д�
 setTrackEdges();
 
 makeDinner.reset();
-makeDinner.restart(getHoursUntilDinner());
+makeDinner.restart(getHoursUntilDinner(), HOUR);
 
 makeShift.reset();
-makeShift.restart(getHoursUntilShift());
+makeShift.restart(getHoursUntilShift(), HOUR);
 
 makeRefuel.reset();
-makeRefuel.restart(randomTime(0, 24));
+makeRefuel.restart(randomTime(0, 24), HOUR);
 
 makeEquip.reset();
-makeEquip.restart(randomTime(0, 24));]]></Body>
+makeEquip.restart(randomTime(0, 24), HOUR);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2068,7 +2068,7 @@ return tasks;]]></Body>
 					<Body><![CDATA[setTasksForSendToFront();
 setTasksForPickUpToFront();
 setTaskForArrive();
-setTaskForSend();
+setTaskForSend();//setTaskForSend();
 setTasksForAssembleTrain();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -2645,6 +2645,7 @@ return edges.isEmpty() ? null : edges.stream().max((p1, p2) -> Double.compare(p1
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1708096555973</Id>
 					<Name><![CDATA[setTaskForSend]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>1000</X><Y>2525</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -2656,6 +2657,7 @@ task.type = "Отправка";
 task.priority = 1050;
 TrackEdge startTrack = null;
 TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
+TrainSend copyTs = null;
 int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
 for (TrainSend ts1 : data.sendsCollection){
 	if (!data.sendsDone.contains(ts1) // если дата по расписанию не была
@@ -2665,28 +2667,37 @@ for (TrainSend ts1 : data.sendsCollection){
 		data.sendsDone.add(ts1);
 		if (startTrack != null){
 			ts.setIsSchedule(true);
+			copyTs = ts1;
 			break;
 		}
 	}
 }
-if (startTrack == null){
+// если я не нашел путь для отправки вагонов со станции по расписанию
+/*if (startTrack == null){
 	startTrack = getTrackForSend(ts, false);
 	ts.setIsSchedule(false);
-}
+}*/
 if (startTrack == null){
 	startTrack = ts.checkTracksForSends();
 	ts.setIsSchedule(false);
 }
 if (startTrack != null){
-	//traceln("Выбрали путь для забора вагонов " + startTrack.getName() + " вагонов на нем стоит " + startTrack.getRailCarsOnTrack().size());
 	ts.setRecTrack(startTrack);
+	if (copyTs != null){
+		copyTs.setTrainSendByTS(ts);
+		task.trainSend = copyTs;
+	}
+	else{
+		task.trainSend = ts;
+		traceln("Отправка не по расписанию");
+		//pauseSimulation();
+	}
 	task.startTrack = startTrack.getSelf();
-	task.trainSend = ts;
 	addTaskSuper(task);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
 					<ReturnType><![CDATA[boolean]]></ReturnType>
 					<Id>1708096555975</Id>
 					<Name><![CDATA[makeTaskForSend]]></Name>
@@ -2699,7 +2710,9 @@ if (startTrack != null){
 						<Name><![CDATA[task]]></Name>
 						<Type><![CDATA[TaskAction]]></Type>
 					</Parameter>
-					<Body><![CDATA[TrackEdge startTrack = getTrackForSend(task.trainSend, task.trainSend.getIsSchedule());
+					<Body><![CDATA[boolean isSend = false;
+TrackEdge startTrack = getTrackForSend(task.trainSend, task.trainSend.getIsSchedule());
+//TrackEdge startTrack = task.trainSend.getRecTrack();
 if (startTrack != null){ // если путь, с которого можно забирать вагоны существует
 	List<RailCar> train = new ArrayList();
 	if (!data.useStationLocoForArrive){ // если станционный локомотив не используется для отправки вагонов со станции 
@@ -2708,8 +2721,8 @@ if (startTrack != null){ // если путь, с которого можно з
 	else{
 		train.add(((Train)locoDelay.get(0)).getCars().get(0));
 	}
-	traceln("task.startTrack " + task.startTrack  + " кол во вагонов " + task.cntVagon + " trainSend " + task.trainSend);
-	String type = TrainSend.getTypeTask(data.useStationLocoForArrive, task.startTrack, task.trainSend.getCntVagonsForDecouple(getTrackEdgeByTrack(task.startTrack)));
+	traceln("task.startTrack " + startTrack  + " кол во вагонов " + task.cntVagon + " trainSend " + task.trainSend);
+	String type = TrainSend.getTypeTask(data.useStationLocoForArrive, startTrack.getSelf(), task.trainSend.getCntVagonsForDecouple(getTrackEdgeByTrack(startTrack.getSelf())));
 	if (startTrack.getRailCarsOnTrack().stream().anyMatch(p-> p.type.equals("Локомотив"))){ // если на пути стоит локомотив
 		TrackEdge finalEmptyTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 		TrackEdge finalEndTrack = getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && !p.getName().equals(startTrack.getName())).findFirst().orElse(finalEmptyTrack);
@@ -2720,9 +2733,28 @@ if (startTrack != null){ // если путь, с которого можно з
 	traceln(red, "+++++++++++++++++++++++++++++++++++++");
 	traceln(black, "Отправляю состав весом " + Tools.getWeightTrain(startTrack.getRailCarsWithoutTrain()) + " и длиной " + Tools.getLengthTrain(startTrack.getRailCarsWithoutTrain()));
 	traceln(red, "+++++++++++++++++++++++++++++++++++++");
+	data.sendsCollection
+				.stream()
+				.filter(p-> p.hashCode() == task.trainSend.hashCode())
+				.forEach(p-> {
+								p.setDateHappen(date());
+								p.setTrain(startTrack.getRailCarsWithoutTrain());
+								p.setSend(true);
+							});
+	isSend = true;
 	addTask(type, track6, startTrack.getSelf(), train, false, task.trainSend);
 	activeSuperTasks++;
-}]]></Body>
+}
+else{
+	traceln("Не нашел путь под отправку ");
+	data.sendsCollection
+				.stream()
+				.filter(p-> p.hashCode() == task.trainSend.hashCode())
+				.forEach(p-> {
+								p.setReasonLate("Ожидание сборки состава");
+							});
+}
+return isSend;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2809,6 +2841,7 @@ enterTasks.take(task);]]></Body>
 					<Id>1708504460561</Id>
 					<Name><![CDATA[getTrackForSend]]></Name>
 					<Description><![CDATA[Возвращает путь для отправки вагонов со станции по расписанию или по требованию]]></Description>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>1020</X><Y>2565</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -2824,17 +2857,16 @@ enterTasks.take(task);]]></Body>
 					</Parameter>
 					<Body><![CDATA[TrackEdge startTrack = null;
 if (isRasp){
-	if (trainSend.getTrackForSend() == null){
-		//startTrack = trainSend.getReadyTracks().size() > 0 ? trainSend.getReadyTracks().get(0) : null;
-	}
-	else{
-		startTrack = trainSend.getTrackForSend();
-	}
+	startTrack = trainSend.getTrackForSend();
 }
 else{
 	for (TrackEdge edge : trainSend.getReadyTracks()){
+		if (trainSend.checkTracksForSends(edge)){
+			startTrack = edge;
+			break;
+		}
 		// 1 Если на пути состав приближен к границе пути и может отправиться c пути целиком или состав имеет вес, который приближен к отправке со станции
-		if ((trainSend.checkAvailableLength(edge) && trainSend.isAvailableWeight(edge)) || trainSend.isAvailableWeightLim(edge)){
+		/*if ((trainSend.checkAvailableLength(edge) && trainSend.isAvailableWeight(edge)) || trainSend.isAvailableWeightLim(edge)){
 			startTrack = edge;
 			break;
 		}
@@ -2842,7 +2874,7 @@ else{
 		else if(trainSend.isBiggerThenMaxWeight(edge)){
 			startTrack = edge;
 			break;
-		}
+		}*/
 	}
 }
 return startTrack;]]></Body>
@@ -3529,6 +3561,7 @@ return res;]]></Body>
 					</Parameter>
 					<Body><![CDATA[Random rn = new Random();
 int answer = rn.nextInt(max - min + 1) + min;
+traceln("Выдал случайное время " + answer);
 return answer;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3656,6 +3689,100 @@ if (!front.isBlockedForSend()){
 	}
 }
 return isHave;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>VOID</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1710922511923</Id>
+					<Name><![CDATA[setTaskForSend]]></Name>
+					<X>1140</X><Y>2520</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
+TaskAction task = new TaskAction();
+task.type = "Отправка";
+task.priority = 1050;
+TrackEdge startTrack = null;
+TrainSend ts = getSendAction();
+if (ts != null){ //  если найдено событие на отправку по расписанию
+	traceln("Нашел время отправки");
+	ts.setTrainSendByTS(new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive), true);
+	startTrack = ts.getTrackForSend();
+	data.sendsDone.add(ts);
+	ts.setRecTrack(startTrack);
+	task.trainSend = ts;
+	task.startTrack = startTrack == null ? null  : startTrack.getSelf();
+	task.priority = ts.getPriority();
+	addTaskSuper(task);
+}
+else{
+	ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
+	ts.setIsSchedule(false);
+	startTrack = ts.checkTracksForSends();
+	if (startTrack != null){
+		data.sendsCollection.add(ts);
+		data.sendsDone.add(ts);
+		ts.setRecTrack(startTrack);
+		task.trainSend = ts;
+		task.startTrack = startTrack == null ? null  : startTrack.getSelf();
+		addTaskSuper(task);
+	}
+}]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[TrainSend]]></ReturnType>
+					<Id>1710922643520</Id>
+					<Name><![CDATA[getSendAction]]></Name>
+					<X>1170</X><Y>2570</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[TrainSend ts = null;
+RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
+int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
+for (TrainSend ts1 : data.sendsCollection){
+	if (ts1.getIsSchedule()
+		 && !data.sendsDone.contains(ts1) // если дата по расписанию не была
+			&& getModelTime().getTime() <= ts1.getDateSend().getTime() + offsetTime // если дата прибытия через 0.5 часа от текущей даты 5 +  10 + 30 
+				&& ts1.getDateSend().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 0.5 часа от текущей даты 10 - 30 5
+		ts = ts1;
+		traceln("Можно отправить");
+		break;
+	}
+}
+return ts;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[TrackEdge]]></ReturnType>
+					<Id>1710936247987</Id>
+					<Name><![CDATA[getTrackForSend]]></Name>
+					<Description><![CDATA[Возвращает путь для отправки вагонов со станции по расписанию или по требованию]]></Description>
+					<X>1160</X><Y>2540</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[trainSend]]></Name>
+						<Type><![CDATA[TrainSend]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[isRasp]]></Name>
+						<Type><![CDATA[boolean]]></Type>
+					</Parameter>
+					<Body><![CDATA[TrackEdge startTrack = null;
+if (isRasp){
+	startTrack = trainSend.getTrackForSend();// по расписанию
+}
+else{
+	startTrack = trainSend.checkTracksForSends();// не по расписанию
+}
+return startTrack;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -5273,7 +5400,10 @@ switch(agent.type){
 		makeTasksPickUpToFront(((TaskAction)agent).front);
 		break;
 	case "Отправка":
-		makeTaskForSend((TaskAction)agent);
+		if (makeTaskForSend((TaskAction)agent)){
+			agent.priority++;
+			enterTasksSuper.take(agent);
+		};
 		break;
 	case "Расчистка":
 		makeTaskForClean();
@@ -6598,6 +6728,68 @@ logic.enterStart.take(agent);]]></Code>
 						<Code><![CDATA[100]]></Code>
 					</Replication>
 					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1710860609158</Id>
+					<Name><![CDATA[sendTable]]></Name>
+					<X>-480</X><Y>2280</Y>
+					<Label><X>-40</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<PresentationId>1710860611452</PresentationId>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SendTable]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[SendTable]]></ClassName>
+							<ItemName><![CDATA[1710860354257]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
 					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
 					<XCode Class="CodeValue">
 						<Code><![CDATA[0]]></Code>
@@ -10172,6 +10364,113 @@ logic.enterStart.take(agent);]]></Code>
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Group>
+					<Id>1710862717105</Id>
+					<Name><![CDATA[flatButton18]]></Name>
+					<X>-355</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[sendTable.send.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710862717107</Id>
+					<Name><![CDATA[rectangle37]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710862717109</Id>
+					<Name><![CDATA[line119]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710862717111</Id>
+					<Name><![CDATA[rectangle38]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710862717113</Id>
+					<Name><![CDATA[text62]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Отправки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Group>
@@ -11422,7 +11721,7 @@ logic.enterStart.take(agent);]]></Code>
 				<EmbeddedObjectPresentation>
 					<Id>1707833427878</Id>
 					<Name><![CDATA[keyIndicators_presentation]]></Name>
-					<X>-390</X><Y>-250</Y>
+					<X>-345</X><Y>-315</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -11441,7 +11740,7 @@ logic.enterStart.take(agent);]]></Code>
 				<EmbeddedObjectPresentation>
 					<Id>1707834551149</Id>
 					<Name><![CDATA[arriveTable_presentation]]></Name>
-					<X>-430</X><Y>-240</Y>
+					<X>-550</X><Y>-180</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -12685,6 +12984,25 @@ logic.enterStart.take(agent);]]></Code>
 					</Font>
 					<Alignment>CENTER</Alignment>
 				</Text>
+				<EmbeddedObjectPresentation>
+					<Id>1710860611452</Id>
+					<Name><![CDATA[sendTable_presentation]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<DrawingMode>AGENT_CURRENT_POSITION</DrawingMode>
+					<ScaleType>AUTOMATICALLY_CALCULATED</ScaleType>
+					<GISScaleForRealEmbeddedObjectPresentationSize>1000</GISScaleForRealEmbeddedObjectPresentationSize>
+					<GISScaleForFixedEmbeddedObjectPresentationSize>1000000000</GISScaleForFixedEmbeddedObjectPresentationSize>
+					<Latitude>0.0</Latitude>
+					<Longitude>0.0</Longitude>
+				</EmbeddedObjectPresentation>
 			</Presentation>
 
 				</Level>
@@ -18584,12 +18902,10 @@ car.track = copyCar.track;
 car.numInvoice = copyCar.numInvoice;
 car.finalStatus = copyCar.finalStatus;
 car.typeOwner = copyCar.typeOwner;
-
 car.maxWeightForSend = copyCar.maxWeightForSend;
 car.maxWeightForArrive = copyCar.maxWeightForArrive;
 car.maxLengthForSend = copyCar.maxLengthForSend;
 car.maxLengthForArrive = copyCar.maxLengthForArrive;
-
 car.changeStatus = copyCar.changeStatus;
 car.setPosition();
 car.setStatus();
@@ -19454,7 +19770,7 @@ sourceStation.inject();]]></Code>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[double]]></Type>        
 						<InitialValue Class="CodeValue">
-							<Code><![CDATA[150]]></Code>
+							<Code><![CDATA[300]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -20574,10 +20890,10 @@ return resp;]]></Body>
 ExcelFile file = startData;
 String list = "Отправка";
 file.readFile();
-
+double koef = 0.1;
 while(file.cellExists(list, row, 1)){
 	Date dateArrival = file.getCellDateValue(list, row, 1);
-	TrainSend send = new TrainSend(dateArrival);
+	TrainSend send = new TrainSend(dateArrival, true, (koef*row+1050));
 	sendsCollection.add(send);
 	row++;
 }
@@ -24035,6 +24351,113 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Group>
+					<Id>1710862492248</Id>
+					<Name><![CDATA[flatButton18]]></Name>
+					<X>-355</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.sendTable.send.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710862492250</Id>
+					<Name><![CDATA[rectangle37]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710862492252</Id>
+					<Name><![CDATA[line119]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710862492254</Id>
+					<Name><![CDATA[rectangle38]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710862492256</Id>
+					<Name><![CDATA[text60]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Отправки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Group>
@@ -25313,7 +25736,7 @@ public SuperTask(String type, RailwayTrack endTrack, Integer cntVagon, Integer p
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
-						<Type><![CDATA[int]]></Type>
+						<Type><![CDATA[double]]></Type>
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
 						<ParameterEditor>
@@ -31823,6 +32246,113 @@ return date;]]></Body>
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Group>
+					<Id>1710862685128</Id>
+					<Name><![CDATA[flatButton18]]></Name>
+					<X>-355</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.sendTable.send.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710862685130</Id>
+					<Name><![CDATA[rectangle37]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710862685132</Id>
+					<Name><![CDATA[line119]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710862685134</Id>
+					<Name><![CDATA[rectangle38]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710862685136</Id>
+					<Name><![CDATA[text60]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Отправки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Group>
@@ -35978,6 +36508,113 @@ return count;]]></Body>
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Group>
+					<Id>1710862512225</Id>
+					<Name><![CDATA[flatButton24]]></Name>
+					<X>-355</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.sendTable.send.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710862512227</Id>
+					<Name><![CDATA[rectangle49]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710862512229</Id>
+					<Name><![CDATA[line125]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710862512231</Id>
+					<Name><![CDATA[rectangle50]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710862512233</Id>
+					<Name><![CDATA[text67]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Отправки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Group>
@@ -38114,19 +38751,6 @@ return count;]]></Body>
 			</ScaleRuler>
 			<CurrentLevel>1706776666223</CurrentLevel>
 			<ConnectionsId>1706776666217</ConnectionsId>
-			<Functions>
-				<Function AccessType="default" StaticFunction="false">
-					<ReturnModificator>VOID</ReturnModificator>
-					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1709539319512</Id>
-					<Name><![CDATA[updateTable]]></Name>
-					<X>-230</X><Y>80</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-				</Function>
-			</Functions>
 			<AgentLinks>
 				<AgentLink>
 					<Id>1706776666217</Id>
@@ -39324,6 +39948,113 @@ return count;]]></Body>
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Group>
+					<Id>1710862398721</Id>
+					<Name><![CDATA[flatButton18]]></Name>
+					<X>-355</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.sendTable.send.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710862398723</Id>
+					<Name><![CDATA[rectangle37]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710862398725</Id>
+					<Name><![CDATA[line119]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710862398727</Id>
+					<Name><![CDATA[rectangle38]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710862398729</Id>
+					<Name><![CDATA[text60]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Отправки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Group>
@@ -40133,6 +40864,1634 @@ action();]]></OnClickCode>
 				<Area>
 					<Id>1709033048985</Id>
 					<Name><![CDATA[animation]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<Title><![CDATA[]]></Title>
+					<Width>1920</Width>
+					<Height>1025</Height>
+				</Area>
+			</Areas>
+
+		</ActiveObjectClass>
+		<!--   =========   Active Object Class   ========  -->
+		<ActiveObjectClass>
+			<Id>1710860354251</Id>
+			<Name><![CDATA[SendTable]]></Name>
+			<Generic>false</Generic>
+			<GenericParameter>
+				<Id>1710860354257</Id>
+				<Name><![CDATA[1710860354257]]></Name>
+				<GenericParameterValue Class="CodeValue">
+					<Code><![CDATA[T extends Agent]]></Code>
+				</GenericParameterValue>
+				<GenericParameterLabel><![CDATA[Параметр настройки:]]></GenericParameterLabel>
+			</GenericParameter>
+			<FlowChartsUsage>ENTITY</FlowChartsUsage>
+			<SamplesToKeep>100</SamplesToKeep>
+			<LimitNumberOfArrayElements>false</LimitNumberOfArrayElements>
+			<ElementsLimitValue>100</ElementsLimitValue>
+			<MakeDefaultViewArea>true</MakeDefaultViewArea>
+			<SceneGridColor/>
+			<SceneBackgroundColor/>
+			<SceneSkybox>null</SceneSkybox>
+			<AgentProperties>
+				<EnvironmentDefinesInitialLocation>true</EnvironmentDefinesInitialLocation>
+				<RotateAnimationTowardsMovement>true</RotateAnimationTowardsMovement>
+				<RotateAnimationVertically>false</RotateAnimationVertically>
+				<VelocityCode Class="CodeUnitValue">
+					<Code><![CDATA[10]]></Code>
+					<Unit Class="SpeedUnits"><![CDATA[MPS]]></Unit>
+				</VelocityCode>
+				<PhysicalLength Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalLength>
+				<PhysicalWidth Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalWidth>
+				<PhysicalHeight Class="CodeUnitValue">
+					<Code><![CDATA[1]]></Code>
+					<Unit Class="LengthUnits"><![CDATA[METER]]></Unit>
+				</PhysicalHeight>
+			</AgentProperties>
+			<EnvironmentProperties>
+					<EnableSteps>false</EnableSteps>
+					<StepDurationCode Class="CodeUnitValue">
+						<Code><![CDATA[1.0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</StepDurationCode>
+					<SpaceType>CONTINUOUS</SpaceType>
+					<WidthCode><![CDATA[500]]></WidthCode>
+					<HeightCode><![CDATA[500]]></HeightCode>
+					<ZHeightCode><![CDATA[0]]></ZHeightCode>
+					<ColumnsCountCode><![CDATA[100]]></ColumnsCountCode>
+					<RowsCountCode><![CDATA[100]]></RowsCountCode>
+					<NeigborhoodType>MOORE</NeigborhoodType>
+					<LayoutType>USER_DEF</LayoutType>
+					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
+					<NetworkType>USER_DEF</NetworkType>
+					<NetworkTypeApplyOnStartup>true</NetworkTypeApplyOnStartup>
+					<ConnectionsPerAgentCode><![CDATA[2]]></ConnectionsPerAgentCode>
+					<ConnectionsRangeCode><![CDATA[50]]></ConnectionsRangeCode>
+					<NeighborLinkFractionCode><![CDATA[0.95]]></NeighborLinkFractionCode>
+					<MCode><![CDATA[10]]></MCode>
+			</EnvironmentProperties>
+			<DatasetsCreationProperties>
+				<AutoCreate>true</AutoCreate>
+					<OccurrenceAtTime>true</OccurrenceAtTime>
+					<OccurrenceDate>1710921600000</OccurrenceDate>
+					<OccurrenceTime Class="CodeUnitValue">
+						<Code><![CDATA[0]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</OccurrenceTime>
+					<RecurrenceCode Class="CodeUnitValue">
+						<Code><![CDATA[1]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+					</RecurrenceCode>
+			</DatasetsCreationProperties>
+			<ScaleRuler>
+				<Id>1710860354254</Id>
+				<Name><![CDATA[scale]]></Name>
+				<X>0</X><Y>-150</Y>
+				<PublicFlag>false</PublicFlag>
+				<PresentationFlag>false</PresentationFlag>
+				<ShowLabel>false</ShowLabel>
+				<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+				<Length>100</Length>
+				<Rotation>0</Rotation>
+				<ScaleType>BASED_ON_LENGTH</ScaleType>
+				<ModelLength>10</ModelLength>
+				<LengthUnits>METER</LengthUnits>
+				<Scale>10</Scale>
+				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
+			</ScaleRuler>
+			<CurrentLevel>1710860354258</CurrentLevel>
+			<ConnectionsId>1710860354252</ConnectionsId>
+			<AgentLinks>
+				<AgentLink>
+					<Id>1710860354252</Id>
+					<Name><![CDATA[connections]]></Name>
+					<X>50</X><Y>-50</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<HandleReceiveInConnections>false</HandleReceiveInConnections>
+					<AgentLinkType>COLLECTION_OF_LINKS</AgentLinkType>
+					<AgentLinkBidirectional>true</AgentLinkBidirectional>
+					<MessageType><![CDATA[Object]]></MessageType>
+					<LineStyle>SOLID</LineStyle>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineZOrder>UNDER_AGENTS</LineZOrder>
+					<LineArrow>NONE</LineArrow>
+					<LineArrowPosition>END</LineArrowPosition>
+				</AgentLink>
+			</AgentLinks>
+
+			<ContainerLinks>
+				<ContainerLink>
+					<Id>1710860611459</Id>
+					<Name><![CDATA[main]]></Name>
+					<X>50</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Main]]></ClassName>
+					</ActiveObjectClass>
+				</ContainerLink>
+			</ContainerLinks>
+
+			<Presentation>
+				<Level>
+					<Id>1710860354258</Id>
+					<Name><![CDATA[level]]></Name>
+					<X>0</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<Z>0</Z>
+					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367431</Id>
+					<Name><![CDATA[rectangle12]]></Name>
+					<X>1640</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1710860367439</Id>
+					<Name><![CDATA[rectangle49]]></Name>
+					<X>1755</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367447</Id>
+					<Name><![CDATA[text1]]></Name>
+					<X>60</X><Y>70</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-65536</Color>
+					<Text><![CDATA[ОТПРАВКИ]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>26</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<RoundedRectangle>
+					<Id>1710860367449</Id>
+					<Name><![CDATA[roundRectangle1]]></Name>
+					<X>40</X><Y>170</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>1840</Width>
+					<Height>830</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>10</ArcRadius>
+				</RoundedRectangle>
+				<Group>
+					<Id>1710860367455</Id>
+					<Name><![CDATA[groupRow]]></Name>
+					<X>960</X><Y>210</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367457</Id>
+					<Name><![CDATA[rectangle6]]></Name>
+					<X>-880</X><Y>-10</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<YCode><![CDATA[-10 + index*20]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-1</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>1170</Width>
+					<Height>20</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-6751336</FillColor>
+					<FillColorCode><![CDATA[main.data.sendsCollection.get(index).isSend() ? paleGreen : tomato]]></FillColorCode>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367459</Id>
+					<Name><![CDATA[text28]]></Name>
+					<X>-835</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[1]]></Text>
+					<TextCode><![CDATA[index+1]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367461</Id>
+					<Name><![CDATA[text29]]></Name>
+					<X>-640</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[659846365987]]></Text>
+					<TextCode><![CDATA[main.data.sendsCollection.get(index).getDateSend() == null ? "-" : main.data.sendsCollection.get(index).getDateSend()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367463</Id>
+					<Name><![CDATA[text31]]></Name>
+					<X>-474</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Состав не сформирован]]></Text>
+					<TextCode><![CDATA[main.data.sendsCollection.get(index).getDateHappen() == null ? "Отправки не было" : main.data.sendsCollection.get(index).getDateHappen()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367465</Id>
+					<Name><![CDATA[text32]]></Name>
+					<X>-299</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Состав не сформирован]]></Text>
+					<TextCode><![CDATA[main.data.sendsCollection.get(index).getHoursLate()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367467</Id>
+					<Name><![CDATA[text33]]></Name>
+					<X>-55</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Труба]]></Text>
+					<TextCode><![CDATA[main.data.sendsCollection.get(index).getReasonLate()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367469</Id>
+					<Name><![CDATA[text35]]></Name>
+					<X>115</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Состав не сформирован]]></Text>
+					<TextCode><![CDATA[main.data.sendsCollection.get(index).getTrainWeight()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367471</Id>
+					<Name><![CDATA[text39]]></Name>
+					<X>285</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<YCode><![CDATA[-9+20*index]]></YCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Состав не сформирован]]></Text>
+					<TextCode><![CDATA[main.data.sendsCollection.get(index).getCntVagons()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>RIGHT</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710860367473</Id>
+					<Name><![CDATA[groupUI7]]></Name>
+					<X>960</X><Y>30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Image>
+					<Id>1710860367475</Id>
+					<Name><![CDATA[image15]]></Name>
+					<X>-960</X><Y>-30</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>1920</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[текстура.png]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
+				<Group>
+					<Id>1710860367477</Id>
+					<Name><![CDATA[flatButton12]]></Name>
+					<X>-920</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.mainView.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367479</Id>
+					<Name><![CDATA[rectangle25]]></Name>
+					<X>-40</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>95</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710860367481</Id>
+					<Name><![CDATA[line113]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710860367483</Id>
+					<Name><![CDATA[rectangle26]]></Name>
+					<X>-40</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>95</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367485</Id>
+					<Name><![CDATA[text53]]></Name>
+					<X>7</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[2D]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>24</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710860367487</Id>
+					<Name><![CDATA[flatButton13]]></Name>
+					<X>-825</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.frame3D.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367489</Id>
+					<Name><![CDATA[rectangle27]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710860367491</Id>
+					<Name><![CDATA[line114]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710860367493</Id>
+					<Name><![CDATA[rectangle28]]></Name>
+					<X>-40</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>95</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367495</Id>
+					<Name><![CDATA[text54]]></Name>
+					<X>7</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[3D]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>24</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710860367497</Id>
+					<Name><![CDATA[flatButton14]]></Name>
+					<X>-731</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.interfaceSettings.settings.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367499</Id>
+					<Name><![CDATA[rectangle29]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710860367501</Id>
+					<Name><![CDATA[line115]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710860367503</Id>
+					<Name><![CDATA[rectangle30]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367505</Id>
+					<Name><![CDATA[text55]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Параметры]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710860367507</Id>
+					<Name><![CDATA[flatButton15]]></Name>
+					<X>-637</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.keyIndicators.keyIndicators.navigateTo();]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367509</Id>
+					<Name><![CDATA[rectangle31]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710860367511</Id>
+					<Name><![CDATA[line116]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710860367513</Id>
+					<Name><![CDATA[rectangle32]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367515</Id>
+					<Name><![CDATA[text56]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Показатели]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710860367517</Id>
+					<Name><![CDATA[flatButton16]]></Name>
+					<X>-543</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367519</Id>
+					<Name><![CDATA[rectangle33]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710860367521</Id>
+					<Name><![CDATA[line117]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710860367523</Id>
+					<Name><![CDATA[rectangle34]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367525</Id>
+					<Name><![CDATA[text57]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Заявки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710860367527</Id>
+					<Name><![CDATA[flatButton17]]></Name>
+					<X>-449</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710860367529</Id>
+					<Name><![CDATA[rectangle35]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710860367531</Id>
+					<Name><![CDATA[line118]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710860367533</Id>
+					<Name><![CDATA[rectangle36]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367535</Id>
+					<Name><![CDATA[text58]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Прибытия]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Text>
+					<Id>1710860367537</Id>
+					<Name><![CDATA[text59]]></Name>
+					<X>660</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[main.getModelTime()]]></TextCode>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>18</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Image>
+					<Id>1710860367539</Id>
+					<Name><![CDATA[image18]]></Name>
+					<X>885</X><Y>-30</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>52.333</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[5fde19f930e5ba3be4f2df573c70be9b-PhotoRoom.png-PhotoRoom.png]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
+			</Presentation>
+
+				</Group>
+				<Rectangle>
+					<Id>1710860367441</Id>
+					<Name><![CDATA[rectangle7]]></Name>
+					<X>80</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-1</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>1170</Width>
+					<Height>20</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-40121</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1710860367420</Id>
+					<Name><![CDATA[rectangle3]]></Name>
+					<X>325</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710860367425</Id>
+					<Name><![CDATA[text11]]></Name>
+					<X>785</X><Y>180</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Причина опоздания]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Rectangle>
+					<Id>1710860367427</Id>
+					<Name><![CDATA[rectangle5]]></Name>
+					<X>490</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1710860367429</Id>
+					<Name><![CDATA[rectangle16]]></Name>
+					<X>1080</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1710860367437</Id>
+					<Name><![CDATA[rectangle13]]></Name>
+					<X>130</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1710860367443</Id>
+					<Name><![CDATA[rectangle15]]></Name>
+					<X>910</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Rectangle>
+					<Id>1710860367451</Id>
+					<Name><![CDATA[rectangle14]]></Name>
+					<X>665</X><Y>180</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>3</Width>
+					<Height>817</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Group>
+					<Id>1710860367551</Id>
+					<Name><![CDATA[titleTable]]></Name>
+					<X>960</X><Y>190</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Text>
+					<Id>1710860367553</Id>
+					<Name><![CDATA[text2]]></Name>
+					<X>-862</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[№]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367555</Id>
+					<Name><![CDATA[text4]]></Name>
+					<X>-740</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Время по расписанию]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367557</Id>
+					<Name><![CDATA[text5]]></Name>
+					<X>-550</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Время фактическое]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367559</Id>
+					<Name><![CDATA[text6]]></Name>
+					<X>-380</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Опоздание на, ч]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367561</Id>
+					<Name><![CDATA[text7]]></Name>
+					<X>30</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Вес состава]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+				<Text>
+					<Id>1710860367563</Id>
+					<Name><![CDATA[text10]]></Name>
+					<X>210</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Количество вагонов]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1710862260418</Id>
+					<Name><![CDATA[flatButton18]]></Name>
+					<X>605</X><Y>30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1710862260420</Id>
+					<Name><![CDATA[rectangle37]]></Name>
+					<X>-39</X><Y>-30</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>0</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>60</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor/>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Line>
+					<Id>1710862260422</Id>
+					<Name><![CDATA[line119]]></Name>
+					<X>55</X><Y>-30</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-8355712</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>60</Dy>
+					<Dz>0</Dz>
+				</Line>
+				<Rectangle>
+					<Id>1710862260424</Id>
+					<Name><![CDATA[rectangle38]]></Name>
+					<X>-39</X><Y>24</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor/>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>94</Width>
+					<Height>6</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-65536</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1710862260426</Id>
+					<Name><![CDATA[text60]]></Name>
+					<X>7</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Отправки]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+			</Presentation>
+
+				</Level>
+			</Presentation>
+			<Areas>
+				<Area>
+					<Id>1710860367565</Id>
+					<Name><![CDATA[send]]></Name>
 					<X>0</X><Y>0</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -42559,39 +44918,105 @@ import java.util.stream.Collectors;
  * TrainSend
  */
 public class TrainSend{
-    private Date dateSend;
+    private Date dateSend; //+
     private List<TrackEdge> pops;
     private RailCar locomotive;
     private TrackEdge recTrack;
     private boolean isSchedule;
     private double minWeight;
     private double minLength;
+    private boolean isSend;
+    private List<RailCar> train;
+    private Date dateHappen;
+    private double priority;
+
+    private String reasonLate;
 
     public TrainSend() {
     }
 
-    public TrainSend(Date dateSend, List<TrackEdge> pops, RailCar locomotive, double minWeight, double minLength) {
-        this.dateSend = dateSend;
-        this.locomotive = locomotive;
-        this.pops = pops;
-        this.minWeight = minWeight;
-        this.minLength = minLength;
+    public void setTrainSendByTS(TrainSend trainSend, boolean isSchedule) {
+    	this.isSend = trainSend.isSend();
+    	this.train = trainSend.getTrain();
+    	this.dateHappen = trainSend.getDateHappen();
+    	this.reasonLate = trainSend.getReasonLate();
+    	
+    	this.pops = trainSend.getPops();
+    	this.locomotive = trainSend.getLocomotive();
+    	this.recTrack = trainSend.getRecTrack();
+    	this.isSchedule = isSchedule;
+    	this.minWeight = trainSend.getMinWeight();
+    	this.minLength = trainSend.getMinLength();
+    	
     }
-    
-    public TrainSend(Date dateSend, RailCar locomotive) {
+
+    public TrainSend(Date dateSend, boolean isSchedule, double priority) {
         this.dateSend = dateSend;
-        this.locomotive = locomotive;
+        this.isSchedule = isSchedule;
+        this.priority = priority;
     }
-    
-    public TrainSend(Date dateSend) {
-        this.dateSend = dateSend;
-    }
-    
+
     public TrainSend(List<TrackEdge> pops, RailCar locomotive, double minWeight, double minLength) {
         this.pops = pops;
         this.locomotive = locomotive;
         this.minWeight = minWeight;
         this.minLength = minLength;
+    }
+    
+    public double getPriority() {
+        return priority;
+    }
+
+    public void setPriority(double priority) {
+    	this.priority = priority;
+    }
+
+    public boolean isSend() {
+        return isSend;
+    }
+
+    public void setSend(boolean send) {
+        isSend = send;
+    }
+    
+    public List<RailCar> getTrain() {
+        return train;
+    }
+
+    public void setTrain(List<RailCar> train) {
+        this.train = train;
+    }
+
+    public Date getDateHappen() {
+        return dateHappen;
+    }
+    
+    public double getMinWeight() {
+        return minWeight;
+    }
+
+    public void setMinWeight(double minWeight) {
+        this.minWeight = minWeight;
+    }
+
+    public double getMinLength() {
+        return minLength;
+    }
+
+    public void setMinLength(double minLength) {
+        this.minLength = minLength;
+    }
+
+    public void setDateHappen(Date dateHappen) {
+        this.dateHappen = dateHappen;
+    }
+
+    public String getReasonLate() {
+        return reasonLate;
+    }
+
+    public void setReasonLate(String reasonLate) {
+        this.reasonLate = reasonLate;
     }
 
     public List<TrackEdge> getPops() {
@@ -42609,8 +45034,8 @@ public class TrainSend{
     public void setDateSend(Date dateSend) {
         this.dateSend = dateSend;
     }
-    
-    
+
+
     public TrackEdge getRecTrack() {
         return recTrack;
     }
@@ -42618,7 +45043,7 @@ public class TrainSend{
     public void setRecTrack(TrackEdge recTrack) {
         this.recTrack = recTrack;
     }
-    
+
     public boolean getIsSchedule() {
         return isSchedule;
     }
@@ -42626,7 +45051,7 @@ public class TrainSend{
     public void setIsSchedule(boolean isSchedule) {
         this.isSchedule = isSchedule;
     }
-    
+
     public RailCar getLocomotive() {
         return locomotive;
     }
@@ -42635,46 +45060,47 @@ public class TrainSend{
         this.locomotive = locomotive;
     }
     /**
-     * 
+     *
      * @return - возвращает путь, под отправку (для отправки по расписанию)
      */
     public TrackEdge getTrackForSend() {
-    	List<TrackEdge> convTracks = pops
-    			.stream()
-    			.filter( p-> Tools.getLengthTrain(p.getRailCarsWithoutTrain()) >= minLength 
-    				&& Tools.getWeightTrain(p.getRailCarsWithoutTrain()) >= minWeight 
-    					&& isAvailableWeight(p) 
-    						&& !p.getSelf().isEmpty() 
-    							&& p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции")))
-    			.collect(Collectors.toList()); // все вагоны под отправку
-    	//traceln("ОТПРАВКА СО СТАНЦИИ ПО РАСПИСАНИЮ, не путей, который удовлетворяют условию на отправку");
-    	TrackEdge edge = null;
-    	if (convTracks.size() > 0) {
-    		edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку
-    	}
-    			//
-    	return edge;
+        List<TrackEdge> convTracks = pops
+                .stream()
+                .filter( p-> (Tools.getLengthTrain(p.getRailCarsWithoutTrain()) >= minLength // длина состава больше минимальный длины состава
+                        || Tools.getWeightTrain(p.getRailCarsWithoutTrain()) >= minWeight) // вес состава больше минимального веса состава
+                        && isAvailableWeight(p) // на пути стоит состав, который может быть убран локомотивом
+                        && !p.getSelf().isEmpty() // путь не пустой
+                        && p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))) // все вагоны на пути
+                .collect(Collectors.toList()); // все вагоны под отправку
+        //traceln("ОТПРАВКА СО СТАНЦИИ ПО РАСПИСАНИЮ, не путей, который удовлетворяют условию на отправку");
+        TrackEdge edge = null;
+        if (convTracks.size() > 0) {
+            edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку
+        }
+        //
+        return edge;
     }
-    
+
     /*public int getCountCarsForWeightApply(TrackEdge edge) {
     	int cntCars = 0;
     }*/
     /**
-     * 
+     *
      * @return возвращает путь, который может отправиться со станции, если занимает практически весь путь и вес подходит для отправки локомотивом
      */
     public TrackEdge checkTracksForSends() {
-    	 TrackEdge needToSend = null;
-    	 for (TrackEdge edge : getReadyTracks()) {
-    		 if (checkAvailableLength(edge) // осталось 50м свободного места на пути
-    			|| isAvailableWeightLim(edge) // осталось меньше или равно 100т до максимального веса
-    				|| checkAvailableLength(edge)) { // осталось 50м до максимальной длины состава
-    			 if (isAvailableWeight(edge) && isAvailableLengthLim(edge)) {
-    				 needToSend = edge;
-    			 }
-    		 }
-    	 }
-    	 return needToSend;
+        TrackEdge needToSend = null;
+        for (TrackEdge edge : getReadyTracks()) {
+            if (checkAvailableLength(edge) // осталось 50м свободного места на пути
+                    || isAvailableWeightLim(edge) // осталось меньше или равно 100т до максимального веса
+                    || checkAvailableLengthForLoco(edge)) { // осталось 50м до максимальной длины состава
+                if (isAvailableWeight(edge) // состав на пути весит меньше чем может перевезти локомотив
+                		&& isAvailableLengthLim(edge)) { // состав на пути имеет длину меньше чем может перевезти локомотив
+                    needToSend = edge;
+                }
+            }
+        }
+        return needToSend;
     }
     /*
     Когда начинаем отправку:
@@ -42684,147 +45110,168 @@ public class TrainSend{
     Когда состав приближен к максимально-перевозимому весу локомотивом
     Когда состав приближен к максимальной длине на перевозку локомотивом
      */
-    
+
     /**
-     * 
+     *
      * @param edge - путь, который рассматривается
      * @return - возвращает результат true, если на пути стоит состав, который может быть отправлен выбранным локомотивом
      */
     public boolean isAvailableLengthLim(TrackEdge edge) {
-    	boolean isAvailable = false;
-		if ((Tools.getWeightTrain(edge.getRailCarsWithoutTrain()) + locomotive.getWeight()) <= locomotive.maxLengthForSend) { // если локомотив пути меньше 50
-			isAvailable = true;
-		}
-    	return isAvailable;
+        boolean isAvailable = false;
+        if ((Tools.getWeightTrain(edge.getRailCarsWithoutTrain()) + locomotive.getWeight()) <= locomotive.maxLengthForSend) { // если локомотив пути меньше 50
+            isAvailable = true;
+        }
+        return isAvailable;
     }
-    
-    
-    
+
+
+
     /**
-     * 
+     *
      * @param edge - путь, который рассматривается
      * @return - возвращает результат true, если на пути стоит состав, который приближен к Максимальной длине перевозимой локомотивом
      */
     public boolean checkAvailableLengthForLoco(TrackEdge edge) {
-    	boolean isAvailable = false;
-		if (locomotive.maxLengthForSend - (Tools.getWeightTrain(edge.getRailCarsWithoutTrain()) + locomotive.getWeight()) <= 50) { // если локомотив пути меньше 50
-			isAvailable = true;
-		}
-    	return isAvailable;
+        boolean isAvailable = false;
+        if (locomotive.maxLengthForSend - (Tools.getWeightTrain(edge.getRailCarsWithoutTrain()) + locomotive.getWeight()) <= 50) { // если локомотив пути меньше 50
+            isAvailable = true;
+        }
+        return isAvailable;
     }
-    
+
     /**
-     * 
+     *
      * @return возвращает путь, который может отправиться со станции, если вес состава приближен к максимальному весу для отправки локомотивом
      */
     public TrackEdge checkWeightTracksForSends() {
-    	 TrackEdge needToSend = null;
-    	 for (TrackEdge edge : getReadyTracks()) {
-    		 if (isAvailableWeightLim(edge)) {
-    			 needToSend = edge;
-    		 }
-    	 }
-    	 return needToSend;
+        TrackEdge needToSend = null;
+        for (TrackEdge edge : getReadyTracks()) {
+            if (isAvailableWeightLim(edge)) {
+                needToSend = edge;
+            }
+        }
+        return needToSend;
     }
-    
+
     public List<TrackEdge> getReadyTracks(){
-    	List<TrackEdge> readyEdges = pops.stream().filter( p-> !p.getSelf().isEmpty() && p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
-    	return readyEdges;
+        List<TrackEdge> readyEdges = pops.stream().filter( p-> !p.getSelf().isEmpty() && p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());
+        return readyEdges;
     }
     /**
-     * 
+     *
      * @param edge - путь, который рассматривается
      * @return - возвращает результат true, если на пути стоит состав, который ЗАНИМАЕТ ПРАКТИЧЕСКИ ВЕСЬ ПУТЬ
      */
     public boolean checkAvailableLength(TrackEdge edge) {
-    	boolean isAvailable = false;
-		if (edge.getFreeSpace() <= 50) { // если вместимость пути меньше 20 
-			isAvailable = true;
-		}
-    	return isAvailable;
+        boolean isAvailable = false;
+        if (edge.getFreeSpace() <= 50) { // если вместимость пути меньше 20
+            isAvailable = true;
+        }
+        return isAvailable;
     }
     /**
-     * 
+     *
      * @param edge - путь, который рассматривается
      * @return - возвращает результат true, если на пути стоит состав, который ВЕСИТ МЕНЬШЕ ЧЕМ МОЖЕТ ПЕРЕВЕЗТИ ЛОКОМОТИВ
      */
     public boolean isAvailableWeight(TrackEdge edge) {
-    	boolean isAvailable = false;
-    	double maxWeight = locomotive.maxWeightForSend - locomotive.getWeight();
-    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
-		if (trainWeight <= maxWeight) {
-			isAvailable = true;
-		}
-    	return isAvailable;
+        boolean isAvailable = false;
+        double maxWeight = locomotive.maxWeightForSend - locomotive.getWeight();
+        double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
+        if (trainWeight <= maxWeight) {
+            isAvailable = true;
+        }
+        return isAvailable;
     }
     
+    public String getTrainWeight() {
+    	return train == null ? "Отправки не было" : 
+        	Tools.getWeightTrain(train)+"";
+    }
+    public String getCntVagons() {
+    	return train == null ? "Отправки не было" : 
+        	train.size()+"";
+    }
+    
+    public String getHoursLate() {
+    	String res = "Состав не сформирован";
+    	if (isSchedule) {
+    		res = dateHappen == null ? "Состав не сформирован" : 
+    	    	((getDateHappen().getTime() - dateSend.getTime())/3600000)+"";
+    	}
+    	else {
+    		res = "Не по расписанию";
+    	}
+    	return res;
+    }
+
     /**
-     * 
+     *
      * @param edge - путь, который рассматривается
      * @return - возвращает результат true, если на пути стоит состав, который ПРИБЛИЖЕН К МАКСИМАЛЬНОМУ ВЕСУ ОТПРАВКИ ЛОКОМОТИВА
      */
     public boolean isAvailableWeightLim(TrackEdge edge) {
-    	boolean isAvailable = false;
-    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsWithoutTrain());
-		if (trainWeight <= locomotive.maxWeightForSend
-				&& trainWeight >= locomotive.maxWeightForSend - 100) {
-			isAvailable = true;
-		}
-    	return isAvailable;
+        boolean isAvailable = false;
+        double trainWeight = Tools.getWeightTrain(edge.getRailCarsWithoutTrain());
+        if (trainWeight <= locomotive.maxWeightForSend
+                && trainWeight >= locomotive.maxWeightForSend - 100) {
+            isAvailable = true;
+        }
+        return isAvailable;
     }
     /**
-     * 
+     *
      * @param edge - путь, на котором находятся вагоны, готовые к отправке со станции
      * @return - возвращает количество вагонов, которое можент отцепить локомотив
      */
     public int getCntVagonsForDecouple(TrackEdge edge) {
-    	int cntVagons = 0;
-    	double maxWeight = locomotive.maxWeightForSend - locomotive.getWeight();
-    	double weightTrain = 0;
-    	for (RailCar car : edge.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())) {
-    		if (weightTrain + car.getWeight() <= maxWeight) {
-    			cntVagons++;
-    			weightTrain += car.getWeight();
-    		}
-    	}
-    	return cntVagons;
+        int cntVagons = 0;
+        double maxWeight = locomotive.maxWeightForSend - locomotive.getWeight();
+        double weightTrain = 0;
+        for (RailCar car : edge.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())) {
+            if (weightTrain + car.getWeight() <= maxWeight) {
+                cntVagons++;
+                weightTrain += car.getWeight();
+            }
+        }
+        return cntVagons;
     }
-    
+
     /**
-     * 
+     *
      * @param edge
      * @return - возвращает результат true, если на пути находится больше вагонов, чем может перевезти локомотив
      */
     public boolean isBiggerThenMaxWeight(TrackEdge edge) {
-    	boolean isBigger = false;
-    	double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
-		if (trainWeight > locomotive.maxWeightForSend) {
-			isBigger = true;
-		}
-    	return isBigger;
+        boolean isBigger = false;
+        double trainWeight = Tools.getWeightTrain(edge.getRailCarsOnTrack());
+        if (trainWeight > locomotive.maxWeightForSend) {
+            isBigger = true;
+        }
+        return isBigger;
     }
-    
+
     public static String getTypeTask(boolean useStationLoco, RailwayTrack startTrack, int cntVagons) {
-    	String type = null;
-    	//traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
-    	//traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
-    	if (useStationLoco) {
-    		if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
-    			type = "Отправка состава со станции solo";
-    		}
-    		else {
-    			type = "Отправка не всего состава со станции solo";
-    		}
-    	}
-    	else {
-    		if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
-    			type = "Отправка состава со станции";
-    		}
-    		else {
-    			type = "Отправка не всего состава со станции";
-    		}
-    	}
-    	return type;
+        String type = null;
+        //traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
+        //traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
+        if (useStationLoco) {
+            if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
+                type = "Отправка состава со станции solo";
+            }
+            else {
+                type = "Отправка не всего состава со станции solo";
+            }
+        }
+        else {
+            if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
+                type = "Отправка состава со станции";
+            }
+            else {
+                type = "Отправка не всего состава со станции";
+            }
+        }
+        return type;
     }
 
     @Override

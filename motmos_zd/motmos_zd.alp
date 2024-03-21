@@ -1080,6 +1080,7 @@ setTracksActive();]]></Action>
 				<Event>
 					<Id>1707321879923</Id>
 					<Name><![CDATA[setPause]]></Name>
+					<ExcludeFromBuild>true</ExcludeFromBuild>
 					<X>390</X><Y>2740</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
@@ -1097,7 +1098,7 @@ setTracksActive();]]></Action>
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1707379200000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[190]]></Code>
+							<Code><![CDATA[350]]></Code>
 							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
@@ -1610,7 +1611,10 @@ return listCar;]]></Body>
 10. Добавить событие экипировка * 18.03.24
 12. Добавить событие заправка * 18.03.24
 37. Добавить повышенный приоритет на составы на отправку на грузовой фронт, если в нем есть вагоны контактного графика * 18.03.24
-32. Delay В logic может держать в delay не тот состав, исправить * 19.03.24]]></Body>
+32. Delay В logic может держать в delay не тот состав, исправить * 19.03.24
+27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку * 21.03.24
+36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина * 21.03.24
+1. Уборка вагонов с фронта, когда на фронте находится локомотив * 05.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1770,27 +1774,23 @@ enterTasks.take(task);]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[План
-////////////1. Уборка вагонов с фронта, когда на фронте находится локомотив//пока не делать, не знаю чем обернется для общей логики
-3. Распределение задач на несколько локомотивов
-4. Корректно выставить задержку на расцепку и сцепку (убрать часть задержке, обратить внимание на параметр needWait)
-6. Разработать экран настройки прибывающих составов
-7. Разработать экран отправлений составов
-7. Продумать отображение заявок на экране
+1. Распределение задач на несколько локомотивов
+2. Корректно выставить задержку на расцепку и сцепку (убрать часть задержке, обратить внимание на параметр needWait)
+3. Разработать экран настройки прибывающих составов
+4. Разработать экран отправлений составов
+5. Продумать отображение заявок на экране
 // TODO пока оставить, получается +- 1 час если ставить прибытие заявок + 12 часов 8. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
-14. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
-16. Сформировать файл отчета
+6. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
+7. Сформировать файл отчета план-заданий
+8. Разбитие путей на участки по 25м для оценки грузонапряженности
 // TODO оставить пока до планировщика 17. Обработать ситуацию отправки на следующую задачу если происходит срабатывание задачи "Движение кон"
-21. Проверить работу вагонов с технологической простоем и не технологическим
-22. Проверить работу отправки и прибытия составов с помощью станционного локомотива
-23. Чтобы не спамились задачи, должно быть не больше 10 расчисток
-27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку
-30. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
-31. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
-
-34. Нужно что-то сделать со временем срабатываения событий
-36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина
-37. Ожидание 
-38. Разрешить отправку составов с пути не польностью]]></Body>
+8. Проверить работу вагонов с технологической простоем и не технологическим
+9. Проверить работу отправки и прибытия составов с помощью станционного локомотива
+10. Чтобы не спамились задачи, должно быть не больше 10 расчисток
+11. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
+12. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
+13. Нужно что-то сделать со временем срабатываения событий
+14. Разрешить отправку составов с пути не польностью]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2189,13 +2189,23 @@ task.locoForTask = taskAction.locoForTask;
 //traceln(green, "Проверяю соответствие " + checkType);
 //traceln(black, "Все имеющиеся задачи:");
 boolean isAdd = true;
-for (int i = 0; i < queueTasksSuper.size(); i++){
-	TaskAction action = (TaskAction)queueTasksSuper.get(i);
-	String front = task.front == null ? "null" : task.front.getName();
-	String check = action.type + " " + front;
-	//traceln(red, check);
-	if (check.equals(checkType)){
-		isAdd = false;
+if (!task.type.equals("Отправка")  && !task.type.equals("Прибытие")){
+	for (int i = 0; i < queueTasksSuper.size(); i++){
+		TaskAction action = (TaskAction)queueTasksSuper.get(i);
+		String front = task.front == null ? "null" : task.front.getName();
+		String check = action.type + " " + front;
+		//traceln(red, check);
+		if (check.equals(checkType)){
+			isAdd = false;
+		}
+	}
+}
+if (task.type.equals("Отправка") && !taskAction.trainSend.getIsSchedule()){
+	for (int i = 0; i < queueTasksSuper.size(); i++){
+		TaskAction action = (TaskAction)queueTasksSuper.get(i);
+		if (action.trainSend != null && !action.trainSend.getIsSchedule()){
+			isAdd = false;
+		}
 	}
 }
 if (isAdd){
@@ -2424,7 +2434,7 @@ for (TrainArrival arrival : data.arrivalsCollection){
 		data.arrivalsDone.add(arrival);
 		TaskAction task = new TaskAction();
 		task.type = "Прибытие";
-		task.priority = 1000;
+		task.priority = 200;
 		task.trainArrival = arrival;
 		addTaskSuper(task);
 		break;
@@ -2741,6 +2751,12 @@ if (startTrack != null){ // если путь, с которого можно з
 								p.setTrain(startTrack.getRailCarsWithoutTrain());
 								p.setSend(true);
 							});
+	if (!task.trainSend.getIsSchedule()){
+		task.trainSend.setDateHappen(date());
+		task.trainSend.setTrain(startTrack.getRailCarsWithoutTrain());
+		task.trainSend.setSend(true);
+		data.sendsCollection.add(task.trainSend);
+	}
 	isSend = true;
 	addTask(type, track6, startTrack.getSelf(), train, false, task.trainSend);
 	activeSuperTasks++;
@@ -3260,9 +3276,12 @@ double leftLength = usbleLength - fillLength;
 List<TrackEdge> sortedEdges = getPopsWithoutAvoid().stream().sorted((o1, o2)-> ((Double)o1.getUsableLength()).compareTo(((Double)o2.getUsableLength()))).collect(Collectors.toList());
 //traceln("Путь 1 " + sortedEdges.get(0).getName() + " Путь 2 " + sortedEdges.get(1).getName());
 double lengthTwoMinLengthTracks = sortedEdges.get(0).getUsableLength() + sortedEdges.get(1).getUsableLength();
-if (leftLength >= lengthTwoMinLengthTracks + 20){
+if (lengthTwoMinLengthTracks > fillLength + 20){
 	isEnough = true;
+	
 }
+traceln(green, "Места " + (isEnough ? "хватает" : " не хватает ") + "++++++++++++++++++++++++++++++++");
+
 return isEnough;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3295,7 +3314,7 @@ return isEnough;]]></Body>
 		
 		double weightLoaded = Tools.getWeightTrain(edge.getRailCarsOnTrack().stream().filter(p-> p.weightProduct > 1).collect(Collectors.toList()));
 		double weightUnlodaded = Tools.getWeightTrain(edge.getRailCarsOnTrack().stream().filter(p-> p.weightProduct < 1).collect(Collectors.toList()));
-		double cargoVoltage = (weightLoaded * edge.getRailCarsOnTrack().stream().filter(p-> p.weightProduct > 1).count()) + weightUnlodaded * edge.getRailCarsOnTrack().stream().filter(p-> p.weightProduct < 1).count();
+		double cargoVoltage = weightLoaded * edge.getRailCarsOnTrack().stream().filter(p-> p.weightProduct > 1).count() + weightUnlodaded * edge.getRailCarsOnTrack().stream().filter(p-> p.weightProduct < 1).count();
 		double oldVolatge = edge.getCargoVoltage();
 		edge.setCargoVoltage(cargoVoltage + oldVolatge);
 		
@@ -3461,9 +3480,6 @@ else if (curTime <= morningTime && curTime < eveningTime){ // сейчас 01:00
 else{ // сейчас 19:00 18 - 19 = -1 6 - 19 = 5 done
     res = morningTime + (1440 - curTime);
 }
-traceln("Начальная дата " + startDate);
-traceln("Дата Утренней пересменки " + data.startMorningShift);
-traceln("Дата Вечерней пересменки " + data.startEveningShift);
 return res;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3561,7 +3577,6 @@ return res;]]></Body>
 					</Parameter>
 					<Body><![CDATA[Random rn = new Random();
 int answer = rn.nextInt(max - min + 1) + min;
-traceln("Выдал случайное время " + answer);
 return answer;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3703,7 +3718,7 @@ return isHave;]]></Body>
 					<Body><![CDATA[RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
 TaskAction task = new TaskAction();
 task.type = "Отправка";
-task.priority = 1050;
+task.priority = 130;
 TrackEdge startTrack = null;
 TrainSend ts = getSendAction();
 if (ts != null){ //  если найдено событие на отправку по расписанию
@@ -3714,7 +3729,7 @@ if (ts != null){ //  если найдено событие на отправк�
 	ts.setRecTrack(startTrack);
 	task.trainSend = ts;
 	task.startTrack = startTrack == null ? null  : startTrack.getSelf();
-	task.priority = ts.getPriority();
+	task.priority = ts.getPriority(); 
 	addTaskSuper(task);
 }
 else{
@@ -3722,7 +3737,6 @@ else{
 	ts.setIsSchedule(false);
 	startTrack = ts.checkTracksForSends();
 	if (startTrack != null){
-		data.sendsCollection.add(ts);
 		data.sendsDone.add(ts);
 		ts.setRecTrack(startTrack);
 		task.trainSend = ts;
@@ -3783,6 +3797,27 @@ else{
 	startTrack = trainSend.checkTracksForSends();// не по расписанию
 }
 return startTrack;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1711022236953</Id>
+					<Name><![CDATA[checkCondSend]]></Name>
+					<X>1020</X><Y>2110</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[boolean isCouldSend = true;
+RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
+TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
+if (ts.getTrackForSend() == null){
+	isCouldSend = false;
+}
+else{
+	traceln("Отправить можно");
+}
+return isCouldSend;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -4829,7 +4864,7 @@ switch (typeTask){
 							<ItemName><![CDATA[1412336242933]]></ItemName>
 						</GenericParameterSubstituteReference>
 						<GenericParameterSubstituteValue Class="CodeValue">
-							<Code><![CDATA[SuperTask]]></Code>
+							<Code><![CDATA[TaskAction]]></Code>
 						</GenericParameterSubstituteValue>
 					</GenericParameterSubstitute>
 					<Parameters>
@@ -4893,7 +4928,7 @@ switch (typeTask){
 						<Parameter>
 							<Name><![CDATA[population]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[superTask]]></Code>
+								<Code><![CDATA[taskAction]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -4992,11 +5027,14 @@ switch (typeTask){
 						<Parameter>
 							<Name><![CDATA[priority]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[agent.priority]]></Code>
+								<Code><![CDATA[agent.getPriority()]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[comparison]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[agent1.getPriority() > agent2.getPriority()]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[enableTimeout]]></Name>
@@ -5009,18 +5047,34 @@ switch (typeTask){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[restoreEntityLocationOnExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[false]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[forceStatisticsCollection]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[/*traceln("Есть ");
+for (int i = 0; i < self.size(); i++){
+	traceln("Тип " + self.get(i).type + " Приоритет " + self.get(i).getPriority());
+}
+queueTasksSuper.pri*/]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[/*traceln("Выходим ");
+for (int i = 0; i < self.size(); i++){
+	traceln("Тип " + self.get(i).type + " Приоритет " + self.get(i).getPriority());
+}*/]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExitTimeout]]></Name>
@@ -5354,16 +5408,11 @@ if (queueTasksAction.size() == 0 && activeTasks == 0 && activeSuperTasks > 0 && 
 traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
 traceln(purple, "Исполнение задачи " + agent.type);
 traceln(purple, "Дата " + date());
+traceln(purple, "Приоритет " + agent.priority);
 traceln(violet, "++++++++++++++++++++++++++++++++++++++++++++++++++");
 switch(agent.type){
 	case "Прибытие" :
 		if (!makeTaskForArrive((TaskAction)agent)){
-			if (!isEnoughPlace()){
-				agent.priority = 200;
-			}
-			else{
-				agent.priority = 1000;
-			}
 			enterTasksSuper.take(agent);
 		}
 		break;
@@ -5400,8 +5449,7 @@ switch(agent.type){
 		makeTasksPickUpToFront(((TaskAction)agent).front);
 		break;
 	case "Отправка":
-		if (makeTaskForSend((TaskAction)agent)){
-			agent.priority++;
+		if (!makeTaskForSend((TaskAction)agent)){
 			enterTasksSuper.take(agent);
 		};
 		break;
@@ -5675,6 +5723,12 @@ switch(agent.type){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[/*traceln(red, "============================");
+traceln("НОВАЯ ЗАДАЧА " + agent.type);
+traceln("Приоритет " + agent.priority);
+traceln(red, "============================");*/]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>
@@ -20893,7 +20947,7 @@ file.readFile();
 double koef = 0.1;
 while(file.cellExists(list, row, 1)){
 	Date dateArrival = file.getCellDateValue(list, row, 1);
-	TrainSend send = new TrainSend(dateArrival, true, (koef*row+1050));
+	TrainSend send = new TrainSend(dateArrival, true, (160 - koef*row));
 	sendsCollection.add(send);
 	row++;
 }
@@ -22323,6 +22377,28 @@ RailwayTrack copyEndTrack = main.track6;;
 Double offset = copyEndTrack.getName().equals(main.track6.getName()) ? 0.0 : -1.0;
 Task task = new Task(currTask.getType(), copyStartTrack, copyEndTrack, offset);
 return task;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[double]]></ReturnType>
+					<Id>1711022068536</Id>
+					<Name><![CDATA[getPriority]]></Name>
+					<X>470</X><Y>400</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[double copyPriprity = priority;
+if (type.equals("Отправка") && main.checkCondSend()){
+	copyPriprity = priority + 900;
+}
+
+if (type.equals("Прибытие") && main.isEnoughPlace()){
+	copyPriprity = priority + 800;
+	traceln("Прибавляю к прибытию 800");
+}
+
+return copyPriprity;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -25553,6 +25629,184 @@ main.data.offsetTimeArrive = self.getDoubleValue();]]></ActionCode>
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
 					<Id>1710227181941</Id>
 					<Name><![CDATA[slider20]]></Name>
+					<X>220</X><Y>-15</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[editbox20.setText(self.getValue());
+main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
+						<Orientation>HORIZONTAL</Orientation>
+						<MinValue><![CDATA[0]]></MinValue>
+						<MaxValue><![CDATA[48]]></MaxValue>
+						<Step><![CDATA[1]]></Step>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.offsetTimeArrive</Link>
+					</ExtendedProperties>
+				</Control>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1711003513943</Id>
+					<Name><![CDATA[groupSettings21]]></Name>
+					<X>280</X><Y>790</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Control Type="EditBox">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1711003513945</Id>
+					<Name><![CDATA[editbox21]]></Name>
+					<X>105</X><Y>-15</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<FillColor/>
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[slider20.setValue(self.getDoubleValue());
+main.data.offsetTimeArrive = self.getDoubleValue();]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<DefaultValueCode><![CDATA["7"]]></DefaultValueCode>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.offsetTimeArrive</Link>
+					</ExtendedProperties>
+				</Control>
+				<Text>
+					<Id>1711003513947</Id>
+					<Name><![CDATA[text28]]></Name>
+					<X>-210</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Смещение времени привоза вагонов, м]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Control Type="Slider">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1711003513949</Id>
+					<Name><![CDATA[slider21]]></Name>
+					<X>220</X><Y>-15</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[editbox20.setText(self.getValue());
+main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<DefaultValueCode><![CDATA[0]]></DefaultValueCode>
+						<Orientation>HORIZONTAL</Orientation>
+						<MinValue><![CDATA[0]]></MinValue>
+						<MaxValue><![CDATA[48]]></MaxValue>
+						<Step><![CDATA[1]]></Step>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.offsetTimeArrive</Link>
+					</ExtendedProperties>
+				</Control>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1711003518205</Id>
+					<Name><![CDATA[groupSettings22]]></Name>
+					<X>280</X><Y>840</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Control Type="EditBox">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1711003518207</Id>
+					<Name><![CDATA[editbox22]]></Name>
+					<X>105</X><Y>-15</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<BasicProperties Width="100" Height="30">
+                        <EmbeddedIcon>false</EmbeddedIcon>	
+						<FillColor/>
+						<TextColor/>
+						<Enabled>true</Enabled>
+						<ActionCode><![CDATA[slider20.setValue(self.getDoubleValue());
+main.data.offsetTimeArrive = self.getDoubleValue();]]></ActionCode>
+					</BasicProperties>
+					<ExtendedProperties>
+						<Font Name="Dialog" Size="11" Style="0"/>
+						<DefaultValueCode><![CDATA["7"]]></DefaultValueCode>
+						<LinkTo>true</LinkTo>
+						<Link>main.data.offsetTimeArrive</Link>
+					</ExtendedProperties>
+				</Control>
+				<Text>
+					<Id>1711003518209</Id>
+					<Name><![CDATA[text29]]></Name>
+					<X>-210</X><Y>-10</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Смещение времени привоза вагонов, м]]></Text>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+				<Control Type="Slider">
+				 	<EmbeddedIcon>false</EmbeddedIcon>				
+					<Id>1711003518211</Id>
+					<Name><![CDATA[slider22]]></Name>
 					<X>220</X><Y>-15</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
@@ -44786,9 +45040,9 @@ public class TrainCleaner implements Serializable {
     public List<TaskAction> getTasks(){
         List<TaskAction> tasks = new ArrayList();
         TrackEdge trackToClean = getFilledTracks().get(0); // путь, который необходимо расчистить (на котором находится меньше всего вагонов)
-        //traceln("Путь, который нужно расчистить " + trackToClean.getName() + " на нем вагонов " + trackToClean.getRailCarsWithoutTrain().size());
+        traceln("Путь, который нужно расчистить " + trackToClean.getName() + " на нем вагонов " + trackToClean.getRailCarsWithoutTrain().size());
         double trainLength = Tools.getLengthTrain(trackToClean.getRailCarsWithoutTrain()); // размер состава, который нужно переставить
-        //traceln("Размер состава, который нужно переставить " + trainLength);
+        traceln("Размер состава, который нужно переставить " + trainLength);
         Set<TrackEdge> usedEdges = new HashSet();
         int prevCnt = 0;
         while(trainLength > 1) { // пока весь состав с пути не будет убран
@@ -44796,25 +45050,25 @@ public class TrainCleaner implements Serializable {
             if (endTrack != null) {
                 usedEdges.add(endTrack);
                 trainLength = trainLength - endTrack.getFreeSpace();
-                //traceln(green, "Свободного мест на пути " + endTrack.getName() + " - " + endTrack.getFreeSpace());
-                //traceln(gold, "Размер оставшегося состава, который нужно переставить " + trainLength);
+                traceln(green, "Свободного мест на пути " + endTrack.getName() + " - " + endTrack.getFreeSpace());
+                traceln(gold, "Размер оставшегося состава, который нужно переставить " + trainLength);
                 String type = "";
                 int cntVagons = 0;
                 if (trainLength > 1) {
                     type = "Полурейс формирования";
-                    //traceln(purple, "Начинаю с " + prevCnt);
+                    traceln(purple, "Начинаю с " + prevCnt);
                     cntVagons = getCountVagonsForDecouple(trackToClean, trainLength, prevCnt);
                     trainLength = trainLength + endTrack.getFreeSpace() - Tools.getLengthTrain(Tools.getTrainByCntOnTrack(prevCnt, cntVagons, trackToClean));
                     prevCnt = cntVagons;
-                   // traceln(purple, "Выдаю вагонов для задачи отцепки " + cntVagons);
+                    traceln(purple, "Выдаю вагонов для задачи отцепки " + cntVagons);
                     
                 }
                 else {
                     type = "Полурейс формирования всех вагонов с пути";
-                    //traceln(black, "Места хватает");
+                    traceln(black, "Места хватает");
                     cntVagons = 0;//endTrack.getRailCarsWithoutTrain().size();
-                    //traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
-                    //traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
+                    traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
+                    traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
 
                 }
                 TaskAction task = new TaskAction(type, trackToClean.getSelf(), endTrack.getSelf(), cntVagons);
@@ -45077,6 +45331,18 @@ public class TrainSend{
         if (convTracks.size() > 0) {
             edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку
         }
+        else {
+        	convTracks = pops
+                    .stream()
+                    .filter( p-> (Tools.getLengthTrain(p.getRailCarsWithoutTrain()) >= minLength // длина состава больше минимальный длины состава
+                            || Tools.getWeightTrain(p.getRailCarsWithoutTrain()) >= minWeight) // вес состава больше минимального веса состава
+                            && !p.getSelf().isEmpty() // путь не пустой
+                            && p.getRailCarsWithoutTrain().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))) // все вагоны на пути
+                    .collect(Collectors.toList()); // все вагоны под отправку
+        	if (convTracks.size() > 0) {
+                edge = convTracks.stream().max((p1, p2) -> Integer.compare(((Integer)p1.getReadyCars().size()), ((Integer)p2.getReadyCars().size()))).get(); // выбор пути с максимальным количество вагонов под отправку
+            }
+        }
         //
         return edge;
     }
@@ -45227,11 +45493,17 @@ public class TrainSend{
     public int getCntVagonsForDecouple(TrackEdge edge) {
         int cntVagons = 0;
         double maxWeight = locomotive.maxWeightForSend - locomotive.getWeight();
+        double maxLength = locomotive.maxLengthForSend - locomotive.length;
         double weightTrain = 0;
+        double lengthTrain = 0;
         for (RailCar car : edge.getRailCarsOnTrack().stream().filter(p-> !p.type.equals("Локомотив")).collect(Collectors.toList())) {
-            if (weightTrain + car.getWeight() <= maxWeight) {
+            if (weightTrain + car.getWeight() <= maxWeight && lengthTrain + car.length <=maxLength) {
                 cntVagons++;
                 weightTrain += car.getWeight();
+                lengthTrain += car.length;
+            }
+            else {
+            	break;
             }
         }
         return cntVagons;
@@ -45253,8 +45525,8 @@ public class TrainSend{
 
     public static String getTypeTask(boolean useStationLoco, RailwayTrack startTrack, int cntVagons) {
         String type = null;
-        //traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
-        //traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
+        traceln(orange, "Количесто отцепляемых вагонов " + cntVagons);
+        traceln(orange, "На пути вагонов " + startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count());
         if (useStationLoco) {
             if (startTrack.getCars().stream().filter(p-> !((RailCar)p).type.equals("Локомотив")).count() == cntVagons) {
                 type = "Отправка состава со станции solo";

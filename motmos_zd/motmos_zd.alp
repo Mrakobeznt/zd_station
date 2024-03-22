@@ -2498,12 +2498,11 @@ for (TrainArrival arrival : data.arrivalsCollection){
 	if (!data.arrivalsDone.contains(arrival) // если дата по расписанию не была
 		&& getModelTime().getTime() <= arrival.getDate().getTime() + offsetTime // если дата прибытия через 2 часа от текущей даты
 			&& arrival.getDate().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 2 часа от текущей даты
-		traceln("Проверяю прибытие " + arrival);
 		arrival.setHappen(true);
 		data.arrivalsDone.add(arrival);
 		TaskAction task = new TaskAction();
 		task.type = "Прибытие";
-		task.priorityCopy = 200;
+		task.priorityCopy = arrival.getPriority();
 		task.trainArrival = arrival;
 		addTaskSuper(task);
 		break;
@@ -3837,7 +3836,6 @@ for (TrainSend ts1 : data.sendsCollection){
 			&& getModelTime().getTime() <= ts1.getDateSend().getTime() + offsetTime // если дата прибытия через 0.5 часа от текущей даты 5 +  10 + 30 
 				&& ts1.getDateSend().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 0.5 часа от текущей даты 10 - 30 5
 		ts = ts1;
-		traceln("Можно отправить");
 		break;
 	}
 }
@@ -3907,12 +3905,9 @@ return isCouldSend;]]></Body>
 						<Type><![CDATA[TaskAction]]></Type>
 					</Parameter>
 					<Body><![CDATA[boolean theBiggest = true;
-traceln("Задача " + task.type + " Приоритет " + task.getPriority());
 double priorityTask = task.getPriority();
 for (int i = 0; i < queueTasksSuper.size(); i++){
-	traceln("Проверяем с задачей " + queueTasksSuper.get(i).type + " Приоритет " + queueTasksSuper.get(i).getPriority());
 	if (priorityTask < queueTasksSuper.get(i).getPriority()){
-		traceln("Сравниваемая задача имеет приоритет выше");
 		theBiggest = false;
 		break;
 	}
@@ -5036,6 +5031,9 @@ switch (typeTask){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[queueTasksSuper.sortAgents();]]></Code>
+							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onRemove]]></Name>
@@ -5157,11 +5155,7 @@ switch (typeTask){
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[self.sortAgents();
-/*traceln("Есть ");
-for (int i = 0; i < self.size(); i++){
-	traceln("Тип " + self.get(i).type + " Приоритет " + self.get(i).getPriority());
-}*/]]></Code>
+								<Code><![CDATA[self.sortAgents();]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -5169,12 +5163,6 @@ for (int i = 0; i < self.size(); i++){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExit]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[/*traceln("Выходим ");
-for (int i = 0; i < self.size(); i++){
-	traceln("Тип " + self.get(i).type + " Приоритет " + self.get(i).getPriority());
-}*/]]></Code>
-							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onExitTimeout]]></Name>
@@ -5824,10 +5812,10 @@ switch(agent.type){
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[/*traceln(red, "============================");
+								<Code><![CDATA[traceln(red, "============================");
 traceln("НОВАЯ ЗАДАЧА " + agent.type);
-traceln("Приоритет " + agent.priority);
-traceln(red, "============================");*/]]></Code>
+traceln("Приоритет " + agent.priority());
+traceln(red, "============================");]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -7028,7 +7016,7 @@ logic.enterStart.take(agent);]]></Code>
 						<Parameter>
 							<Name><![CDATA[onExitFalse]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[traceln("Выхожу отсюда");]]></Code>
+								<Code><![CDATA[queueTasksSuper.sortAgents();]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -13254,7 +13242,7 @@ logic.enterStart.take(agent);]]></Code>
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
 					<Id>1711089219462</Id>
 					<Name><![CDATA[button1]]></Name>
-					<X>720</X><Y>1935</Y>
+					<X>820</X><Y>1890</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -20926,11 +20914,13 @@ for (PositionOnTrack pt : finishFronts){
 					<Body><![CDATA[int row = 2;
 ExcelFile file = startData;
 String list = "Прибытия";
+double koef = 0.1;
 file.readFile();
 
 while(file.cellExists(list, row, 1)){
 	Date dateArrival = file.getCellDateValue(list, row, 1);
-	TrainArrival arrival = new TrainArrival(dateArrival);
+	double priority = 200 - koef*row;
+	TrainArrival arrival = new TrainArrival(dateArrival, priority);
 	arrivalsCollection.add(arrival);
 	row++;
 }
@@ -22701,7 +22691,6 @@ if (type.equals("Отправка") && main.checkCondSend()){
 
 if (type.equals("Прибытие") && main.isEnoughPlace()){
 	copyPriprity = priorityCopy + 800;
-	traceln("Прибавляю к прибытию 800");
 }
 
 return copyPriprity;]]></Body>
@@ -42114,6 +42103,7 @@ action();]]></OnClickCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.tableRequest.applications.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -42220,6 +42210,7 @@ action();]]></OnClickCode>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.arriveTable.arrive.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -44861,11 +44852,20 @@ public class TrainArrival {
     private Date dateHappen;
     private String reasonLate;
     public static boolean isTrace = false;
+    private double priority;
 
     public TrainArrival(Date date, List<RailCar> train, TrackEdge targetTrack) {
         this.date = date;
         this.train = train;
         this.targetTrack = targetTrack;
+    }
+    
+    public double getPriority() {
+        return priority;
+    }
+
+    public void setPriority(double priority) {
+    	this.priority = priority;
     }
 
     public String getReasonLate() {
@@ -44889,8 +44889,9 @@ public class TrainArrival {
         this.dateHappen = dateHappen;
     }
 
-    public TrainArrival(Date date) {
+    public TrainArrival(Date date, double priority) {
         this.date = date;
+        this.priority = priority;
     }
 
     public boolean isArrive() {
@@ -45090,9 +45091,9 @@ public class TrainCleaner implements Serializable {
     public List<TaskAction> getTasks(){
         List<TaskAction> tasks = new ArrayList();
         TrackEdge trackToClean = getFilledTracks().get(0); // путь, который необходимо расчистить (на котором находится меньше всего вагонов)
-        traceln("Путь, который нужно расчистить " + trackToClean.getName() + " на нем вагонов " + trackToClean.getRailCarsWithoutTrain().size());
+        //traceln("Путь, который нужно расчистить " + trackToClean.getName() + " на нем вагонов " + trackToClean.getRailCarsWithoutTrain().size());
         double trainLength = Tools.getLengthTrain(trackToClean.getRailCarsWithoutTrain()); // размер состава, который нужно переставить
-        traceln("Размер состава, который нужно переставить " + trainLength);
+        //traceln("Размер состава, который нужно переставить " + trainLength);
         Set<TrackEdge> usedEdges = new HashSet();
         int prevCnt = 0;
         while(trainLength > 1) { // пока весь состав с пути не будет убран
@@ -45100,25 +45101,25 @@ public class TrainCleaner implements Serializable {
             if (endTrack != null) {
                 usedEdges.add(endTrack);
                 trainLength = trainLength - endTrack.getFreeSpace();
-                traceln(green, "Свободного мест на пути " + endTrack.getName() + " - " + endTrack.getFreeSpace());
-                traceln(gold, "Размер оставшегося состава, который нужно переставить " + trainLength);
+                //traceln(green, "Свободного мест на пути " + endTrack.getName() + " - " + endTrack.getFreeSpace());
+                //traceln(gold, "Размер оставшегося состава, который нужно переставить " + trainLength);
                 String type = "";
                 int cntVagons = 0;
                 if (trainLength > 1) {
                     type = "Полурейс формирования";
-                    traceln(purple, "Начинаю с " + prevCnt);
+                    //traceln(purple, "Начинаю с " + prevCnt);
                     cntVagons = getCountVagonsForDecouple(trackToClean, trainLength, prevCnt);
                     trainLength = trainLength + endTrack.getFreeSpace() - Tools.getLengthTrain(Tools.getTrainByCntOnTrack(prevCnt, cntVagons, trackToClean));
                     prevCnt = cntVagons;
-                    traceln(purple, "Выдаю вагонов для задачи отцепки " + cntVagons);
+                    //traceln(purple, "Выдаю вагонов для задачи отцепки " + cntVagons);
                     
                 }
                 else {
                     type = "Полурейс формирования всех вагонов с пути";
-                    traceln(black, "Места хватает");
+                    //traceln(black, "Места хватает");
                     cntVagons = 0;//endTrack.getRailCarsWithoutTrain().size();
-                    traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
-                    traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
+                    //traceln(black, "Выдаю вагонов для задачи отцепки " + cntVagons);
+                    //traceln(green, "А мог выдать " + getCountVagonsForDecouple(trackToClean, trainLength, prevCnt));
 
                 }
                 TaskAction task = new TaskAction(type, trackToClean.getSelf(), endTrack.getSelf(), cntVagons);
@@ -45186,7 +45187,6 @@ public class TrainCleaner implements Serializable {
                 .filter(p-> !p.getSelf().isEmpty() /*&& !p.getRailCarsOnTrack().stream().allMatch(g-> g.status.equals("Ожидание отправки со станции"))*/) // TODO Здесь нужно будет исправить после ошибки
                 .sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack()))))
                 .collect(Collectors.toList());
-        traceln("Треков, с маленьким количеством вагонов " + fullTracks.size());
         if (fullTracks.isEmpty()) {
             fullTracks = pops.stream().filter(p-> !p.getSelf().isEmpty()).sorted((o1, o2)->((Double)Tools.getLengthTrain(o1.getRailCarsOnTrack())).
                             compareTo(((Double)Tools.getLengthTrain(o2.getRailCarsOnTrack())))).

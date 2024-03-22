@@ -1126,8 +1126,8 @@ if (activeSuperTasks == 0){
 						<OccurrenceAtTime>true</OccurrenceAtTime>
 						<OccurrenceDate>1706342400000</OccurrenceDate>
 						<OccurrenceTime Class="CodeUnitValue">
-							<Code><![CDATA[2]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+							<Code><![CDATA[1]]></Code>
+							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
@@ -1683,7 +1683,10 @@ return listCar;]]></Body>
 32. Delay В logic может держать в delay не тот состав, исправить * 19.03.24
 27. При отсрачивании отправки вагонов со станции, нужно будет переносить задачу на отправку * 21.03.24
 36. Рассмотреть задачу по отправки состава со станции, у которого слишком большая длина * 21.03.24
-1. Уборка вагонов с фронта, когда на фронте находится локомотив * 05.03.24]]></Body>
+1. Уборка вагонов с фронта, когда на фронте находится локомотив * 05.03.24
+5. Продумать отображение заявок на экране * 22.03.24
+4. Разработать экран отправлений составов * 22.03.24
+14. Разрешить отправку составов с пути не польностью * 21.03.24]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
@@ -1846,8 +1849,6 @@ enterTasks.take(task);]]></Body>
 1. Распределение задач на несколько локомотивов
 2. Корректно выставить задержку на расцепку и сцепку (убрать часть задержке, обратить внимание на параметр needWait)
 3. Разработать экран настройки прибывающих составов
-4. Разработать экран отправлений составов
-5. Продумать отображение заявок на экране
 // TODO пока оставить, получается +- 1 час если ставить прибытие заявок + 12 часов 8. Вагоны контактного графика должны пребывать на грузовой фронт в точное время
 6. Обработать ситуацию отправки вагонов с грузового фронта на грузовой фронт
 7. Сформировать файл отчета план-заданий
@@ -1858,8 +1859,7 @@ enterTasks.take(task);]]></Body>
 10. Чтобы не спамились задачи, должно быть не больше 10 расчисток
 11. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
 12. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
-13. Нужно что-то сделать со временем срабатываения событий
-14. Разрешить отправку составов с пути не польностью]]></Body>
+13. Нужно что-то сделать со временем срабатываения событий]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2614,9 +2614,6 @@ addTaskSuper(task);
 					<Body><![CDATA[TrainCleaner tc = new TrainCleaner(getPopsWithoutAvoid());
 List<TaskAction> tasks = tc.getTasks();
 for (TaskAction task : tasks){
-	traceln("==========================");
-	traceln(yellow, "Создал задачу для расчистки пути " + task.startTrack.getName() + " от " + task.cntVagon + " вагонов, и отправкой на путь " + task.endTrack.getName());
-	traceln("==========================");
 	addTask(task.type, task.startTrack, task.endTrack, task.cntVagon, task.withLoco, task.front);
 }
 if (!tasks.isEmpty()){
@@ -3884,9 +3881,6 @@ RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.
 TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
 if (ts.getTrackForSend() == null){
 	isCouldSend = false;
-}
-else{
-	traceln("Отправить можно");
 }
 return isCouldSend;]]></Body>
 				</Function>
@@ -5811,12 +5805,6 @@ switch(agent.type){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[traceln(red, "============================");
-traceln("НОВАЯ ЗАДАЧА " + agent.type);
-traceln("Приоритет " + agent.priority());
-traceln(red, "============================");]]></Code>
-							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onAtExit]]></Name>

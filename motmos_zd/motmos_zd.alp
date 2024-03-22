@@ -31343,6 +31343,66 @@ import java.util.Date;]]></Import>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711109384250</Id>
+					<Name><![CDATA[addmission]]></Name>
+					<X>-190</X><Y>130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[35]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711109384252</Id>
+					<Name><![CDATA[position]]></Name>
+					<X>-190</X><Y>160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711109998105</Id>
+					<Name><![CDATA[deepAddmision]]></Name>
+					<X>-190</X><Y>190</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[13]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711110494133</Id>
+					<Name><![CDATA[deepPosition]]></Name>
+					<X>-190</X><Y>220</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -31367,6 +31427,102 @@ try {
     e.printStackTrace();
 }
 return date;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1711109384248</Id>
+					<Name><![CDATA[getSortRequests]]></Name>
+					<X>-190</X><Y>100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Request> sortedList = new ArrayList();
+if (!main.data.requestsCollection.isEmpty()){
+	for (int i = position*addmission; i < (position + 1)*addmission; i++){
+		if (i <= main.data.requestsCollection.size() - 1){
+			sortedList.add(main.data.requestsCollection.get(i));
+		}
+	}
+}
+return sortedList;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1711110030777</Id>
+					<Name><![CDATA[getCountButton]]></Name>
+					<X>-190</X><Y>270</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int cntButtons = main.data.requestsCollection.size()%addmission==0 
+? 
+main.data.requestsCollection.size()/addmission 
+: 
+(main.data.requestsCollection.size()/addmission + 1);
+
+cntButtons = cntButtons - deepAddmision * deepPosition;
+if (cntButtons >= deepAddmision){
+	cntButtons = deepAddmision;
+}
+return cntButtons;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[String]]></ReturnType>
+					<Id>1711110303665</Id>
+					<Name><![CDATA[getTextButton]]></Name>
+					<X>-190</X><Y>305</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[index]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[return (index*addmission + 1 + addmission*deepAddmision*deepPosition)+ " - " + ((index+1)*addmission + addmission*deepAddmision*deepPosition);]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[boolean]]></ReturnType>
+					<Id>1711111397790</Id>
+					<Name><![CDATA[conditionVisible]]></Name>
+					<X>-190</X><Y>350</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[boolean isVis = false;
+if ((main.data.requestsCollection.size()%addmission==0 
+? 
+main.data.requestsCollection.size()/addmission 
+: 
+(main.data.requestsCollection.size()/addmission + 1)) > deepAddmision){
+	if (deepPosition < getMaxDeepPosition()){
+		isVis = true;
+	}
+}
+return isVis;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1711111681695</Id>
+					<Name><![CDATA[getMaxDeepPosition]]></Name>
+					<X>-190</X><Y>390</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[return main.data.requestsCollection.size()%(addmission*deepAddmision)==0 
+? 
+main.data.requestsCollection.size()/(addmission*deepAddmision) 
+: 
+main.data.requestsCollection.size()/(addmission*deepAddmision) + 1;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -31513,7 +31669,7 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<YCode><![CDATA[-10+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -31526,7 +31682,7 @@ return date;]]></Body>
 					<Height>20</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-6751336</FillColor>
-					<FillColorCode><![CDATA[main.data.requestsCollection.get(index).getIsDone() ? paleGreen : dodgerBlue]]></FillColorCode>
+					<FillColorCode><![CDATA[getSortRequests().get(index).getIsDone() ? paleGreen : dodgerBlue]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Text>
@@ -31540,14 +31696,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[1]]></Text>
-					<TextCode><![CDATA[index+1]]></TextCode>
+					<TextCode><![CDATA[index+1 + position*addmission]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31566,14 +31722,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[659846365987]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumVagon()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getNumVagon()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31592,14 +31748,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[35]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumRequest()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getNumRequest()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31618,14 +31774,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[484F4Y96GHT]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumInvoice()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getNumInvoice()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31644,14 +31800,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Трубовоз]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getTypeVagon()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getTypeVagon()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31670,14 +31826,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Труба]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getTypeProduct()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getTypeProduct()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31696,14 +31852,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[10]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNumFront()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getNumFront()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31722,14 +31878,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Акционерное общество "Транснефть Сибирь Тайга Богатство Роскошь Свобода Национальное Достояние]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getNameOwner()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getNameOwner()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31748,14 +31904,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[7-19]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getChange() == 1 ? "7-19" : "19-7"]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getChange() == 1 ? "7-19" : "19-7"]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31774,14 +31930,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[15.01.2024]]></Text>
-					<TextCode><![CDATA[Tools.getDateFomat(main.data.requestsCollection.get(index).getDateRequest())]]></TextCode>
+					<TextCode><![CDATA[Tools.getDateFomat(getSortRequests().get(index).getDateRequest())]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -31800,14 +31956,14 @@ return date;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[10]]></Text>
-					<TextCode><![CDATA[main.data.requestsCollection.get(index).getWeight()]]></TextCode>
+					<TextCode><![CDATA[getSortRequests().get(index).getWeight()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -32684,46 +32840,6 @@ return date;]]></Body>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
-				<Group>
-					<Id>1707833071575</Id>
-					<Name><![CDATA[date]]></Name>
-					<X>200</X><Y>0</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-
-
-				</Group>
-				<Control Type="EditBox">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1707833071577</Id>
-					<Name><![CDATA[editbox]]></Name>
-					<X>150</X><Y>-16</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<FillColor/>
-						<TextColor>-4144960</TextColor>
-						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[editbox.setTextColor(black);
-traceln(getDate(value));]]></ActionCode>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["15.01.2024"]]></DefaultValueCode>
-						<LinkTo>true</LinkTo>
-						<Link>dateApplications</Link>
-					</ExtendedProperties>
-				</Control>
 			</Presentation>
 
 				</Group>
@@ -32733,7 +32849,7 @@ traceln(getDate(value));]]></ActionCode>
 					<X>280</X><Y>145</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -33318,7 +33434,7 @@ else{
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<YCode><![CDATA[201+index*20]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -33343,9 +33459,9 @@ else{
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<YCode><![CDATA[210 + index*20]]></YCode>
-					<VisibleCode><![CDATA[main.data.requestsCollection.get(index).getIsArrive()]]></VisibleCode>
+					<VisibleCode><![CDATA[getSortRequests().get(index).getIsArrive()]]></VisibleCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.requestsCollection.size()]]></Code>
+						<Code><![CDATA[getSortRequests().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -33403,6 +33519,125 @@ else{
 			</Presentation>
 
 				</Group>
+				<Group>
+					<Id>1711109342336</Id>
+					<Name><![CDATA[group]]></Name>
+					<X>360</X><Y>945</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1711109342338</Id>
+					<Name><![CDATA[rectangle2]]></Name>
+					<X>-40</X><Y>-15</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<XCode><![CDATA[-40 + 100*index]]></XCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[getCountButton()]]></Code>
+					</ReplicationCode>
+					<OnClickCode><![CDATA[position = index + (deepPosition * deepAddmision);// ]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>80</Width>
+					<Height>30</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillColorCode><![CDATA[position == (index + (deepPosition * addmission * deepAddmision)) ? orangeRed : white]]></FillColorCode>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1711109342340</Id>
+					<Name><![CDATA[text]]></Name>
+					<X>0</X><Y>-7</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<XCode><![CDATA[0 + 100*index]]></XCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[getCountButton()]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[getTextButton(index)]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Image>
+					<Id>1711110681959</Id>
+					<Name><![CDATA[image]]></Name>
+					<X>270</X><Y>930</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[deepPosition > 0]]></VisibleCode>
+					<OnClickCode><![CDATA[deepPosition--;]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>30</Width>
+					<Height>30</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Кнопка влево.png]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
+				<Image>
+					<Id>1711110828190</Id>
+					<Name><![CDATA[image1]]></Name>
+					<X>1650</X><Y>960</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<VisibleCode><![CDATA[getMaxDeepPosition() > deepPosition]]></VisibleCode>
+					<OnClickCode><![CDATA[deepPosition++;]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>30</Width>
+					<Height>30</Height>
+					<Rotation>180.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Кнопка влево.png]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
 			</Presentation>
 
 				</Level>
@@ -39044,6 +39279,60 @@ return count;]]></Body>
 			</ScaleRuler>
 			<CurrentLevel>1706776666223</CurrentLevel>
 			<ConnectionsId>1706776666217</ConnectionsId>
+			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1711108539197</Id>
+					<Name><![CDATA[addmission]]></Name>
+					<X>-220</X><Y>160</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[35]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711108539199</Id>
+					<Name><![CDATA[position]]></Name>
+					<X>-220</X><Y>190</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+			</Variables>
+			<Functions>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<TrainArrival>]]></ReturnType>
+					<Id>1711108539195</Id>
+					<Name><![CDATA[getSortArrivals]]></Name>
+					<X>-220</X><Y>130</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<TrainArrival> sortedList = new ArrayList();
+if (!main.data.arrivalsCollection.isEmpty()){
+	for (int i = position*addmission; i < (position + 1)*addmission; i++){
+		if (i <= main.data.arrivalsCollection.size() - 1){
+			sortedList.add(main.data.arrivalsCollection.get(i));
+		}
+	}
+}
+return sortedList;]]></Body>
+				</Function>
+			</Functions>
 			<AgentLinks>
 				<AgentLink>
 					<Id>1706776666217</Id>
@@ -39320,7 +39609,7 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<YCode><![CDATA[-10 + index*20]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -39333,7 +39622,7 @@ return count;]]></Body>
 					<Height>20</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-6751336</FillColor>
-					<FillColorCode><![CDATA[main.data.arrivalsCollection.get(index).isArrive() ? paleGreen : tomato]]></FillColorCode>
+					<FillColorCode><![CDATA[getSortArrivals().get(index).isArrive() ? paleGreen : tomato]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Text>
@@ -39347,14 +39636,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[1]]></Text>
-					<TextCode><![CDATA[index+1]]></TextCode>
+					<TextCode><![CDATA[index+1 + position*addmission]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39373,14 +39662,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[659846365987]]></Text>
-					<TextCode><![CDATA[main.data.arrivalsCollection.get(index).getDate()]]></TextCode>
+					<TextCode><![CDATA[getSortArrivals().get(index).getDate()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39399,14 +39688,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.arrivalsCollection.get(index).getDateHappen() == null ? "Состав не сформирован" : main.data.arrivalsCollection.get(index).getDateHappen()]]></TextCode>
+					<TextCode><![CDATA[getSortArrivals().get(index).getDateHappen() == null ? "Состав не сформирован" : getSortArrivals().get(index).getDateHappen()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39425,14 +39714,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.arrivalsCollection.get(index).getHoursLate()]]></TextCode>
+					<TextCode><![CDATA[getSortArrivals().get(index).getHoursLate()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39451,14 +39740,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Труба]]></Text>
-					<TextCode><![CDATA[main.data.arrivalsCollection.get(index).getReasonLate()]]></TextCode>
+					<TextCode><![CDATA[getSortArrivals().get(index).getReasonLate()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39477,14 +39766,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.arrivalsCollection.get(index).getTrainWeight()]]></TextCode>
+					<TextCode><![CDATA[getSortArrivals().get(index).getTrainWeight()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39503,14 +39792,14 @@ return count;]]></Body>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.arrivalsCollection.size()]]></Code>
+						<Code><![CDATA[getSortArrivals().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.arrivalsCollection.get(index).getCntVagons()]]></TextCode>
+					<TextCode><![CDATA[getSortArrivals().get(index).getCntVagons()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -39994,6 +40283,7 @@ return count;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.tableRequest.applications.navigateTo();]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -40668,6 +40958,85 @@ return count;]]></Body>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
+				<Group>
+					<Id>1711108553153</Id>
+					<Name><![CDATA[group]]></Name>
+					<X>360</X><Y>945</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1711108553155</Id>
+					<Name><![CDATA[rectangle1]]></Name>
+					<X>-40</X><Y>-15</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<XCode><![CDATA[-40 + 100*index]]></XCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.arrivalsCollection.size()%addmission==0 
+? 
+main.data.arrivalsCollection.size()/addmission 
+: 
+(main.data.arrivalsCollection.size()/addmission + 1)]]></Code>
+					</ReplicationCode>
+					<OnClickCode><![CDATA[position = index;]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>80</Width>
+					<Height>30</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillColorCode><![CDATA[position==index ? orangeRed : white]]></FillColorCode>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1711108553157</Id>
+					<Name><![CDATA[text]]></Name>
+					<X>0</X><Y>-7</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<XCode><![CDATA[0 + 100*index]]></XCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.arrivalsCollection.size()%addmission==0 
+? 
+main.data.arrivalsCollection.size()/addmission 
+: 
+(main.data.arrivalsCollection.size()/addmission + 1)]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[(index*addmission + 1) + " - " + (index+1)*addmission]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Level>
@@ -41264,6 +41633,60 @@ action();]]></OnClickCode>
 			</ScaleRuler>
 			<CurrentLevel>1710860354258</CurrentLevel>
 			<ConnectionsId>1710860354252</ConnectionsId>
+			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1711106413591</Id>
+					<Name><![CDATA[addmission]]></Name>
+					<X>-200</X><Y>180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[35]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711106525321</Id>
+					<Name><![CDATA[position]]></Name>
+					<X>-200</X><Y>210</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+			</Variables>
+			<Functions>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<TrainSend>]]></ReturnType>
+					<Id>1711105886074</Id>
+					<Name><![CDATA[getSortSends]]></Name>
+					<X>-200</X><Y>150</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<TrainSend> sortedList = new ArrayList();
+if (!main.data.sendsCollection.isEmpty()){
+	for (int i = position*addmission; i < (position + 1)*addmission; i++){
+		if (i <= main.data.sendsCollection.size() - 1){
+			sortedList.add(main.data.sendsCollection.get(i));
+		}
+	}
+}
+return sortedList;]]></Body>
+				</Function>
+			</Functions>
 			<AgentLinks>
 				<AgentLink>
 					<Id>1710860354252</Id>
@@ -41429,7 +41852,7 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<YCode><![CDATA[-10 + index*20]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -41442,7 +41865,7 @@ action();]]></OnClickCode>
 					<Height>20</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-6751336</FillColor>
-					<FillColorCode><![CDATA[main.data.sendsCollection.get(index).isSend() ? paleGreen : tomato]]></FillColorCode>
+					<FillColorCode><![CDATA[getSortSends().get(index).isSend() ? paleGreen : tomato]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 				</Rectangle>
 				<Text>
@@ -41456,14 +41879,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[1]]></Text>
-					<TextCode><![CDATA[index+1]]></TextCode>
+					<TextCode><![CDATA[index+1 + position*addmission]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -41482,14 +41905,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[659846365987]]></Text>
-					<TextCode><![CDATA[main.data.sendsCollection.get(index).getDateSend() == null ? "-" : main.data.sendsCollection.get(index).getDateSend()]]></TextCode>
+					<TextCode><![CDATA[getSortSends().get(index).getDateSend() == null ? "-" : getSortSends().get(index).getDateSend()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -41508,14 +41931,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.sendsCollection.get(index).getDateHappen() == null ? "Отправки не было" : main.data.sendsCollection.get(index).getDateHappen()]]></TextCode>
+					<TextCode><![CDATA[getSortSends().get(index).getDateHappen() == null ? "Отправки не было" : getSortSends().get(index).getDateHappen()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -41534,14 +41957,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.sendsCollection.get(index).getHoursLate()]]></TextCode>
+					<TextCode><![CDATA[getSortSends().get(index).getHoursLate()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -41560,14 +41983,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Труба]]></Text>
-					<TextCode><![CDATA[main.data.sendsCollection.get(index).getReasonLate()]]></TextCode>
+					<TextCode><![CDATA[getSortSends().get(index).getReasonLate()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -41586,14 +42009,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.sendsCollection.get(index).getTrainWeight()]]></TextCode>
+					<TextCode><![CDATA[getSortSends().get(index).getTrainWeight()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -41612,14 +42035,14 @@ action();]]></OnClickCode>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<YCode><![CDATA[-9+20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
-						<Code><![CDATA[main.data.sendsCollection.size()]]></Code>
+						<Code><![CDATA[getSortSends().size()]]></Code>
 					</ReplicationCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
 					<Text><![CDATA[Состав не сформирован]]></Text>
-					<TextCode><![CDATA[main.data.sendsCollection.get(index).getCntVagons()]]></TextCode>
+					<TextCode><![CDATA[getSortSends().get(index).getCntVagons()]]></TextCode>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -42773,6 +43196,85 @@ action();]]></OnClickCode>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
 						<Style>1</Style>
+					</Font>
+					<Alignment>CENTER</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
+				<Group>
+					<Id>1711106326538</Id>
+					<Name><![CDATA[group]]></Name>
+					<X>360</X><Y>945</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Rectangle>
+					<Id>1711105979179</Id>
+					<Name><![CDATA[rectangle]]></Name>
+					<X>-40</X><Y>-15</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<XCode><![CDATA[-40 + 100*index]]></XCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()%addmission==0 
+? 
+main.data.sendsCollection.size()/addmission 
+: 
+(main.data.sendsCollection.size()/addmission + 1)]]></Code>
+					</ReplicationCode>
+					<OnClickCode><![CDATA[position = index;]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>80</Width>
+					<Height>30</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-1</FillColor>
+					<FillColorCode><![CDATA[position==index ? orangeRed : white]]></FillColorCode>
+					<FillMaterial>null</FillMaterial>
+				</Rectangle>
+				<Text>
+					<Id>1711106212593</Id>
+					<Name><![CDATA[text]]></Name>
+					<X>0</X><Y>-7</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<XCode><![CDATA[0 + 100*index]]></XCode>
+					<ReplicationCode Class="CodeValue">
+						<Code><![CDATA[main.data.sendsCollection.size()%addmission==0 
+? 
+main.data.sendsCollection.size()/addmission 
+: 
+(main.data.sendsCollection.size()/addmission + 1)]]></Code>
+					</ReplicationCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[text]]></Text>
+					<TextCode><![CDATA[(index*addmission + 1) + " - " + (index+1)*addmission]]></TextCode>
+					<Font>
+						<Name>SansSerif</Name>
+						<Size>10</Size>
+						<Style>0</Style>
 					</Font>
 					<Alignment>CENTER</Alignment>
 				</Text>
@@ -45786,6 +46288,11 @@ public class TrainSend{
 		</Resource>
 		<Resource>
 			<Path><![CDATA[Справочники/Условия башмаков.xlsx]]></Path>
+			<ReferencedFromUserCode>false</ReferencedFromUserCode>
+			<Location>FILE_SYSTEM</Location>
+		</Resource>
+		<Resource>
+			<Path><![CDATA[Кнопка влево.png]]></Path>
 			<ReferencedFromUserCode>false</ReferencedFromUserCode>
 			<Location>FILE_SYSTEM</Location>
 		</Resource>

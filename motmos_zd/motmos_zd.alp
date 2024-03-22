@@ -31235,7 +31235,8 @@ delay.stopDelayForAll();]]></Code>
 			<Import><![CDATA[import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;]]></Import>
+import java.util.Date;
+import java.util.stream.Collectors;]]></Import>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1706776656814</Id>
@@ -31439,10 +31440,10 @@ return date;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[List<Request> sortedList = new ArrayList();
-if (!main.data.requestsCollection.isEmpty()){
+if (!getRequests().isEmpty()){
 	for (int i = position*addmission; i < (position + 1)*addmission; i++){
-		if (i <= main.data.requestsCollection.size() - 1){
-			sortedList.add(main.data.requestsCollection.get(i));
+		if (i <= getRequests().size() - 1){
+			sortedList.add(getRequests().get(i));
 		}
 	}
 }
@@ -31458,11 +31459,12 @@ return sortedList;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[int cntButtons = main.data.requestsCollection.size()%addmission==0 
+					<Body><![CDATA[int sizeRequests = getRequests().size();
+int cntButtons = sizeRequests%addmission==0 
 ? 
-main.data.requestsCollection.size()/addmission 
+sizeRequests/addmission 
 : 
-(main.data.requestsCollection.size()/addmission + 1);
+(sizeRequests/addmission + 1);
 
 cntButtons = cntButtons - deepAddmision * deepPosition;
 if (cntButtons >= deepAddmision){
@@ -31496,12 +31498,13 @@ return cntButtons;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[boolean isVis = false;
-if ((main.data.requestsCollection.size()%addmission==0 
+					<Body><![CDATA[int sizeRequests = getRequests().size();
+boolean isVis = false;
+if ((sizeRequests%addmission==0 
 ? 
-main.data.requestsCollection.size()/addmission 
+sizeRequests/addmission 
 : 
-(main.data.requestsCollection.size()/addmission + 1)) > deepAddmision){
+(sizeRequests/addmission + 1)) > deepAddmision){
 	if (deepPosition < getMaxDeepPosition()){
 		isVis = true;
 	}
@@ -31518,11 +31521,36 @@ return isVis;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[return main.data.requestsCollection.size()%(addmission*deepAddmision)==0 
+					<Body><![CDATA[int sizeRequests = getRequests().size();
+return sizeRequests%(addmission*deepAddmision)==0 
 ? 
-main.data.requestsCollection.size()/(addmission*deepAddmision) 
+sizeRequests/(addmission*deepAddmision) 
 : 
-main.data.requestsCollection.size()/(addmission*deepAddmision) + 1;]]></Body>
+sizeRequests/(addmission*deepAddmision) + 1;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[List<Request>]]></ReturnType>
+					<Id>1711115721939</Id>
+					<Name><![CDATA[getRequests]]></Name>
+					<X>-190</X><Y>70</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[List<Request> sortedList = new ArrayList();
+List<Request> listRequest = main.data.requestsCollection;
+if (!listRequest.isEmpty()){
+	if (activeText.getColor().equals(black)){
+		listRequest = main.data.requestsCollection.stream().filter(p-> p.getIsDone()).collect(Collectors.toList());
+	}
+	if (arriveText.getColor().equals(black)){
+		listRequest = listRequest.stream().filter(p-> p.getIsArrive()).collect(Collectors.toList());
+	}
+	
+}
+sortedList.addAll(listRequest);
+return sortedList;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -32846,10 +32874,10 @@ main.data.requestsCollection.size()/(addmission*deepAddmision) + 1;]]></Body>
 				<Group>
 					<Id>1707833071585</Id>
 					<Name><![CDATA[groupSwitch]]></Name>
-					<X>280</X><Y>145</Y>
+					<X>1330</X><Y>145</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>false</PresentationFlag>
+					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -32857,27 +32885,6 @@ main.data.requestsCollection.size()/(addmission*deepAddmision) + 1;]]></Body>
 					<Rotation>0.0</Rotation>
 
 			<Presentation>
-				<Text>
-					<Id>1707833071587</Id>
-					<Name><![CDATA[doneText]]></Name>
-					<X>-220</X><Y>-20</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<Rotation>0.0</Rotation>
-					<Color>-16777216</Color>
-					<Text><![CDATA[ВЫПОЛНЕННЫЕ]]></Text>
-					<Font>
-						<Name>Segoe UI</Name>
-						<Size>26</Size>
-						<Style>0</Style>
-					</Font>
-					<Alignment>LEFT</Alignment>
-				</Text>
 				<Group>
 					<Id>1707833071589</Id>
 					<Name><![CDATA[switchApp]]></Name>
@@ -32887,18 +32894,16 @@ main.data.requestsCollection.size()/(addmission*deepAddmision) + 1;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<OnClickCode><![CDATA[if (doneText.getColor().equals(black)){
-	doneText.setColor(silver);
-	activeText.setColor(black);
-	oval.setX(15);
-	roundRectangle6.setFillColor(deepSkyBlue);
-}
-else{
-	doneText.setColor(black);
+					<OnClickCode><![CDATA[if (activeText.getColor().equals(black)){
 	activeText.setColor(silver);
 	oval.setX(-15);
-	roundRectangle6.setFillColor(paleGreen);
-}]]></OnClickCode>
+}
+else{
+	activeText.setColor(black);
+	oval.setX(15);
+}
+position = 0;
+deepPosition = 0;]]></OnClickCode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
@@ -32924,6 +32929,7 @@ else{
 					<Height>40</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-6751336</FillColor>
+					<FillColorCode><![CDATA[activeText.getColor().equals(black) ? paleGreen : deepSkyBlue]]></FillColorCode>
 					<FillMaterial>null</FillMaterial>
 					<ArcRadius>20</ArcRadius>
 				</RoundedRectangle>
@@ -32965,7 +32971,7 @@ else{
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-4144960</Color>
-					<Text><![CDATA[АКТИВНЫЕ]]></Text>
+					<Text><![CDATA[Выполненные]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>26</Size>
@@ -33638,6 +33644,117 @@ else{
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Group>
+					<Id>1711116071937</Id>
+					<Name><![CDATA[groupSwitch1]]></Name>
+					<X>1610</X><Y>145</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<Group>
+					<Id>1711116071939</Id>
+					<Name><![CDATA[switchApp1]]></Name>
+					<X>20</X><Y>0</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[if (arriveText.getColor().equals(black)){
+	arriveText.setColor(silver);
+	oval1.setX(-15);
+}
+else{
+	arriveText.setColor(black);
+	oval1.setX(15);
+}
+position = 0;
+deepPosition = 0;]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+
+			<Presentation>
+				<RoundedRectangle>
+					<Id>1711116071941</Id>
+					<Name><![CDATA[roundRectangle7]]></Name>
+					<X>-35</X><Y>-20</Y>
+					<Label><X>10</X><Y>10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<Width>70</Width>
+					<Height>40</Height>
+					<Rotation>0.0</Rotation>
+					<FillColor>-6751336</FillColor>
+					<FillColorCode><![CDATA[arriveText.getColor().equals(black) ? paleGreen : deepSkyBlue]]></FillColorCode>
+					<FillMaterial>null</FillMaterial>
+					<ArcRadius>20</ArcRadius>
+				</RoundedRectangle>
+				<Oval>
+					<Id>1711116071943</Id>
+					<Name><![CDATA[oval1]]></Name>
+					<X>-15</X><Y>0</Y>
+					<Label><X>0</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-4144960</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<RadiusX>20</RadiusX>
+					<RadiusY>40</RadiusY>
+					<Rotation>0.0</Rotation>
+					<FillColor>-4144960</FillColor>
+					<FillMaterial>null</FillMaterial>
+				</Oval>
+			</Presentation>
+
+				</Group>
+				<Text>
+					<Id>1711116071945</Id>
+					<Name><![CDATA[arriveText]]></Name>
+					<X>70</X><Y>-20</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-4144960</Color>
+					<Text><![CDATA[Прибывшие]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>26</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
+			</Presentation>
+
+				</Group>
 			</Presentation>
 
 				</Level>

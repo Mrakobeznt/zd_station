@@ -1859,7 +1859,11 @@ enterTasks.take(task);]]></Body>
 10. Чтобы не спамились задачи, должно быть не больше 10 расчисток
 11. Написать функцию для уточнения запуска сортировки (чтобы не спамило задачами)
 12. Реализовать перемещение вагонов с фронта не только на один путь, но и с разбиением по путям // TODO проверить реально ли
-13. Нужно что-то сделать со временем срабатываения событий]]></Body>
+13. Нужно что-то сделать со временем срабатываения событий
+14. Добавить в настраиваемый параметр время задержки локомотива, который отправился за составом на другую станцию
+15. Добавить настраиваемые параметры, использовать ли минимальный вес и размер состава для отправки по расписанию. (Если задан минимальный вес и минимальный размер, то использовать оба параметра)
+16. Пересчитать загрузку пути как просил Антонов
+17. Пересчитать грузонапряженность как просил Антонов ]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1929,7 +1933,7 @@ makeEquip.restart(randomTime(0, 24), HOUR);]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[avoidTracks.add(track4a);
+					<Body><![CDATA[//avoidTracks.add(track4a);
 //avoidTracks.add(track4p2);]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -3377,7 +3381,7 @@ return isEnough;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[for (TrackEdge edge : tracks){
 	if (!edge.getRailCarsOnTrack().isEmpty()){
-		double useActivity = Tools.getLengthTrain(edge.getRailCarsOnTrack())/edge.getUsableLength();
+		double useActivity = /*Tools.getLengthTrain(edge.getRailCarsOnTrack())/edge.getUsableLength()*/1;
 		double oldUse = edge.getUseActivity();
 		edge.setUseActivity(oldUse + (useActivity*100));
 		
@@ -17074,9 +17078,9 @@ else{
 	if (startSwitch == null){
 		startSwitch = !isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	}
-	/*traceln("Начальный путь " + startTrack.getName());
+	traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -17159,7 +17163,7 @@ if (getAvoidTracks(train) != null){
 		edges.add(new TrackEdge(track, track.getStartSwitch(), track.getEndSwitch(), track.length(METER)));
 	}
 }
-//getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
+getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
 List<SwitchNode> switchList = rf.findRoute(main.getTrackEdgeByTrack(endTrack()), from, to, edges);
 traceln(purple, switchList);
 List<RailwayTrack> allTracks = new ArrayList();
@@ -17178,18 +17182,18 @@ for (SwitchNode node : switchList){
 		}
 	}
 	if (!listPodRoute.isEmpty()){
-		RailwayTrack newTrack = listPodRoute.stream().min((str1, str2) -> Double.compare(str1.length(METER), str2.length(METER))).get();
+		RailwayTrack newTrack = listPodRoute.stream().filter(p-> !p.getName().equals(endTrack().getName())).min((str1, str2) -> Double.compare(str1.length(METER), str2.length(METER))).get();
 		routeTracks.add(newTrack);
 	}
 }
 
 switchList.stream().forEach(p-> p.getSelf().setColor(green));
 RailwayTrack startTrack = /*train.getTrack(false);*/logic.currentTask.getStartTrack().getName().equals(train.getTrack(false).getName()) ? train.getTrack(false) : train.getTrack(true);
-if (!routeTracks.contains(startTrack)){
+if (!routeTracks.stream().anyMatch(p-> p.getName().equals(startTrack.getName()))){
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -43641,7 +43645,7 @@ public class Graph<T extends GraphNode> {
 		<JavaClass>
 			<Id>1700645158479</Id>
 			<Name><![CDATA[RouteFinder]]></Name>
-			<Text><![CDATA[
+			<Text><![CDATA[import java.util.stream.Collectors;
 
 
 public class RouteFinder<T extends GraphNode> {
@@ -43674,17 +43678,15 @@ public class RouteFinder<T extends GraphNode> {
     }
     
     public boolean checkAvoid(T from, T to, List<TrackEdge> avoidTracks) {// проверка следующая стрелка соединяется с предыдущей путем исключения?
-    	TrackEdge avoidTrack = from.getTracks().stream().filter(p-> to.getTracks().stream().anyMatch(t-> t.getName().equals(p.getName()))).findFirst().orElse(null);
-    	//traceln("У стрелки " + from.getName() + " " + from.getTracks());
-    	//traceln("У стрелки " + to.getName() + " " + to.getTracks());
-    	//traceln("Со стрелки " + from.getName() + " на стрелку " + to.getName());
-    	if (avoidTrack == null) {
+    	List<TrackEdge> currAvoidTracks = from.getTracks().stream().filter(p-> to.getTracks().stream().anyMatch(t-> t.getName().equals(p.getName()))).collect(Collectors.toList());
+    	/*traceln("У стрелки " + from.getName() + " " + from.getTracks());
+    	traceln("У стрелки " + to.getName() + " " + to.getTracks());
+    	traceln("Со стрелки " + from.getName() + " на стрелку " + to.getName());*/
+    	if (currAvoidTracks.isEmpty()) {
     		//traceln("Нет общего пути");
     		return false;
     	}
-    	
-    	//traceln("Проверка, путь " + avoidTrack.getName() + " является ли исключением");
-    	if (avoidTracks.stream().anyMatch(p-> p.getName().equals(avoidTrack.getName()))) {
+    	if (currAvoidTracks.stream().allMatch(p-> avoidTracks.stream().anyMatch(g-> g.getName().equals(p.getName())))) {
     		//traceln("Да, путь является исключением"); 
     		return true;
     	}
@@ -43720,26 +43722,32 @@ public class RouteFinder<T extends GraphNode> {
     	        return route; // последовательно от конечной до начальной вершины строим маршрут
     	    }
     	    // ОСНОВНАЯ ЛОГИКА ПОИСКА МАРШРУТА
+    	    // next - стрелка, от которой строим маршрут
+    	    // nexNode - стрелка, следующая за стрелкой, от которой строим
     	       graph.getConnections(next.getCurrent()).forEach(connection -> { // если очередная вершина nextNode, которую мы рассматриваем, не конечная, 
     	    	   //то рассматривем каждую вершину, с которой имеет связь очередная веришина nextNode
     	        RouteNode<T> nextNode = allNodes.getOrDefault(connection, new RouteNode<>(connection));
     	        allNodes.put(connection, nextNode);// доавляем новую связь вершин
-    	       //traceln("Cтрелка на которой остановились " + nextNode.getCurrent().getName());
-    	      // traceln(black, "Следующая стрелка, которую рассматриваем " + next.getCurrent().getName());
+    	     //  traceln("Cтрелка на которой остановились " + next.getCurrent().getName());
+    	     //  traceln(black, "Следующая стрелка, которую рассматриваем " + nextNode.getCurrent().getName());
     	      double newScore = next.getRouteScore() + nextNodeScorer.computeCost(next.getCurrent(), connection);
     	     //traceln(purple, "Сравниваем очки newScore:" + newScore + " nextNode.getRouteScore() " + nextNode.getRouteScore());
     	        if (newScore < nextNode.getRouteScore() // очки подходят
     	        		&& !checkAvoid(next.getCurrent(), nextNode.getCurrent(), avoidTracks)) { // следующий путь не исключение
-    	        	if (getPublicTargetEdge(next.getCurrent(), endTrack, to) // стрелка пути относится к целевому пути, но не конечная
+    	        	if (getPublicTargetEdge(next.getCurrent(), endTrack, to, avoidTracks) // стрелка пути относится к целевому пути, но не конечная
     	        			&& nextNode.getCurrent().getName().equals(to.getName())) { // следующая стрелка конечная
-    	        		
+    	        		//traceln(black, "Следующая стрелка, которую рассматриваем " + nextNode.getCurrent().getName() + " конечная и имеет общий путь с конечным путем");
     	        	}
     	        	else {
+    	        		//traceln(black, "Добавляем стрелку " + next.getCurrent().getName());
     	        		nextNode.setPrevious(next.getCurrent());
         	            nextNode.setRouteScore(newScore);
         	            nextNode.setEstimatedScore(newScore + targetScorer.computeCost(connection, to));
         	            openSet.add(nextNode);
     	        	}
+    	        }
+    	        else {
+    	        	//traceln("стрелку не добавляем потому что очик не подходят " + (newScore < nextNode.getRouteScore()) + " или следующий путь исключение " + !checkAvoid(next.getCurrent(), nextNode.getCurrent(), avoidTracks));
     	        }
     	    });
 
@@ -43750,14 +43758,25 @@ public class RouteFinder<T extends GraphNode> {
     	//return null;
     }
     
-    public boolean getPublicTargetEdge(T nextNode, TrackEdge endTrack, T to) {
+    public boolean getPublicTargetEdge(T nextNode, TrackEdge endTrack, T to, List<TrackEdge> avoidTracks) {
     	boolean isPublic = false;
     	//traceln("Конечный путь " + endTrack);
+    	//traceln("Рассматриваемая стрелка " + nextNode.getName());
     	if (endTrack.getEndSwitch() != null && endTrack.getStartSwitch() != null) {
     		if (!nextNode.getName().equals(to.getName()) // если следующая вершина не равна целевой
     				&& (endTrack.getEndSwitch().getName().equals(nextNode.getName()) // и равна или начальной или коненчой стрелке стрелке
     						|| endTrack.getStartSwitch().getName().equals(nextNode.getName()))) {
-    			isPublic = true;
+    			//traceln(orange, "Стрелка связана с целевым путем  " + nextNode.getName());
+    			List<TrackEdge> nodesFromTarget = to.getTracks();// все пути, которые ведут из рассматриваемой стрелки
+    			TrackEdge otherEdge = nodesFromTarget.stream().filter(p-> !p.getName().equals(endTrack.getName()) && nextNode.getTracks().stream().anyMatch(g-> g.getName().equals(p.getName()))).findFirst().orElse(null);
+    			//traceln(orange, "Есть другой путь, с которым связана целевыя стрелка?  " + (otherEdge== null ? "null " : otherEdge.getName()));
+    			if (otherEdge != null // если есть другой путь
+    						&& avoidTracks.stream().noneMatch(p-> p.getName().equals(otherEdge.getName()))) {// это путь не исключение
+    			}
+    			else {
+    				//traceln(orange, "Другой путь либо не найден либо он находится в исключениях  " + (otherEdge== null ? "null " : otherEdge.getName()));
+    				isPublic = true;
+    			}
     		}
     	}
     	return isPublic;

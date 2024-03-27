@@ -565,76 +565,9 @@
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1705667456266</Id>
-					<Name><![CDATA[connector1]]></Name>
-					<X>1210</X><Y>1830</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[exitTasksSuper]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Exit]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[selectSuper]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[SelectOutput]]></ClassName>
-						<ItemName><![CDATA[outT]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-160</X><Y>0</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
-					<Id>1705667671960</Id>
-					<Name><![CDATA[connector3]]></Name>
-					<X>1040</X><Y>1840</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[selectSuper]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[SelectOutput]]></ClassName>
-						<ItemName><![CDATA[outF]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[holdTaskSuper]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Hold]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>0</X><Y>80</Y></Point>
-						<Point><X>70</X><Y>80</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
 					<Id>1705667671962</Id>
 					<Name><![CDATA[connector9]]></Name>
-					<X>1130</X><Y>1920</Y>
+					<X>1040</X><Y>1830</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -661,14 +594,13 @@
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>80</X><Y>0</Y></Point>
-						<Point><X>80</X><Y>-90</Y></Point>
+						<Point><X>170</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
 					<Id>1705922038616</Id>
 					<Name><![CDATA[connector2]]></Name>
-					<X>1030</X><Y>1830</Y>
+					<X>1020</X><Y>1830</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -676,11 +608,11 @@
 					<SourceEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Main]]></ClassName>
-						<ItemName><![CDATA[selectSuper]]></ItemName>
+						<ItemName><![CDATA[holdTaskSuper]]></ItemName>
 					</SourceEmbeddedObjectReference>
 					<SourceConnectableItemReference>
 						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[SelectOutput]]></ClassName>
+						<ClassName><![CDATA[Hold]]></ClassName>
 						<ItemName><![CDATA[in]]></ItemName>
 					</SourceConnectableItemReference>
 					<TargetEmbeddedObjectReference>
@@ -695,7 +627,7 @@
 					</TargetConnectableItemReference>
 					<Points>
 						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-140</X><Y>0</Y></Point>
+						<Point><X>-130</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
@@ -1103,6 +1035,9 @@ getEngine().setRealTimeScale(1000);]]></Action>
 	delay.stopDelayForAll();
 }
 if (activeSuperTasks == 0){
+	if (locoDelay.size() > 0){
+		holdTaskSuper.unblock();
+	}
 	delaySuper.stopDelayForAll();
 }]]></Action>
 				</Event>
@@ -1380,9 +1315,9 @@ for (TrackEdge track : getTracksEdges()){
 		
 	}
 }
-data.addLocoOnStation("ТЭМ-2"); // TODO Убрать, пользователь должен сам расставлять локомотив
-data.addLocoForService("ТЭМ-9");// TODO Убрать, пользователь должен сам расставлять локомотив
-createLocomotives();]]></Body>
+//data.addLocoOnStation("ТЭМ-2"); // TODO Убрать, пользователь должен сам расставлять локомотив
+//data.addLocoForService("ТЭМ-9");// TODO Убрать, пользователь должен сам расставлять локомотив
+//createLocomotives();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -1883,7 +1818,9 @@ locoTrain.addAll(data.locosInStation);
 for(RailCar car : locoTrain){
 	car.hashLoco = car.hashCode();
 }
-addTask("Расстановка", track8p1, null, locoTrain, true);]]></Body>
+if (locoTrain.size() > 0){
+	addTask("Расстановка", getPopsWithoutAvoid().stream().filter(p-> p.getRailCarsOnTrack().stream().noneMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf(), null, locoTrain, true);
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -3467,9 +3404,7 @@ if (copyLoco != null){
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[traceln("Пытаюсь запустить метод");
-for (RailCar car : data.locosInStation){
-	traceln("Вагон и списка " + car + " хеш-код " + car.hashCode());
+					<Body><![CDATA[for (RailCar car : data.locosInStation){
 	TaskAction task = new TaskAction();
 	//railCars.stream().filter(p-> p.type.equals("Локомотив")).forEach(p-> traceln(p + " хэш-код " + p.hashCode()));
 	RailCar loco = car;
@@ -3793,33 +3728,34 @@ return isHave;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
-TaskAction task = new TaskAction();
-task.type = "Отправка";
-task.priorityCopy = 130;
-TrackEdge startTrack = null;
-TrainSend ts = getSendAction();
-if (ts != null){ //  если найдено событие на отправку по расписанию
-	traceln("Нашел время отправки");
-	ts.setTrainSendByTS(new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive), true);
-	startTrack = ts.getTrackForSend();
-	data.sendsDone.add(ts);
-	ts.setRecTrack(startTrack);
-	task.trainSend = ts;
-	task.startTrack = startTrack == null ? null  : startTrack.getSelf();
-	task.priorityCopy = ts.getPriority(); 
-	addTaskSuper(task);
-}
-else{
-	ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
-	ts.setIsSchedule(false);
-	startTrack = ts.checkTracksForSends();
-	if (startTrack != null){
+					<Body><![CDATA[if (getLoco() != null){
+	RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
+	TaskAction task = new TaskAction();
+	task.type = "Отправка";
+	task.priorityCopy = 130;
+	TrackEdge startTrack = null;
+	TrainSend ts = getSendAction();
+	if (ts != null){ //  если найдено событие на отправку по расписанию
+		ts.setTrainSendByTS(new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive), true);
+		startTrack = ts.getTrackForSend();
 		data.sendsDone.add(ts);
 		ts.setRecTrack(startTrack);
 		task.trainSend = ts;
 		task.startTrack = startTrack == null ? null  : startTrack.getSelf();
+		task.priorityCopy = ts.getPriority(); 
 		addTaskSuper(task);
+	}
+	else{
+		ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
+		ts.setIsSchedule(false);
+		startTrack = ts.checkTracksForSends();
+		if (startTrack != null){
+			data.sendsDone.add(ts);
+			ts.setRecTrack(startTrack);
+			task.trainSend = ts;
+			task.startTrack = startTrack == null ? null  : startTrack.getSelf();
+			addTaskSuper(task);
+		}
 	}
 }]]></Body>
 				</Function>
@@ -3834,15 +3770,17 @@ else{
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[TrainSend ts = null;
-RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
-int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
-for (TrainSend ts1 : data.sendsCollection){
-	if (ts1.getIsSchedule()
-		 && !data.sendsDone.contains(ts1) // если дата по расписанию не была
-			&& getModelTime().getTime() <= ts1.getDateSend().getTime() + offsetTime // если дата прибытия через 0.5 часа от текущей даты 5 +  10 + 30 
-				&& ts1.getDateSend().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 0.5 часа от текущей даты 10 - 30 5
-		ts = ts1;
-		break;
+if (getLoco() != null){
+	RailCar loco = getLoco();
+	int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
+	for (TrainSend ts1 : data.sendsCollection){
+		if (ts1.getIsSchedule()
+			 && !data.sendsDone.contains(ts1) // если дата по расписанию не была
+				&& getModelTime().getTime() <= ts1.getDateSend().getTime() + offsetTime // если дата прибытия через 0.5 часа от текущей даты 5 +  10 + 30 
+					&& ts1.getDateSend().getTime() - offsetTime <= getModelTime().getTime()){ // если дата прибытия через 0.5 часа от текущей даты 10 - 30 5
+			ts = ts1;
+			break;
+		}
 	}
 }
 return ts;]]></Body>
@@ -3885,11 +3823,13 @@ return startTrack;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[boolean isCouldSend = true;
-RailCar loco = data.useStationLocoForArrive ? data.locosInStation.get(0) : data.locosService.get(0);
-TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
-if (ts.getTrackForSend() == null){
-	isCouldSend = false;
+					<Body><![CDATA[boolean isCouldSend = false;
+if (getLoco() != null){
+	RailCar loco = getLoco();
+	TrainSend ts = new TrainSend(getPopsWithoutAvoid(), loco, data.minWeightToArrive, data.minLengthToArrive);
+	if (ts.getTrackForSend() != null){
+		isCouldSend = true;
+	}
 }
 return isCouldSend;]]></Body>
 				</Function>
@@ -3916,6 +3856,29 @@ for (int i = 0; i < queueTasksSuper.size(); i++){
 	}
 }
 return theBiggest;]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[RailCar]]></ReturnType>
+					<Id>1711465287380</Id>
+					<Name><![CDATA[getLoco]]></Name>
+					<X>120</X><Y>2180</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[RailCar loco = null;
+if (data.useStationLocoForArrive){
+	if(data.locosInStation.size() > 0){
+		loco = data.locosInStation.get(0);
+	}
+}
+else{
+	if(data.locosService.size() > 0){
+		loco = data.locosService.get(0);
+	}
+}
+return loco;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -5591,96 +5554,9 @@ switch(agent.type){
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1705667447302</Id>
-					<Name><![CDATA[selectSuper]]></Name>
-					<X>1020</X><Y>1820</Y>
-					<Label><X>-35</X><Y>-25</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<ActiveObjectClass>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[SelectOutput]]></ClassName>
-					</ActiveObjectClass>
-					<GenericParameterSubstitute>
-						<GenericParameterSubstituteReference>
-							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-							<ClassName><![CDATA[SelectOutput]]></ClassName>
-							<ItemName><![CDATA[1412336242931]]></ItemName>
-						</GenericParameterSubstituteReference>
-					</GenericParameterSubstitute>
-					<Parameters>
-						<Parameter>
-							<Name><![CDATA[conditionIsProbabilistic]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[false]]></Code>
-							</Value>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[condition]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[agent.type.equals("Расстановка") ]]></Code>
-							</Value>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[probability]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onAtEnter]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onEnter]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onExitTrue]]></Name>
-						</Parameter>
-						<Parameter>
-							<Name><![CDATA[onExitFalse]]></Name>
-						</Parameter>
-					</Parameters>
-					<ReplicationFlag>false</ReplicationFlag>
-					<Replication Class="CodeValue">
-						<Code><![CDATA[100]]></Code>
-					</Replication>
-					<CollectionType>ARRAY_LIST_BASED</CollectionType>
-					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
-					<XCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</XCode>
-					<YCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</YCode>
-					<ZCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</ZCode>
-					<ColumnCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</ColumnCode>
-					<RowCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</RowCode>
-					<LatitudeCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</LatitudeCode>
-					<LongitudeCode Class="CodeValue">
-						<Code><![CDATA[0]]></Code>
-					</LongitudeCode>
-					<LocationNameCode Class="CodeValue">
-						<Code><![CDATA[""]]></Code>
-					</LocationNameCode>
-					<InitializationType>SPECIFIED_NUMBER</InitializationType>
-					<InitializationDatabaseTableQuery>
-						<TableReference>
-						</TableReference>
-					</InitializationDatabaseTableQuery>
-					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
-					<QuantityColumn>
-					</QuantityColumn>
-				</EmbeddedObject>
-				<EmbeddedObject>
 					<Id>1705667664923</Id>
 					<Name><![CDATA[holdTaskSuper]]></Name>
-					<X>1110</X><Y>1910</Y>
+					<X>1020</X><Y>1820</Y>
 					<Label><X>-35</X><Y>-20</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -5699,9 +5575,6 @@ switch(agent.type){
 					<Parameters>
 						<Parameter>
 							<Name><![CDATA[mode]]></Name>
-							<Value Class="CodeValue">
-								<Code><![CDATA[self.CONDITIONAL]]></Code>
-							</Value>
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[nEntitiesForSelfBlock]]></Name>
@@ -5709,7 +5582,7 @@ switch(agent.type){
 						<Parameter>
 							<Name><![CDATA[condition]]></Name>
 							<Value Class="CodeValue">
-								<Code><![CDATA[activeSuperTasks == 1 && locoDelay.size() == 0]]></Code>
+								<Code><![CDATA[locoDelay.size() == 0]]></Code>
 							</Value>
 						</Parameter>
 						<Parameter>
@@ -5720,6 +5593,9 @@ switch(agent.type){
 						</Parameter>
 						<Parameter>
 							<Name><![CDATA[onEnter]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[self.block();]]></Code>
+							</Value>
 						</Parameter>
 					</Parameters>
 					<ReplicationFlag>false</ReplicationFlag>
@@ -7084,6 +6960,264 @@ logic.enterStart.take(agent);]]></Code>
 					</Replication>
 					<CollectionType>ARRAY_LIST_BASED</CollectionType>
 					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1711529477230</Id>
+					<Name><![CDATA[resourcePool]]></Name>
+					<X>-230</X><Y>70</Y>
+					<Label><X>-30</X><Y>-20</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[ResourcePool]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+							<ClassName><![CDATA[ResourcePool]]></ClassName>
+							<ItemName><![CDATA[1412336243135]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[type]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacityDefinitionType]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacity]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacityBasedOnAttractors]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacitySchedule]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacityScheduleOnOff]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[capacityOnValue]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[shiftGroupSchedules]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[shiftGroupSizes]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[shiftGroupsPlan]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[destroyExcessUnits]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[newUnit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[speed]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[homeLocationType]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[homeNode]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[homeNodes]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[showDefaultAnimationStatic]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[downtimeSource]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceProfile]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[downtimeList]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[enableMaintenance]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[initialTimeToMaintenance]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[timeBetweenMaintenances]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceTaskPriority]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceTaskMayPreemptOtherTasks]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceType]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceTime]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceTaskStart]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[maintenanceUsageState]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[enableFailuresRepairs]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[initialTimeToFailure]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[timeBetweenFailures]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[countBusyOnlyTimeToFailure]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[repairType]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[repairTime]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[repairTaskStart]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[repairUsageState]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[enableBreaks]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[breaksSchedule]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[breakTaskPriority]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[breakTaskMayPreemptOtherTasks]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[breakTaskPreemptionPolicy]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[breakUsageState]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[enableCustomTasks]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[customTasks]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[endOfShiftTaskPriority]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[endOfShiftTaskMayPreemptOtherTasks]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[endOfShiftTaskPreemptionPolicy]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[customizeRequestChoice]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[requestChoiceCondition]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[addToCustomPopulation]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[population]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[forceStatisticsCollection]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onNewUnit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onDestroyUnit]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onSeize]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRelease]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onWrapUp]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onUnitStateChange]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onMaintenanceStart]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onMaintenanceEnd]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onFailure]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onRepair]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onBreakStart]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onBreakEnd]]></Name>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[onBreakTerminated]]></Name>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
 					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
 					<XCode Class="CodeValue">
 						<Code><![CDATA[0]]></Code>
@@ -13297,30 +13431,6 @@ logic.enterStart.take(agent);]]></Code>
 					<Latitude>0.0</Latitude>
 					<Longitude>0.0</Longitude>
 				</EmbeddedObjectPresentation>
-				<Control Type="Button">
-				 	<EmbeddedIcon>false</EmbeddedIcon>				
-					<Id>1711089219462</Id>
-					<Name><![CDATA[button1]]></Name>
-					<X>820</X><Y>1890</Y>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<BasicProperties Width="100" Height="30">
-                        <EmbeddedIcon>false</EmbeddedIcon>	
-						<TextColor/>
-						<Enabled>true</Enabled>
-						<ActionCode><![CDATA[traceln("Есть ");
-for (int i = 0; i < queueTasksSuper.size(); i++){
-	traceln("Тип " + queueTasksSuper.get(i).type + " Приоритет " + queueTasksSuper.get(i).getPriority());
-}]]></ActionCode>
-					</BasicProperties>
-					<ExtendedProperties>
-						<Font Name="Dialog" Size="11" Style="0"/>
-						<LabelText><![CDATA[button]]></LabelText>
-					</ExtendedProperties>
-				</Control>
 				<EmbeddedObjectPresentation>
 					<Id>1711441984569</Id>
 					<Name><![CDATA[editArrival_presentation]]></Name>
@@ -20047,7 +20157,7 @@ sourceStation.inject();]]></Code>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[boolean]]></Type>        
 						<InitialValue Class="CodeValue">
-							<Code><![CDATA[false]]></Code>
+							<Code><![CDATA[true]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -25134,8 +25244,8 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 					<LineColor/>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>120.248</Width>
-					<Height>29.268</Height>
+					<Width>120</Width>
+					<Height>30</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-8355712</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -25196,8 +25306,8 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 					<LineColor/>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>120.248</Width>
-					<Height>29.268</Height>
+					<Width>120</Width>
+					<Height>30</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-8355712</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -26058,7 +26168,7 @@ main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
 					<X>280</X><Y>790</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -26147,7 +26257,7 @@ main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
 					<X>280</X><Y>840</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -26230,6 +26340,30 @@ main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
 			</Presentation>
 
 				</Group>
+				<Image>
+					<Id>1711460894650</Id>
+					<Name><![CDATA[image]]></Name>
+					<X>1280</X><Y>375</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<OnClickCode><![CDATA[main.createLocomotives();
+main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Width>30</Width>
+					<Height>30</Height>
+					<Rotation>0.0</Rotation>
+					<ImageFiles>
+						<ImageResourceReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[Сохранить.png]]></ClassName>
+						</ImageResourceReference>
+					</ImageFiles>
+					<OriginalSize>false</OriginalSize>
+				</Image>
 			</Presentation>
 
 				</Level>
@@ -27572,7 +27706,7 @@ return  offset;]]></Body>
 						<Name><![CDATA[train]]></Name>
 						<Type><![CDATA[Train]]></Type>
 					</Parameter>
-					<Body><![CDATA[if ((superTask.type.equals("Пересменка") || superTask.type.equals("Заправка") || superTask.type.equals("Экипировка")) && currentTask.getType().equals("Ожидание")){
+					<Body><![CDATA[if ((superTask.type.equals("Пересменка") || superTask.type.equals("Заправка") || superTask.type.equals("Экипировка") || superTask.type.contains("solo")) && currentTask.getType().equals("Ожидание")){
 	enterDelay.take(train);
 }
 else{
@@ -27609,12 +27743,12 @@ else{
 Task previousTask = null;
 if (cntTask > 2){
 	previousTask = superTask.listTask.get(cntTask - 2);
-	//traceln("Предыдущая задача " + previousTask.getType());
 }
-
-if (superTask.type.equals("Прибытие состава на станцию") || superTask.type.contains("со станции") || (previousTask != null && previousTask.getType().equals("Ожидание") /*&& previousTask.getEndTrack().equals(main.track10p1)*/)){
-	//traceln("Сработало направление");
-	if (superTask.type.contains("со станции") && currentTask.getEndTrack().equals(main.track6)){
+if (superTask.type.equals("Прибытие состава на станцию") 
+	|| superTask.type.contains("со станции") 
+		|| (previousTask != null && previousTask.getType().equals("Ожидание"))){
+	if (superTask.type.contains("со станции")
+		&& (currentTask.getEndTrack().equals(main.track6) || (superTask.type.contains("solo") && !train.getTrack(false).equals(main.track6)))){
 		direction = true;
 	}
 	else{
@@ -27626,11 +27760,9 @@ else{
 		direction = false;
 	}
 	else{
-		//traceln("Не сработал направление ");
 		direction = true;
 	}
 }
-//traceln("Вернул направление " + (direction));
 return direction;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -29442,7 +29574,7 @@ else if (currentTask.getType().equals("Сцепка")){
 }
 else if (currentTask.getType().equals("Ожидание")){
 	RailwayTrack trackEnd = currentTask.getEndTrack();
-	if (superTask.type.equals("Пересменка") || superTask.type.equals("Заправка") || superTask.type.equals("Экипировка")){
+	if (superTask.type.equals("Пересменка") || superTask.type.equals("Заправка") || superTask.type.equals("Экипировка") || superTask.type.contains("solo")){
 		train = main.add_trains();
 	}
 	else{
@@ -29987,7 +30119,7 @@ delay.stopDelayForAll();]]></Code>
 							<Name><![CDATA[onExit]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[agent.codeForLogic = 0;
-if (superTask.type.equals("Пересменка") || superTask.type.equals("Заправка") || superTask.type.equals("Экипировка")){
+if (superTask.type.equals("Пересменка") || superTask.type.equals("Заправка") || superTask.type.equals("Экипировка") || superTask.type.contains("solo")){
 	agent.deleteSelf();
 }
 else{
@@ -34555,7 +34687,7 @@ return count;]]></Body>
 				<Rectangle>
 					<Id>1710174176422</Id>
 					<Name><![CDATA[rectangle]]></Name>
-					<X>940</X><Y>680</Y>
+					<X>1410</X><Y>430</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -34569,7 +34701,7 @@ return count;]]></Body>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
 					<Width>276</Width>
-					<Height>60</Height>
+					<Height>50</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
 					<FillMaterial>null</FillMaterial>
@@ -34591,7 +34723,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -35267,7 +35399,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -35438,7 +35570,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -35587,7 +35719,7 @@ return count;]]></Body>
 				<Text>
 					<Id>1707833327409</Id>
 					<Name><![CDATA[text254]]></Name>
-					<X>1210</X><Y>700</Y>
+					<X>1680</X><Y>445</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -35647,7 +35779,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -35783,7 +35915,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -35855,7 +35987,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -35952,14 +36084,14 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
 				<Text>
 					<Id>1707833327451</Id>
 					<Name><![CDATA[text253]]></Name>
-					<X>945</X><Y>690</Y>
+					<X>1420.667</X><Y>444</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -35969,8 +36101,7 @@ return count;]]></Body>
 					<Z>0</Z>
 					<Rotation>0.0</Rotation>
 					<Color>-16777216</Color>
-					<Text><![CDATA[Коэффициент сдвоенных
-операций:]]></Text>
+					<Text><![CDATA[Коэффициент:]]></Text>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
@@ -37854,7 +37985,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -39311,7 +39442,7 @@ return count;]]></Body>
 					<Font>
 						<Name>Segoe UI</Name>
 						<Size>14</Size>
-						<Style>0</Style>
+						<Style>1</Style>
 					</Font>
 					<Alignment>LEFT</Alignment>
 				</Text>
@@ -39363,7 +39494,7 @@ return count;]]></Body>
 				<Line>
 					<Id>1710174242619</Id>
 					<Name><![CDATA[line32]]></Name>
-					<X>1120</X><Y>740</Y>
+					<X>1590</X><Y>480</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -39381,9 +39512,30 @@ return count;]]></Body>
 					<EndArrowSize>1</EndArrowSize>
 					<EndArrowStyle>0</EndArrowStyle>
 					<Dx>0</Dx>
-					<Dy>-60</Dy>
+					<Dy>-50</Dy>
 					<Dz>0</Dz>
 				</Line>
+				<Text>
+					<Id>1711532238807</Id>
+					<Name><![CDATA[text240]]></Name>
+					<X>1410</X><Y>400</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Коэффициент сдвоенных операций:]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>1</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>

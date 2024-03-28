@@ -178,7 +178,7 @@
 					<Id>1707246687180</Id>
 					<Name><![CDATA[cntContactVagons]]></Name>
 					<Description><![CDATA[Количество оставшихся вагонов по контактно]]></Description>
-					<X>860</X><Y>1640</Y>
+					<X>140</X><Y>1620</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1333,9 +1333,9 @@ for (TrackEdge track : getTracksEdges()){
 		
 	}
 }
-//data.addLocoOnStation("ТЭМ-2"); // TODO Убрать, пользователь должен сам расставлять локомотив
-//data.addLocoForService("ТЭМ-9");// TODO Убрать, пользователь должен сам расставлять локомотив
-//createLocomotives();]]></Body>
+data.addLocoOnStation("ТЭМ-2"); // TODO Убрать, пользователь должен сам расставлять локомотив
+data.addLocoForService("ТЭМ-9");// TODO Убрать, пользователь должен сам расставлять локомотив
+createLocomotives();]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2527,7 +2527,13 @@ else{
 	});
 	boolean withLoco = data.useStationLocoForArrive;
 	if (train.size() > 1){ // если состав под прибытие на пуст
-		addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
+		if (data.useStationLocoForArrive){
+			addTask("Прибытие состава на станцию solo", track6, trackArrive.getSelf(), train, withLoco);
+		}
+		else{
+			addTask("Прибытие состава на станцию", track6, trackArrive.getSelf(), train, withLoco);
+		}
+		
 		traceln("taskAction.trainArrival " + taskAction.trainArrival);
 		data.arrivalsCollection
 					.stream()
@@ -2766,12 +2772,10 @@ if (startTrack != null){ // если путь, с которого можно з
 	else{
 		train.add(((Train)locoDelay.get(0)).getCars().get(0));
 	}
-	traceln("task.startTrack " + startTrack  + " кол во вагонов " + task.cntVagon + " trainSend " + task.trainSend);
 	String type = TrainSend.getTypeTask(data.useStationLocoForArrive, startTrack.getSelf(), task.trainSend.getCntVagonsForDecouple(getTrackEdgeByTrack(startTrack.getSelf())));
 	if (startTrack.getRailCarsOnTrack().stream().anyMatch(p-> p.type.equals("Локомотив"))){ // если на пути стоит локомотив
 		TrackEdge finalEmptyTrack = getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
 		TrackEdge finalEndTrack = getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty() && !p.getName().equals(startTrack.getName())).findFirst().orElse(finalEmptyTrack);
-		traceln(purple, "Перемещаю на путь " + finalEndTrack.getName());
 		//RailCar car = startTrack.getRailCarsOnTrack().stream().filter(p-> p.type.equals("Локомотив")).findFirst().orElse(null);
 		addTask("Перемещение", startTrack.getSelf(), finalEndTrack.getSelf(), null);
 	}
@@ -2793,7 +2797,6 @@ if (startTrack != null){ // если путь, с которого можно з
 		data.sendsCollection.add(task.trainSend);
 	}
 	isSend = true;
-	traceln("startTrack " + startTrack.getName());
 	if (task.trainSend.getRecTrack() == null){
 		task.trainSend.setRecTrack(startTrack);
 	}
@@ -2801,7 +2804,6 @@ if (startTrack != null){ // если путь, с которого можно з
 	activeSuperTasks++;
 }
 else{
-	traceln("Не нашел путь под отправку ");
 	data.sendsCollection
 				.stream()
 				.filter(p-> p.hashCode() == task.trainSend.hashCode())
@@ -15436,6 +15438,7 @@ setWaitAnotherFront();]]></Body>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<OnClickCode><![CDATA[traceln("Позиция с начала " + getPositionOnTrain(true) + ", с конца " + getPositionOnTrain(false));
+
 /*int pos = 0;
 for (int i = 0; i < getTrack().getCars().size(); i++){
 	if (getTrack().getCars().get(i).equals(this)){
@@ -20477,6 +20480,22 @@ sourceStation.inject();]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711626583128</Id>
+					<Name><![CDATA[timeToPickUp]]></Name>
+					<Description><![CDATA[Длительность ожидания для приезда локомотива со станции при рейсе за составом на прибытие]]></Description>
+					<X>1010</X><Y>-100</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[60]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1701703496676</Id>
 					<Name><![CDATA[railCarsCollection]]></Name>
@@ -21448,6 +21467,8 @@ startEveningDinner = file.getCellDateValue(list, 22, colmn);
 endEveningDinner = file.getCellDateValue(list, 22, 4);
 cycleEquip = file.getCellNumericValue(list, 23, colmn);
 cycleRefuel = file.getCellNumericValue(list, 24, colmn);
+cycleRefuel = file.getCellNumericValue(list, 24, colmn);
+timeToPickUp = file.getCellNumericValue(list, 25, colmn);
 
 file.close();]]></Body>
 				</Function>
@@ -22442,7 +22463,7 @@ return newListTasks;]]></Body>
 						<Type><![CDATA[List<Task>]]></Type>
 					</Parameter>
 					<Body><![CDATA[int cnt = 0;
-if (type.equals("Прибытие состава на станцию") && typeTask.equals("Расцепка")){
+if (type.contains("на станцию") && typeTask.equals("Расцепка")){
 	//traceln("На первой");
 	cnt = cntVagon - 1;
 }
@@ -22665,6 +22686,9 @@ if (type.equals("Экипировка")){
 		delayTime = main.data.delayEquipTEM2;
 	}
 }
+if (type.contains("solo")){
+	delayTime = main.data.timeToPickUp;
+}
 task = new Task("Ожидание", null, curEndTrack, 0, delayTime);
 return task;]]></Body>
 				</Function>
@@ -22712,7 +22736,7 @@ return task;]]></Body>
 RailwayTrack curEndTrack = null;
 RailwayTrack curStartTrack = null;
 double offset = 0;
-if (!type.equals("Прибытие состава на станцию") 
+if (!type.contains("на станцию")  
 	&& !type.contains("со станции") 
 		&& !type.equals("Перемещение")
 			&& !type.equals("Перерыв")
@@ -22911,15 +22935,14 @@ return task;]]></Body>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[Task task = null;
 TrackEdge finalEmptyTrack = main.getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).findFirst().orElse(null);
-//traceln("finalEmptyTrack " + finalEmptyTrack);
 TrackEdge finalEndTrack = main.getPopsWithoutAvoid().stream().filter(p-> !p.getSelf().isEmpty()).findFirst().orElse(finalEmptyTrack);
-if (type.contains("Отправка") && main.queueTasksAction.size() < 1 && main.queueTasksSuper.size() < 1){
+if (type.contains("Отправка") || type.contains("на станцию") /* && main.queueTasksAction.size() < 1 && main.queueTasksSuper.size() < 1*/){
 	//traceln(yellow, "Добавляю задачу движение кон, начальный путь " + endTrack.getName());
 	task = new Task("Движение кон", endTrack, finalEndTrack.getSelf(), -1.0);
 	//traceln(yellow, "Задача, начальный путь " + task.getStartTrack().getName());
 	//traceln("А смещение " + task.getOffset());
 }
-if (startTrack.equals(main.track6)){
+if (startTrack.equals(main.track6) && !type.contains("на станцию solo")){
 	task = new Task("Движение кон", startTrack, finalEndTrack.getSelf(), -1.0);
 }
 return task;]]></Body>
@@ -27901,23 +27924,39 @@ Task previousTask = null;
 if (cntTask > 2){
 	previousTask = superTask.listTask.get(cntTask - 2);
 }
-if (superTask.type.equals("Прибытие состава на станцию") 
-	|| superTask.type.contains("со станции") 
-		|| (previousTask != null && previousTask.getType().equals("Ожидание"))){
-	if (superTask.type.contains("со станции")
-		&& (currentTask.getEndTrack().equals(main.track6) || (superTask.type.contains("solo") && !train.getTrack(false).equals(main.track6)))){
-		direction = true;
-	}
-	else{
-		direction = false;
-	}
+
+
+//false - по направлению пути
+//true - против направления пути
+// когда вагон состава ближе к концу пути, и больше двух составов
+RailwayTrack curTrack = train.getTrack(false);
+if (curTrack.getTrains().size() > 1 // составов на пути 2
+	&& train.getCars().contains(((RailCar)curTrack.getLastCar()))){ // вагон, ближайший к краю пути является вагоном состава
+	direction = false;
 }
 else{
-	if (train.getTrack(false).equals(main.track6) && train.getCars().size() < 2){
-		direction = false;
+	if (superTask.type.contains("на станцию") 
+		|| superTask.type.contains("со станции") 
+			|| (previousTask != null && previousTask.getType().equals("Ожидание"))){
+		if (superTask.type.contains("со станции") /*|| superTask.type.contains("на станцию")*/
+			&& (currentTask.getEndTrack().equals(main.track6) || (superTask.type.contains("solo") && !train.getTrack(false).equals(main.track6)))){
+			direction = true;
+		}
+		else if (superTask.type.contains("на станцию") // конечный путь равен 6 или если едем solo и путь не равняется 6
+			&& (currentTask.getEndTrack().equals(main.track6) || (superTask.type.contains("solo") && !train.getTrack(false).equals(main.track6)))){
+			direction = true;
+		}
+		else{
+			direction = false;
+		}
 	}
 	else{
-		direction = true;
+		if (train.getTrack(false).equals(main.track6) && train.getCars().size() < 2){
+			direction = false;
+		}
+		else{
+			direction = true;
+		}
 	}
 }
 return direction;]]></Body>
@@ -29685,15 +29724,12 @@ if (currentTask.getType().equals("Движение") || currentTask.getType().eq
 	}
 	else{
 		if (currentTask.getStartTrack().getTrains().size() > 1){
-			//traceln("Отработал, ищу состав на пути " + currentTask.getStartTrack().getName());
-			//traceln("Количество составов " + currentTask.getStartTrack().getTrains().size());
 			for (Agent train1 : currentTask.getStartTrack().getTrains()){
 				if (((Train)train1).getCars().stream().anyMatch(p-> p.type.equals("Локомотив"))){
 					train = ((Train)train1);
 					break;
 				}
 			}
-			//traceln(red, "Нашел состав 1 " + train);
 		}
 		else if (agent.listTask.get(cntTask - 1).getType().equals("Ожидание")){
 			train = (Train)currentTask.getEndTrack().getTrains().get(0);

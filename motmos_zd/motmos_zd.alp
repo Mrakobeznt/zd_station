@@ -364,6 +364,24 @@
 					</Properties>
 
 				</Variable>
+				<Variable Class="CollectionVariable">
+					<Id>1711608636963</Id>
+					<Name><![CDATA[tracksForLocos]]></Name>
+					<X>-320</X><Y>1810</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" AccessType="public" StaticVariable="false">
+						<CollectionClass><![CDATA[ArrayList]]></CollectionClass>
+						<ElementClass><![CDATA[RailwayTrack]]></ElementClass>
+						<ValueElementClass><![CDATA[String]]></ValueElementClass>
+						<CollectionInitializer Class="CodeValue">
+							<Code><![CDATA[{ track8p1, track9p2 }]]></Code>
+						</CollectionInitializer>
+					</Properties>
+
+				</Variable>
 			</Variables>
 			<Connectors>
 				<Connector>
@@ -1819,7 +1837,7 @@ for(RailCar car : locoTrain){
 	car.hashLoco = car.hashCode();
 }
 if (locoTrain.size() > 0){
-	addTask("Расстановка", getPopsWithoutAvoid().stream().filter(p-> p.getRailCarsOnTrack().stream().noneMatch(g-> g.type.equals("Локомотив"))).findFirst().orElse(null).getSelf(), null, locoTrain, true);
+	addTask("Расстановка", tracksForLocos.stream().filter(p-> p.getCars().stream().noneMatch(g-> ((RailCar)g).type.equals("Локомотив"))).findFirst().orElse(null), null, locoTrain, true);
 }]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1872,8 +1890,14 @@ makeEquip.restart(randomTime(0, 24), HOUR);]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[//avoidTracks.add(track4a);
-//avoidTracks.add(track4p2);]]></Body>
+					<Body><![CDATA[if (data.useTrack4a){
+	if (!avoidTracks.isEmpty()){
+		avoidTracks.remove(track4a);
+	}
+	}
+else{
+	avoidTracks.add(track4a);
+}]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -2431,7 +2455,7 @@ return requests;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[int cntEmptyTrack = (int)getPopsTracksEdges().stream().filter(p-> p.getSelf().isEmpty()).count();
+					<Body><![CDATA[int cntEmptyTrack = (int)getPopsWithoutAvoid().stream().filter(p-> p.getSelf().isEmpty()).count();
 //traceln("Количество пустых путей " + cntEmptyTrack);
 int offsetTime = data.useStationLocoForArrive ? 3600000 : 1800000;
 offsetTime = cntEmptyTrack > 1800000 ? offsetTime : 3600000;
@@ -3172,7 +3196,7 @@ else{
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
 					<Body><![CDATA[boolean isNeed = false;
-List<TrackEdge> listPops = getPopsTracksEdges();
+List<TrackEdge> listPops = getPopsWithoutAvoid();
 for (TrackEdge edge : listPops){
 	//if (edge.)
 }
@@ -3198,7 +3222,7 @@ return isNeed;]]></Body>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<Body><![CDATA[return getPopsTracksEdges().stream().filter(p-> p.getRailCarsOnTrack().stream().filter(g-> !g.type.equals("Локомотив")).anyMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());]]></Body>
+					<Body><![CDATA[return getPopsWithoutAvoid().stream().filter(p-> p.getRailCarsOnTrack().stream().filter(g-> !g.type.equals("Локомотив")).anyMatch(g-> g.status.equals("Ожидание отправки со станции"))).collect(Collectors.toList());]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
@@ -10065,11 +10089,11 @@ logic.enterStart.take(agent);]]></Code>
 				<Camera3D>
 					<Id>1704978583322</Id>
 					<Name><![CDATA[camera1]]></Name>
-					<X>749.34</X><Y>750.96</Y><Z>127.22</Z>
+					<X>1596.79</X><Y>421.56</Y><Z>78.26</Z>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<ShowLabel>false</ShowLabel>
-					<RotationX>25.79</RotationX>
-					<RotationZ>-38.13</RotationZ>
+					<RotationX>7.12</RotationX>
+					<RotationZ>170.81</RotationZ>
 				</Camera3D>
 				<Group>
 					<Id>1701694328856</Id>
@@ -15042,7 +15066,7 @@ return random.nextInt(100) <= arg;]]></Body>
 	return;
 }
 //boolean isHaveTrack = edges.stream().anyMatch(p-> p.getNumberTra().equals(track));
-boolean isHaveTrackPops = main.getPopsTracksEdges().stream().anyMatch(p-> p.getNumberTra().equals(track));
+boolean isHaveTrackPops = main.getPopsWithoutAvoid().stream().anyMatch(p-> p.getNumberTra().equals(track));
 boolean isHaveTrackFronts = main.getFrontsTracksEdges().stream().anyMatch(p-> p.getNumberTra().equals(track));
 if (isHaveTrackPops && finalStatus.equals("Технологическое ожидание")){
 	if (weightProduct > 0){
@@ -17296,9 +17320,9 @@ else{
 	if (startSwitch == null){
 		startSwitch = !isForward() ? startTrack.getStartSwitch() : startTrack.getEndSwitch();
 	}
-	traceln("Начальный путь " + startTrack.getName());
+	/*traceln("Начальный путь " + startTrack.getName());
 	traceln("Конечный путь " + endTrack.getName());
-	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());
+	traceln("Начальная стрелка " + startSwitch.getName() + ", конечная стрелка " + endSwitch.getName());*/
 	
 	SwitchNode from  = new SwitchNode(startSwitch);
 	SwitchNode to  = new SwitchNode(endSwitch);
@@ -17381,9 +17405,9 @@ if (getAvoidTracks(train) != null){
 		edges.add(new TrackEdge(track, track.getStartSwitch(), track.getEndSwitch(), track.length(METER)));
 	}
 }
-getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
+//getAvoidTracks(train).stream().forEach(p-> traceln("Путь, который игнорируем " + p.getName()));
 List<SwitchNode> switchList = rf.findRoute(main.getTrackEdgeByTrack(endTrack()), from, to, edges);
-traceln(purple, switchList);
+//traceln(purple, switchList);
 List<RailwayTrack> allTracks = new ArrayList();
 List<RailwayTrack> routeTracks = new ArrayList();
 for (SwitchNode node : switchList){
@@ -17411,7 +17435,7 @@ if (!routeTracks.stream().anyMatch(p-> p.getName().equals(startTrack.getName()))
 	routeTracks.add(0, startTrack);
 }
 routeTracks.add(endTrack());
-routeTracks.stream().forEach(p-> traceln(green, p.getName()));
+//routeTracks.stream().forEach(p-> traceln(green, p.getName()));
 return routeTracks;]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -20438,6 +20462,21 @@ sourceStation.inject();]]></Code>
 						<Type><![CDATA[double]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1711607653792</Id>
+					<Name><![CDATA[useTrack4a]]></Name>
+					<X>2240</X><Y>-230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[boolean]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[false;]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1701703496676</Id>
 					<Name><![CDATA[railCarsCollection]]></Name>
@@ -23217,10 +23256,10 @@ combobox.setItems(mass);]]></Body>
 				<EmbeddedObject>
 					<Id>1707383595301</Id>
 					<Name><![CDATA[switchApp2]]></Name>
-					<X>1130</X><Y>220</Y>
+					<X>1140</X><Y>450</Y>
 					<Label><X>-40</X><Y>-30</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -23290,10 +23329,10 @@ combobox.setItems(mass);]]></Body>
 				<EmbeddedObject>
 					<Id>1707386911300</Id>
 					<Name><![CDATA[switchApp3]]></Name>
-					<X>1130</X><Y>295</Y>
+					<X>1140</X><Y>525</Y>
 					<Label><X>-40</X><Y>-30</Y></Label>
 					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
@@ -23317,6 +23356,80 @@ combobox.setItems(mass);]]></Body>
 							<Name><![CDATA[startParams]]></Name>
 							<Value Class="CodeValue">
 								<Code><![CDATA[main.data.useStayTime]]></Code>
+							</Value>
+						</Parameter>
+					</Parameters>
+					<ReplicationFlag>false</ReplicationFlag>
+					<Replication Class="CodeValue">
+						<Code><![CDATA[100]]></Code>
+					</Replication>
+					<CollectionType>ARRAY_LIST_BASED</CollectionType>
+					<InEnvironment>true</InEnvironment>	
+					<InitialLocationType>AT_ANIMATION_POSITION</InitialLocationType>
+					<XCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</XCode>
+					<YCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</YCode>
+					<ZCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ZCode>
+					<ColumnCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</ColumnCode>
+					<RowCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</RowCode>
+					<LatitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LatitudeCode>
+					<LongitudeCode Class="CodeValue">
+						<Code><![CDATA[0]]></Code>
+					</LongitudeCode>
+					<LocationNameCode Class="CodeValue">
+						<Code><![CDATA[""]]></Code>
+					</LocationNameCode>
+					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationDatabaseTableQuery>
+						<TableReference>
+						</TableReference>
+					</InitializationDatabaseTableQuery>
+					<InitializationDatabaseType>ONE_AGENT_PER_DATABASE_RECORD</InitializationDatabaseType>
+					<QuantityColumn>
+					</QuantityColumn>
+				</EmbeddedObject>
+				<EmbeddedObject>
+					<Id>1711607570195</Id>
+					<Name><![CDATA[switchApp4]]></Name>
+					<X>1130</X><Y>235</Y>
+					<Label><X>-40</X><Y>-30</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<ActiveObjectClass>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[SwitchApp]]></ClassName>
+					</ActiveObjectClass>
+					<GenericParameterSubstitute>
+						<GenericParameterSubstituteReference>
+							<PackageName><![CDATA[motmos_zd]]></PackageName>
+							<ClassName><![CDATA[SwitchApp]]></ClassName>
+							<ItemName><![CDATA[1707379259213]]></ItemName>
+						</GenericParameterSubstituteReference>
+					</GenericParameterSubstitute>
+					<Parameters>
+						<Parameter>
+							<Name><![CDATA[action]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.useTrack4a = !main.data.useTrack4a;
+main.setAvoidTracks();]]></Code>
+							</Value>
+						</Parameter>
+						<Parameter>
+							<Name><![CDATA[startParams]]></Name>
+							<Value Class="CodeValue">
+								<Code><![CDATA[main.data.useTrack4a]]></Code>
 							</Value>
 						</Parameter>
 					</Parameters>
@@ -23405,6 +23518,7 @@ combobox.setItems(mass);]]></Body>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
+					<Lock>true</Lock>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
 					<Z>0</Z>
@@ -25091,7 +25205,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Text>
 					<Id>1706024146252</Id>
 					<Name><![CDATA[text18]]></Name>
-					<X>710</X><Y>380</Y>
+					<X>710</X><Y>640</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25112,7 +25226,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Text>
 					<Id>1706024182459</Id>
 					<Name><![CDATA[text26]]></Name>
-					<X>710</X><Y>350</Y>
+					<X>710</X><Y>610</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25134,7 +25248,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				 	<EmbeddedIcon>false</EmbeddedIcon>				
 					<Id>1706024202282</Id>
 					<Name><![CDATA[combobox]]></Name>
-					<X>840</X><Y>380</Y>
+					<X>840</X><Y>640</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25155,7 +25269,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Text>
 					<Id>1706024213993</Id>
 					<Name><![CDATA[text27]]></Name>
-					<X>710</X><Y>420</Y>
+					<X>710</X><Y>680</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25195,10 +25309,10 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Text>
 					<Id>1707383595297</Id>
 					<Name><![CDATA[text41]]></Name>
-					<X>710</X><Y>230</Y>
+					<X>720</X><Y>460</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -25216,10 +25330,10 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Text>
 					<Id>1707386911296</Id>
 					<Name><![CDATA[text42]]></Name>
-					<X>710</X><Y>290</Y>
+					<X>720</X><Y>520</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -25238,7 +25352,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Group>
 					<Id>1707395442578</Id>
 					<Name><![CDATA[actionButton38]]></Name>
-					<X>1060.333</X><Y>396.333</Y>
+					<X>1060.333</X><Y>656.333</Y>
 					<Label><X>7.516</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25300,7 +25414,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Group>
 					<Id>1707395476080</Id>
 					<Name><![CDATA[actionButton39]]></Name>
-					<X>1186.334</X><Y>395.666</Y>
+					<X>1186.334</X><Y>655.666</Y>
 					<Label><X>7.516</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25362,7 +25476,7 @@ main.data.delayLoadingPipes8 = self.getValue();]]></ActionCode>
 				<Group>
 					<Id>1707399227696</Id>
 					<Name><![CDATA[group2]]></Name>
-					<X>921</X><Y>485</Y>
+					<X>921</X><Y>745</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -25951,7 +26065,7 @@ main.data.minWeightToArrive = self.getDoubleValue();]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["7"]]></DefaultValueCode>
+						<DefaultValueCode><![CDATA["1500"]]></DefaultValueCode>
 						<LinkTo>true</LinkTo>
 						<Link>main.data.minWeightToArrive</Link>
 					</ExtendedProperties>
@@ -26040,8 +26154,8 @@ main.data.minLengthToArrive = self.getDoubleValue();]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["7"]]></DefaultValueCode>
-						<LinkTo>true</LinkTo>
+						<DefaultValueCode><![CDATA["300"]]></DefaultValueCode>
+						<LinkTo>false</LinkTo>
 						<Link>main.data.minLengthToArrive</Link>
 					</ExtendedProperties>
 				</Control>
@@ -26129,7 +26243,7 @@ main.data.offsetTimeArrive = self.getDoubleValue();]]></ActionCode>
 					</BasicProperties>
 					<ExtendedProperties>
 						<Font Name="Dialog" Size="11" Style="0"/>
-						<DefaultValueCode><![CDATA["7"]]></DefaultValueCode>
+						<DefaultValueCode><![CDATA["4"]]></DefaultValueCode>
 						<LinkTo>true</LinkTo>
 						<Link>main.data.offsetTimeArrive</Link>
 					</ExtendedProperties>
@@ -26187,7 +26301,7 @@ main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
 				<Group>
 					<Id>1711003513943</Id>
 					<Name><![CDATA[groupSettings21]]></Name>
-					<X>280</X><Y>790</Y>
+					<X>280</X><Y>810</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -26276,7 +26390,7 @@ main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
 				<Group>
 					<Id>1711003518205</Id>
 					<Name><![CDATA[groupSettings22]]></Name>
-					<X>280</X><Y>840</Y>
+					<X>280</X><Y>860</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -26365,7 +26479,7 @@ main.data.offsetTimeArrive = self.getValue();]]></ActionCode>
 				<Image>
 					<Id>1711460894650</Id>
 					<Name><![CDATA[image]]></Name>
-					<X>1280</X><Y>375</Y>
+					<X>1280</X><Y>635</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -26386,6 +26500,27 @@ main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode
 					</ImageFiles>
 					<OriginalSize>false</OriginalSize>
 				</Image>
+				<Text>
+					<Id>1711607570191</Id>
+					<Name><![CDATA[text53]]></Name>
+					<X>710</X><Y>240</Y>
+					<Label><X>0</X><Y>-10</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<Rotation>0.0</Rotation>
+					<Color>-16777216</Color>
+					<Text><![CDATA[Использовать путь 4а]]></Text>
+					<Font>
+						<Name>Segoe UI</Name>
+						<Size>14</Size>
+						<Style>0</Style>
+					</Font>
+					<Alignment>LEFT</Alignment>
+				</Text>
 			</Presentation>
 
 				</Level>
@@ -27150,39 +27285,6 @@ main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1702736849005</Id>
-					<Name><![CDATA[connector31]]></Name>
-					<X>650</X><Y>610</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<SourceEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[trainMoveTo]]></ItemName>
-					</SourceEmbeddedObjectReference>
-					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
-						<ClassName><![CDATA[TrainMoveTo]]></ClassName>
-						<ItemName><![CDATA[in]]></ItemName>
-					</SourceConnectableItemReference>
-					<TargetEmbeddedObjectReference>
-						<PackageName><![CDATA[motmos_zd]]></PackageName>
-						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[enterPush]]></ItemName>
-					</TargetEmbeddedObjectReference>
-					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Enter]]></ClassName>
-						<ItemName><![CDATA[out]]></ItemName>
-					</TargetConnectableItemReference>
-					<Points>
-						<Point><X>0</X><Y>0</Y></Point>
-						<Point><X>-70</X><Y>0</Y></Point>
-					</Points>
-				</Connector>
-				<Connector>
 					<Id>1702736925642</Id>
 					<Name><![CDATA[connector15]]></Name>
 					<X>420</X><Y>610</Y>
@@ -27581,7 +27683,7 @@ main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1710248548141</Id>
+					<Id>1711611698998</Id>
 					<Name><![CDATA[connector]]></Name>
 					<X>0</X><Y>0</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -27591,11 +27693,11 @@ main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode
 					<SourceEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[exitPush]]></ItemName>
+						<ItemName><![CDATA[trainMoveTo]]></ItemName>
 					</SourceEmbeddedObjectReference>
 					<SourceConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
-						<ClassName><![CDATA[Exit]]></ClassName>
+						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
+						<ClassName><![CDATA[TrainMoveTo]]></ClassName>
 						<ItemName><![CDATA[in]]></ItemName>
 					</SourceConnectableItemReference>
 					<TargetEmbeddedObjectReference>
@@ -27609,12 +27711,12 @@ main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode
 						<ItemName><![CDATA[out]]></ItemName>
 					</TargetConnectableItemReference>
 					<Points>
-						<Point><X>830</X><Y>610</Y></Point>
-						<Point><X>780</X><Y>610</Y></Point>
+						<Point><X>690</X><Y>610</Y></Point>
+						<Point><X>660</X><Y>610</Y></Point>
 					</Points>
 				</Connector>
 				<Connector>
-					<Id>1710248548143</Id>
+					<Id>1711611699000</Id>
 					<Name><![CDATA[connector5]]></Name>
 					<X>0</X><Y>0</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -27634,16 +27736,49 @@ main.keyIndicators.locomotives.addAll(main.data.locosInStation);]]></OnClickCode
 					<TargetEmbeddedObjectReference>
 						<PackageName><![CDATA[motmos_zd]]></PackageName>
 						<ClassName><![CDATA[Logic]]></ClassName>
-						<ItemName><![CDATA[trainMoveTo]]></ItemName>
+						<ItemName><![CDATA[enterPush]]></ItemName>
 					</TargetEmbeddedObjectReference>
 					<TargetConnectableItemReference>
-						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
-						<ClassName><![CDATA[TrainMoveTo]]></ClassName>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Enter]]></ClassName>
 						<ItemName><![CDATA[out]]></ItemName>
 					</TargetConnectableItemReference>
 					<Points>
-						<Point><X>740</X><Y>610</Y></Point>
-						<Point><X>690</X><Y>610</Y></Point>
+						<Point><X>620</X><Y>610</Y></Point>
+						<Point><X>580</X><Y>610</Y></Point>
+					</Points>
+				</Connector>
+				<Connector>
+					<Id>1711611701573</Id>
+					<Name><![CDATA[connector6]]></Name>
+					<X>730</X><Y>610</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<SourceEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[trainMoveTo]]></ItemName>
+					</SourceEmbeddedObjectReference>
+					<SourceConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.rail]]></PackageName>
+						<ClassName><![CDATA[TrainMoveTo]]></ClassName>
+						<ItemName><![CDATA[out]]></ItemName>
+					</SourceConnectableItemReference>
+					<TargetEmbeddedObjectReference>
+						<PackageName><![CDATA[motmos_zd]]></PackageName>
+						<ClassName><![CDATA[Logic]]></ClassName>
+						<ItemName><![CDATA[exitPush]]></ItemName>
+					</TargetEmbeddedObjectReference>
+					<TargetConnectableItemReference>
+						<PackageName><![CDATA[com.anylogic.libraries.processmodeling]]></PackageName>
+						<ClassName><![CDATA[Exit]]></ClassName>
+						<ItemName><![CDATA[in]]></ItemName>
+					</TargetConnectableItemReference>
+					<Points>
+						<Point><X>0</X><Y>0</Y></Point>
+						<Point><X>100</X><Y>0</Y></Point>
 					</Points>
 				</Connector>
 			</Connectors>
@@ -30859,7 +30994,7 @@ traceln(yellow, "=========================");]]></Code>
 				<EmbeddedObject>
 					<Id>1703666286351</Id>
 					<Name><![CDATA[trainMoveTo]]></Name>
-					<X>650</X><Y>600</Y>
+					<X>690</X><Y>600</Y>
 					<Label><X>-20</X><Y>-25</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -31197,7 +31332,7 @@ delay.stopDelayForAll();]]></Code>
 				<EmbeddedObject>
 					<Id>1710248537693</Id>
 					<Name><![CDATA[delay1]]></Name>
-					<X>740</X><Y>590</Y>
+					<X>620</X><Y>590</Y>
 					<Label><X>-5</X><Y>-15</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -34712,7 +34847,7 @@ return count;]]></Body>
 					<X>950</X><Y>780</Y>
 					<Label><X>10</X><Y>10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -34722,7 +34857,7 @@ return count;]]></Body>
 					<LineColor>-16777216</LineColor>
 					<LineMaterial>null</LineMaterial>
 					<LineStyle>SOLID</LineStyle>
-					<Width>276</Width>
+					<Width>350</Width>
 					<Height>50</Height>
 					<Rotation>0.0</Rotation>
 					<FillColor>-1</FillColor>
@@ -35741,10 +35876,10 @@ return count;]]></Body>
 				<Text>
 					<Id>1707833327409</Id>
 					<Name><![CDATA[text254]]></Name>
-					<X>1220</X><Y>795</Y>
+					<X>1292</X><Y>795</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -36116,7 +36251,7 @@ return count;]]></Body>
 					<X>960.667</X><Y>794</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -36568,6 +36703,30 @@ return count;]]></Body>
 					<Dy>20</Dy>
 					<Dz>0</Dz>
 				</Line>
+				<Line>
+					<Id>1709759378108</Id>
+					<Name><![CDATA[line84]]></Name>
+					<X>380</X><Y>-10</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>true</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>false</ShowLabel>
+					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
+					<EmbeddedIcon>false</EmbeddedIcon>
+					<Z>0</Z>
+					<ZHeight>10</ZHeight>
+					<LineWidth>1</LineWidth>
+					<LineColor>-16777216</LineColor>
+					<LineMaterial>null</LineMaterial>
+					<LineStyle>SOLID</LineStyle>
+					<BeginArrowSize>1</BeginArrowSize>
+					<BeginArrowStyle>0</BeginArrowStyle>
+					<EndArrowSize>1</EndArrowSize>
+					<EndArrowStyle>0</EndArrowStyle>
+					<Dx>0</Dx>
+					<Dy>20</Dy>
+					<Dz>0</Dz>
+				</Line>
 			</Presentation>
 
 				</Group>
@@ -36580,7 +36739,7 @@ return count;]]></Body>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<YCode><![CDATA[540 + 20*index]]></YCode>
+					<YCode><![CDATA[560 + 20*index]]></YCode>
 					<ReplicationCode Class="CodeValue">
 						<Code><![CDATA[main.switches.size()]]></Code>
 					</ReplicationCode>
@@ -38712,30 +38871,6 @@ return count;]]></Body>
 					<Alignment>RIGHT</Alignment>
 				</Text>
 				<Line>
-					<Id>1709759378108</Id>
-					<Name><![CDATA[line84]]></Name>
-					<X>540</X><Y>890</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<EmbeddedIcon>false</EmbeddedIcon>
-					<Z>0</Z>
-					<ZHeight>10</ZHeight>
-					<LineWidth>1</LineWidth>
-					<LineColor>-16777216</LineColor>
-					<LineMaterial>null</LineMaterial>
-					<LineStyle>SOLID</LineStyle>
-					<BeginArrowSize>1</BeginArrowSize>
-					<BeginArrowStyle>0</BeginArrowStyle>
-					<EndArrowSize>1</EndArrowSize>
-					<EndArrowStyle>0</EndArrowStyle>
-					<Dx>0</Dx>
-					<Dy>20</Dy>
-					<Dz>0</Dz>
-				</Line>
-				<Line>
 					<Id>1709759393852</Id>
 					<Name><![CDATA[line85]]></Name>
 					<X>540</X><Y>870</Y>
@@ -39519,7 +39654,7 @@ return count;]]></Body>
 					<X>1130</X><Y>830</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
@@ -39543,7 +39678,7 @@ return count;]]></Body>
 					<X>950</X><Y>750</Y>
 					<Label><X>0</X><Y>-10</Y></Label>
 					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
+					<PresentationFlag>false</PresentationFlag>
 					<ShowLabel>false</ShowLabel>
 					<DrawMode>SHAPE_DRAW_2D</DrawMode>
 					<EmbeddedIcon>false</EmbeddedIcon>
